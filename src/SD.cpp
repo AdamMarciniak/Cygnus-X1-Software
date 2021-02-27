@@ -39,6 +39,7 @@ void writeHeader()
   file.print(F(",KI"));
   file.print(F(",KD"));
   file.print(F(",yServo"));
+  file.print(F(",pid_delta"));
   file.println();
 }
 //------------------------------------------------------------------------------
@@ -79,6 +80,8 @@ void logData()
   file.print(data.kd, numDecimals);
   file.write(',');
   file.print(data.servo_y, numDecimals);
+  file.write(',');
+  file.print(data.pid_delta, numDecimals);
   file.println();
 }
 

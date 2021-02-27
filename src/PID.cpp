@@ -1,12 +1,13 @@
 #include "PID.h"
 #include "Chrono.h"
 #include <Arduino.h>
+#include "Data.h"
 Chrono PIDTimer;
 
 PID::PID()
 {
   firstCompute = true;
-  setSetpoint(15.0f);
+  setSetpoint(0.0f);
 }
 
 void PID::setSetpoint(float setPt)
@@ -26,12 +27,13 @@ void PID::compute()
   {
     firstCompute = false;
     lastTime = micros();
+    lastError = 0.0
   }
   else
   {
     unsigned long now = micros();
     float timeChange = float((now - lastTime)) / 1000000.0f;
-
+    data.pid_delta = timeChange;
     /*Compute all the working error variables*/
     float error = Setpoint - Input;
     ITerm += (ki * error) * timeChange;
@@ -39,16 +41,16 @@ void PID::compute()
       ITerm = outMax;
     else if (ITerm < outMin)
       ITerm = outMin;
-    float dInput = (Input - lastInput) / timeChange;
+    float dErr = (error - lastError) / timeChange;
 
     /*Compute PID Output*/
-    Output = kp * error + ITerm - kd * dInput;
+    Output = kp * error + ITerm + kd * dErr;
     if (Output > outMax)
       Output = outMax;
     else if (Output < outMin)
       Output = outMin;
     /*Remember some variables for next time*/
-    lastInput = Input;
+    lastError = error;
     lastTime = now;
     Serial.print(timeChange, 6);
     Serial.print(" ");
@@ -56,7 +58,7 @@ void PID::compute()
     Serial.print(" ");
     Serial.print(error);
     Serial.print(" ");
-    Serial.print(dInput);
+    Serial.print(dErr);
     Serial.print(" ");
     Serial.println(ITerm);
   }

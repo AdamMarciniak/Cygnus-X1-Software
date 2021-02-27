@@ -1,100 +1,183 @@
 #include <Arduino.h>
 #include <Servo.h>
+#include "Data.h"
+#include "Nav.h"
+#include "Battery.h"
+#include "Chrono.h"
+#include "SD.h"
+#include "Data.h"
+#include "Buzzer.h"
+#include "PID.h"
 
-Servo zServo;
 Servo yServo;
+Servo zServo;
 
+bool goMode = false;
+bool writingMode = false;
+bool finishedWriting = false;
 
-#define SERVO_RANGE 20
-#define Z_CENTER 95
-#define Y_CENTER 102
-
-#define Z_MIN Z_CENTER - SERVO_RANGE
-#define Z_MAX Z_CENTER + SERVO_RANGE
-
-#define Y_MIN Y_CENTER - SERVO_RANGE
-#define Y_MAX Y_CENTER + SERVO_RANGE
-
+Chrono writeTimer;
+Chrono servoTimer;
+int servoFlag = 0;
+int writeSecond = 0;
 
 int z_val;
 int y_val;
 
-#define X_CENTER ;
-#define X_MAX ;
-#define X_MIN ;
+PID z_PID;
+PID y_PID;
+
+// Z YAW
+// Y PITCH
+
+#define SERVO_RANGE 20
+#define TVC_TO_SERVO_SCALE 4
+#define Y_CENTER 102
+#define Y_MAX Y_CENTER + SERVO_RANGE
+#define Y_MIN Y_CENTER - SERVO_RANGE
+
+
+#define Z_CENTER 95
+#define Z_MAX Z_CENTER + SERVO_RANGE
+#define Z_MIN Z_CENTER - SERVO_RANGE
+
+int y_max = Z_MAX;
+int y_min = Z_MIN;
+
+int getServoCommand(int tvcAngle) {
+  return tvcAngle * TVC_TO_SERVO_SCALE
+}
+
+#define Y_KP 0.1
+#define Y_KI 0.0
+#define Y_KD 0.1
+
+#define Z_KP 0.1
+#define Z_KI 0.0
+#define Z_KD 0.1
 
 void setup()
 {
   Serial.println(115200);
 
-  zServo.attach(SERVO1_PIN);
-  yServo.attach(SERVO2_PIN);
+  while (!Serial)
+    ;
+
+  delay(100);
+  initFlash();
+  Serial.println('Flash Initialized');
+
+  delay(100);
+  initBuzzer();
+  Serial.println('Buzzer Initialized');
+
+  Serial.print("Battery Voltage: ");
+  Serial.println(getBattVoltage());
+
+  Serial.println('Attaching servos to pins');
+  yServo.attach(SERVO1_PIN);
+  zServo.attach(SERVO2_PIN);
+
+  Serial.println('Centering Servos. Wait 2 seconds..');
+  yServo.write(Y_CENTER);
+  zServo.write(Z_CENTER);
+
+  delay(2000);
+
+  Serial.println('Setting PID Tunings');
+  z_PID.setTunings(Z_KP, Z_KI, Z_KD);
+  z_PID.setOutputLimits(Z_MIN, Z_MAX);
+  z_PID.setSetpoint(25.0);
+
+  y_PID.setTunings(Y_KP, Y_KI, Y_KD);
+  y_PID.setOutputLimits(Y_MIN, Y_MAX);
+  y_PID.setSetpoint(0);
+
+
+  initIMU();
+  delay(1000);
+  Serial.println('IMU INITIALIZED');
+
+  Serial.println("DONE SETUP");
 }
 
-void loop(){
+void loop()
+{
 
-yServo.write(Y_MAX);
-delay(100);
-zServo.write(Z_MAX);
-delay(100);
-yServo.write(Y_MIN);
-delay(100);
-zServo.write(Z_MIN);
-delay(100);
+  getYPR();
 
+  //yServo.write(map(data.yaw,-80, 80,Y_MIN,Y_MAX));
+  //zServo.write(map(data.pitch,-80, 80,Z_MIN,Z_MAX));
 
-//   while (Serial.available() > 0)
-//   {
-//     char c = Serial.read();
+  
+  while (Serial.available() > 0)
+  {
+    char c = Serial.read();
 
-//     if (c == '7')
-//     {
-//       z_val -= 5;
-//     }
+    if (c == 'z')
+    {
+      zeroGyroscope();
+    }
 
-//     if (c == '8')
-//     {
-//       z_val -= 1;
-//     }
+    if (c == 'g')
+    {
+      goMode = true;
+    }
 
-//     if (c == '9')
-//     {
-//       z_val += 1;
-//     }
+  }
 
-//     if (c == '0')
-//     {
-//       z_val += 5;
-//     }
+  if (goMode)
+  {
+    writingMode = true;
+    z_PID.setInput(data.yaw);
+    y_PID.setInput(data.pitch);
 
-//     if (c == '1')
-//     {
-//       y_val -= 5;
-//     }
+    z_PID.compute();
+    y_PID.compute();
 
-//     if (c == '2')
-//     {
-//       y_val -= 1;
-//     }
+    z_val = z_PID.Output;
+    y_val = y_PID.Output;
+    Serial.println(z_val);
+    zServo.write(z_val);
+    yServo.write(y_val);
 
-//     if (c == '3')
-//     {
-//       y_val += 1;
-//     }
+    data.servo_z = z_val;
+    data.servo_y = y_val;
+    data.kp = z_PID.kp;
+    data.ki = z_PID.ki;
+    data.kd = z_PID.kd;
 
-//     if (c == '4')
-//     {
-//       y_val += 5;
-//     }
+    if (writingMode == true)
+    {
+      if (!handleWriteFlash())
+      {
+        writingMode = false;
+        finishedWriting = true;
+      }
+      else
+      {
+        if (writeTimer.hasPassed(1000))
+        {
+          writeSecond += 1;
+          Serial.println(writeSecond);
+          writeTimer.restart();
+        }
+      }
+    }
+  }
 
-//     Serial.print("Y Val: ");
-//     Serial.print(y_val);
-//     Serial.print(" ");
-//     Serial.print("Z Val: ");
-//     Serial.print(z_val);
-//     Serial.println();
+  if (finishedWriting)
+  {
+    Serial.println("Writing to SD");
+    transferToSD();
+    buzzComplete();
+    Serial.println("SD writing complete");
+    while (1)
+      ;
+  }
 
-//     yServo.write(y_val);
-//     zServo.write(z_val);
-//   }
+  // Serial.print(data.yaw);
+  // Serial.print(" ");
+  // Serial.print(Output);
+  // Serial.println();
 }

@@ -19,7 +19,7 @@ public:
 private:
   unsigned long lastTime;
   float Input, Setpoint;
-  float ITerm, lastInput;
+  float ITerm, lastError;
   float outMin, outMax;
   bool firstCompute;
 };

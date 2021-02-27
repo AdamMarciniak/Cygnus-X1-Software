@@ -32,6 +32,7 @@ struct Data
   float kp;
   float ki;
   float kd;
+  float pid_delta
 };
 extern Data data;
 
