@@ -20,6 +20,8 @@ void PID::setInput(float inpt)
   Input = inpt;
 }
 
+
+
 void PID::compute()
 {
 
@@ -27,7 +29,7 @@ void PID::compute()
   {
     firstCompute = false;
     lastTime = micros();
-    lastError = 0.0
+    lastError = 0.0;
   }
   else
   {
@@ -52,15 +54,15 @@ void PID::compute()
     /*Remember some variables for next time*/
     lastError = error;
     lastTime = now;
-    Serial.print(timeChange, 6);
-    Serial.print(" ");
-    Serial.print(Input);
-    Serial.print(" ");
-    Serial.print(error);
-    Serial.print(" ");
-    Serial.print(dErr);
-    Serial.print(" ");
-    Serial.println(ITerm);
+    // Serial.print(timeChange, 6);
+    // Serial.print(" ");
+    // Serial.print(Input);
+    // Serial.print(" ");
+    // Serial.print(error);
+    // Serial.print(" ");
+    // Serial.print(dErr);
+    // Serial.print(" ");
+    // Serial.println(ITerm);
   }
 }
 

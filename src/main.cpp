@@ -44,17 +44,15 @@ PID y_PID;
 int y_max = Z_MAX;
 int y_min = Z_MIN;
 
-int getServoCommand(int tvcAngle) {
-  return tvcAngle * TVC_TO_SERVO_SCALE
-}
 
-#define Y_KP 0.1
+
+#define Y_KP 1.5
 #define Y_KI 0.0
-#define Y_KD 0.1
+#define Y_KD 0.9
 
-#define Z_KP 0.1
+#define Z_KP 1.5
 #define Z_KI 0.0
-#define Z_KD 0.1
+#define Z_KD 0.9
 
 void setup()
 {
@@ -65,29 +63,29 @@ void setup()
 
   delay(100);
   initFlash();
-  Serial.println('Flash Initialized');
+  Serial.println("Flash Initialized");
 
   delay(100);
   initBuzzer();
-  Serial.println('Buzzer Initialized');
+  Serial.println("Buzzer Initialized");
 
   Serial.print("Battery Voltage: ");
   Serial.println(getBattVoltage());
 
-  Serial.println('Attaching servos to pins');
+  Serial.println("Attaching servos to pins");
   yServo.attach(SERVO1_PIN);
   zServo.attach(SERVO2_PIN);
 
-  Serial.println('Centering Servos. Wait 2 seconds..');
+  Serial.println("Centering Servos. Wait 2 seconds..");
   yServo.write(Y_CENTER);
   zServo.write(Z_CENTER);
 
   delay(2000);
 
-  Serial.println('Setting PID Tunings');
+  Serial.println("Setting PID Tunings");
   z_PID.setTunings(Z_KP, Z_KI, Z_KD);
   z_PID.setOutputLimits(Z_MIN, Z_MAX);
-  z_PID.setSetpoint(25.0);
+  z_PID.setSetpoint(45.0);
 
   y_PID.setTunings(Y_KP, Y_KI, Y_KD);
   y_PID.setOutputLimits(Y_MIN, Y_MAX);
@@ -96,7 +94,7 @@ void setup()
 
   initIMU();
   delay(1000);
-  Serial.println('IMU INITIALIZED');
+  Serial.println("IMU INITIALIZED");
 
   Serial.println("DONE SETUP");
 }
@@ -138,8 +136,10 @@ void loop()
     z_val = z_PID.Output;
     y_val = y_PID.Output;
     Serial.println(z_val);
-    zServo.write(z_val);
+
+    zServo.write(Z_CENTER - (z_val - Z_CENTER ));
     yServo.write(y_val);
+    
 
     data.servo_z = z_val;
     data.servo_y = y_val;
