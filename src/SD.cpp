@@ -19,45 +19,50 @@ SdFat sd;
 // Log file.
 SdFile file;
 
+
+
 // Write data header.
 void writeHeader()
 {
-  file.print(F("lat"));
-  file.print(F(",lng"));
-  file.print(F(",altitude"));
-  file.print(F(",gpsAltitude"));
-  file.print(F(",hdop"));
-  file.print(F(",sats"));
+  file.print(F("ms"));
   file.print(F(",ax"));
   file.print(F(",ay"));
   file.print(F(",az"));
+  file.print(F(",gx"));
+  file.print(F(",gy"));
+  file.print(F(",gz"));
   file.print(F(",yaw"));
   file.print(F(",pitch"));
   file.print(F(",roll"));
+  file.print(F(",alitude"));
+  file.print(F(",altitude_bias"));
+  file.print(F(",state"));
   file.print(F(",zServo"));
-  file.print(F(",KP"));
-  file.print(F(",KI"));
-  file.print(F(",KD"));
   file.print(F(",yServo"));
-  file.print(F(",pid_delta"));
+  file.print(F(",KP_Y"));
+  file.print(F(",KI_Y"));
+  file.print(F(",KD_Y"));
+  file.print(F(",KP_Z"));
+  file.print(F(",KI_Z"));
+  file.print(F(",KD_Z"));
+  file.print(F(",pid_delta_y"));
+  file.print(F(",pid_delta_z"));
+  file.print(F(",p_err_y"));
+  file.print(F(",i_err_y"));
+  file.print(F(",d_err_y"));
+  file.print(F(",p_err_z"));
+  file.print(F(",i_err_z"));
+  file.print(F(",d_err_z"));
   file.println();
 }
+
+
 //------------------------------------------------------------------------------
 // Log a data record.
 void logData()
 {
   // Write data to file.  Start with log time in micros.
-  file.print(data.lat, numDecimals);
-  file.write(',');
-  file.print(data.lng, numDecimals);
-  file.write(',');
-  file.print(data.altitude, numDecimals);
-  file.write(',');
-  file.print(data.gpsAltitude, numDecimals);
-  file.write(',');
-  file.print(data.hdop, numDecimals);
-  file.write(',');
-  file.print(data.sats, numDecimals);
+  file.print(data.ms, numDecimals);
   file.write(',');
   file.print(data.ax, numDecimals);
   file.write(',');
@@ -65,23 +70,55 @@ void logData()
   file.write(',');
   file.print(data.az, numDecimals);
   file.write(',');
+  file.print(data.gx, numDecimals);
+  file.write(',');
+  file.print(data.gy, numDecimals);
+  file.write(',');
+  file.print(data.gz, numDecimals);
+  file.write(',');
   file.print(data.yaw, numDecimals);
   file.write(',');
   file.print(data.pitch, numDecimals);
   file.write(',');
   file.print(data.roll, numDecimals);
   file.write(',');
+  file.print(data.altitude, numDecimals);
+  file.write(',');
+  file.print(data.biasAltitude, numDecimals);
+  file.write(',');
+  file.print(data.state, numDecimals);
+  file.write(',');
   file.print(data.servo_z, numDecimals);
-  file.write(',');
-  file.print(data.kp, numDecimals);
-  file.write(',');
-  file.print(data.ki, numDecimals);
-  file.write(',');
-  file.print(data.kd, numDecimals);
   file.write(',');
   file.print(data.servo_y, numDecimals);
   file.write(',');
-  file.print(data.pid_delta, numDecimals);
+  file.print(data.kp_y, numDecimals);
+  file.write(',');
+  file.print(data.ki_y, numDecimals);
+  file.write(',');
+  file.print(data.kd_y, numDecimals);
+  file.write(',');
+  file.print(data.kp_z, numDecimals);
+  file.write(',');
+  file.print(data.ki_z, numDecimals);
+  file.write(',');
+  file.print(data.kd_z, numDecimals);
+  file.write(',');
+  file.print(data.pid_delta_y, numDecimals);
+  file.write(',');
+  file.print(data.pid_delta_z, numDecimals);
+  file.write(',');
+  file.print(data.p_err_y, numDecimals);
+  file.write(',');
+  file.print(data.i_err_y, numDecimals);
+  file.write(',');
+  file.print(data.d_err_y, numDecimals);
+  file.write(',');
+  file.print(data.p_err_z, numDecimals);
+  file.write(',');
+  file.print(data.i_err_z, numDecimals);
+  file.write(',');
+  file.print(data.d_err_z, numDecimals);
   file.println();
 }
 

@@ -1,0 +1,90 @@
+#include <Arduino.h>
+#include <Servo.h>
+
+Servo zServo;
+Servo yServo;
+
+int z_val;
+int y_val;
+
+#define SERVO_RANGE 20
+#define TVC_TO_SERVO_SCALE 4
+#define Y_CENTER 106
+#define Y_MAX Y_CENTER + SERVO_RANGE
+#define Y_MIN Y_CENTER - SERVO_RANGE
+
+
+#define Z_CENTER 93
+#define Z_MAX Z_CENTER + SERVO_RANGE
+#define Z_MIN Z_CENTER - SERVO_RANGE
+
+void setup()
+{
+  Serial.println(115200);
+
+  z_val = Z_CENTER;
+  y_val = Y_CENTER;
+
+  zServo.attach(SERVO1_PIN);
+  yServo.attach(SERVO2_PIN);
+  zServo.write(z_val);
+  yServo.write(y_val);
+  }
+
+void loop()
+{
+  while (Serial.available() > 0)
+  {
+    char c = Serial.read();
+
+    if (c == '7')
+    {
+      z_val -= 5;
+    }
+
+    if (c == '8')
+    {
+      z_val -= 1;
+    }
+
+    if (c == '9')
+    {
+      z_val += 1;
+    }
+
+    if (c == '0')
+    {
+      z_val += 5;
+    }
+
+    if (c == '1')
+    {
+      y_val -= 5;
+    }
+
+    if (c == '2')
+    {
+      y_val -= 1;
+    }
+
+    if (c == '3')
+    {
+      y_val += 1;
+    }
+
+    if (c == '4')
+    {
+      y_val += 5;
+    }
+
+    Serial.print("Y Val: ");
+    Serial.print(y_val);
+    Serial.print(" ");
+    Serial.print("Z Val: ");
+    Serial.print(z_val);
+    Serial.println();
+
+    yServo.write(y_val);
+    zServo.write(z_val);
+  }
+}

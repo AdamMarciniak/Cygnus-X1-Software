@@ -9,11 +9,6 @@ extern uint16_t millisPerSample;
 
 struct Data
 {
-  float lat;
-  float lng;
-  float hdop;
-  float sats;
-  float gpsAltitude;
   unsigned int ms;
   float ax;
   float ay;
@@ -29,10 +24,20 @@ struct Data
   int state;
   int servo_z;
   int servo_y;
-  float kp;
-  float ki;
-  float kd;
-  float pid_delta;
+  float kp_y;
+  float ki_y;
+  float kd_y;
+  float kp_z;
+  float ki_z;
+  float kd_z;
+  float pid_delta_y;
+  float pid_delta_z;
+  float p_err_y;
+  float i_err_y;
+  float d_err_y;
+  float p_err_z;
+  float i_err_z;
+  float d_err_z;
 };
 extern Data data;
 

@@ -20,7 +20,20 @@ void PID::setInput(float inpt)
   Input = inpt;
 }
 
+float PID::getPError()
+{
+  return error;
+}
 
+float PID::getDError()
+{
+  return dErr;
+}
+
+float PID::getIError()
+{
+  return ITerm;
+}
 
 void PID::compute()
 {
@@ -34,37 +47,29 @@ void PID::compute()
   else
   {
     unsigned long now = micros();
-    float timeChange = float((now - lastTime)) / 1000000.0f;
-    data.pid_delta = timeChange;
-    /*Compute all the working error variables*/
-    float error = Setpoint - Input;
-    ITerm += (ki * error) * timeChange;
+    deltaT = float((now - lastTime)) / 1000000.0f;
+    error = Setpoint - Input;
+    ITerm += (ki * error) * deltaT;
     if (ITerm > outMax)
       ITerm = outMax;
     else if (ITerm < outMin)
       ITerm = outMin;
-    float dErr = (error - lastError) / timeChange;
-
-    /*Compute PID Output*/
+    dErr = (error - lastError) / deltaT;
+   
     Output = kp * error + ITerm + kd * dErr;
     if (Output > outMax)
       Output = outMax;
     else if (Output < outMin)
       Output = outMin;
-    /*Remember some variables for next time*/
+
+
     lastError = error;
     lastTime = now;
-    // Serial.print(timeChange, 6);
-    // Serial.print(" ");
-    // Serial.print(Input);
-    // Serial.print(" ");
-    // Serial.print(error);
-    // Serial.print(" ");
-    // Serial.print(dErr);
-    // Serial.print(" ");
-    // Serial.println(ITerm);
+
   }
 }
+
+
 
 void PID::setTunings(float Kp, float Ki, float Kd)
 {

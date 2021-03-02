@@ -13,13 +13,17 @@ public:
   void incrementKP(float num);
   void incrementKI(float num);
   void incrementKD(float num);
+  float getPError();
+  float getDError();
+  float getIError();
   float Output;
   float kp, ki, kd;
 
 private:
   unsigned long lastTime;
   float Input, Setpoint;
-  float ITerm, lastError;
+  float ITerm, lastError, error, dErr;
+  float deltaT;
   float outMin, outMax;
   bool firstCompute;
 };
