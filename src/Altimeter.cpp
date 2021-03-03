@@ -30,11 +30,10 @@ bool initAltimeter()
   return true;
 }
 
-float handleAltitude()
+float getAltitude()
 {
   Altimeter.handleAltimeter();
-  data.altitude = rawAltitude - altitudeBias;
-  return data.altitude;
+  return rawAltitude - altitudeBias;
 }
 
 // Updates altitude bias value. This is blocking. Must wait a bit..
@@ -53,7 +52,6 @@ void getAltitudeBias()
       count += 1;
     }
   }
-  Serial.println();
-  Serial.print("Bias Val: ");
-  Serial.println(altitudeBias);
+  data.biasAltitude = altitudeBias;
+  return;
 }

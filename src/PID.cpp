@@ -35,6 +35,10 @@ float PID::getIError()
   return ITerm;
 }
 
+int PID::getOutput(){
+  return Output;
+}
+
 void PID::compute()
 {
 
@@ -56,10 +60,10 @@ void PID::compute()
       ITerm = outMin;
     dErr = (error - lastError) / deltaT;
    
-    Output = kp * error + ITerm + kd * dErr;
-    if (Output > outMax)
+    int temp = int(kp * error + ITerm + kd * dErr);
+    if (temp > outMax)
       Output = outMax;
-    else if (Output < outMin)
+    else if (temp < outMin)
       Output = outMin;
 
 
@@ -67,6 +71,7 @@ void PID::compute()
     lastTime = now;
 
   }
+  return;
 }
 
 
@@ -78,7 +83,7 @@ void PID::setTunings(float Kp, float Ki, float Kd)
   kd = Kd;
 }
 
-void PID::setOutputLimits(float Min, float Max)
+void PID::setOutputLimits(int Min, int Max)
 {
   if (Min > Max)
     return;

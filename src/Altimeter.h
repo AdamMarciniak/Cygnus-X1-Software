@@ -1,6 +1,6 @@
 #pragma once
 
 void getAltitudeBias();
-float handleAltitude();
+float getAltitude();
 bool initAltimeter();
 extern float altitude;

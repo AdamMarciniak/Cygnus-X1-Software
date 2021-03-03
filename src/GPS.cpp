@@ -25,11 +25,7 @@ void handleGPS()
       if (gps.location.isUpdated())
       {
         gpsReady = true;
-        data.lat = gps.location.lat();
-        data.lng = gps.location.lng();
-        data.gpsAltitude = gps.altitude.meters();
-        data.hdop = gps.hdop.hdop();
-        data.sats = gps.satellites.value();
+      
       }
     }
   }

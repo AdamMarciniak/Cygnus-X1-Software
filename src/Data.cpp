@@ -9,7 +9,7 @@ SPIFlash flash(SS_FLASH, &SPI2);
 Data data;
 
 uint16_t rateHz = 100;
-uint16_t numSeconds = 20;
+uint16_t numSeconds = 30;
 uint16_t millisPerSample = 1000 / rateHz;
 uint16_t totalSamples = rateHz * numSeconds;
 
@@ -78,7 +78,6 @@ bool readFromFlash()
     Serial.print(" ");
     Serial.println(read_addr);
     flash.readAnything(read_addr, data);
-    Serial.println(data.altitude);
 
     read_addr += addrStep;
     return true;

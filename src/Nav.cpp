@@ -140,6 +140,10 @@ void getYPR()
         omega[1] = gyro.getGyroY_rads() - g_bias[1];
         omega[2] = gyro.getGyroZ_rads() - g_bias[2];
 
+        data.gx = omega[0];
+        data.gy = omega[1];
+        data.gz = omega[2];
+
         q_body_mag = sqrt(sq(omega[0]) + sq(omega[1]) + sq(omega[2]));
         gyro_dt = ((gyro_current_time - gyro_past_time) / 1000000.0);
 

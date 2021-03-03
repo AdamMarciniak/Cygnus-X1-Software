@@ -8,6 +8,7 @@
 #include "Data.h"
 #include "Buzzer.h"
 #include "PID.h"
+#include "Altimeter.h"
 
 Servo yServo;
 Servo zServo;
@@ -18,6 +19,7 @@ bool finishedWriting = false;
 
 Chrono writeTimer;
 Chrono servoTimer;
+Chrono pidTimer;
 int servoFlag = 0;
 int writeSecond = 0;
 
@@ -43,17 +45,17 @@ PID y_PID;
 int y_max = Z_MAX;
 int y_min = Z_MIN;
 
-int z_val = Z_CENTER;
-int y_val = Y_CENTER;
+int z_val = 0;
+int y_val = 0;
 
 
 
 #define Y_KP 1.2
-#define Y_KI 0.2
+#define Y_KI 0.8
 #define Y_KD 0.9
 
-#define Z_KP 1.5
-#define Z_KI 0.0
+#define Z_KP 1.2
+#define Z_KI 0.8
 #define Z_KD 0.9
 
 unsigned long passed = 0;
@@ -66,7 +68,13 @@ void setup()
   // while (!Serial)
   //   ;
   initBuzzer();
-
+  data.state = 1;
+  data.kp_y = Y_KP;
+  data.ki_y = Y_KI;
+  data.kd_y = Y_KD;
+  data.kp_z = Z_KP;
+  data.ki_z = Z_KI;
+  data.kd_z = Z_KD;
   delay(5000);
   buzzStartup();
   initFlash();
@@ -100,9 +108,15 @@ void setup()
 
   initIMU();
   delay(1000);
+  initAltimeter();
+  
   Serial.println("IMU INITIALIZED");
 
   Serial.println("DONE SETUP");
+  buzzStartup();
+  delay(500);
+  buzzStartup();
+  delay(500);
   buzzStartup();
 
   delay(2000);
@@ -119,6 +133,16 @@ void loop()
 {
 
   getYPR();
+
+  data.p_err_y = y_PID.getPError();
+  data.i_err_y = y_PID.getIError();
+  data.d_err_y = y_PID.getDError();
+
+  data.p_err_z = z_PID.getPError();
+  data.i_err_z = z_PID.getIError();
+  data.d_err_z = z_PID.getDError();
+  data.servo_z = z_val;
+  data.servo_y = y_val;
 
   
   yServo.write(y_val);
@@ -146,34 +170,31 @@ void loop()
     passed = millis();
     writingMode = true;
 
-    if(t_ > 5000){
-        y_PID.setSetpoint(-20);
-    }
+
     if(t_ > 10000){
-        y_PID.setSetpoint(0);
+      y_PID.setSetpoint(0);
     }
-    z_PID.setInput(data.pitch);
-    y_PID.setInput(data.yaw);
+  
+    if(pidTimer.hasPassed(10)){
+      getAltitude();
+      z_PID.setInput(data.pitch);
+      y_PID.setInput(data.yaw);
 
-    z_PID.compute();
-    y_PID.compute();
+      z_PID.compute();
+      y_PID.compute();
 
-    z_val = z_PID.Output;
-    y_val = y_PID.Output;
+      z_val = z_PID.Output;
+      y_val = y_PID.Output;
+      
+    };
+    
 
     zServo.write(Z_CENTER + z_val);
     yServo.write(Y_CENTER - y_val);
     
-    data.servo_z = z_val;
-    data.servo_y = y_val;
+    
 
-    data.kp_y = y_PID.getPError();
-    data.ki_y = y_PID.getIError();
-    data.kd_y = y_PID.getDError();
-
-    data.kp_z = z_PID.getPError();
-    data.ki_z = z_PID.getIError();
-    data.kd_z = z_PID.getDError();
+    
 
     if (writingMode == true)
     {
