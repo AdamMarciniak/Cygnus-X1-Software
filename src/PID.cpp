@@ -53,7 +53,12 @@ void PID::compute()
     unsigned long now = micros();
     deltaT = float((now - lastTime)) / 1000000.0f;
     error = Setpoint - Input;
+    if(abs(error) < 5){
+      ki = 1;
+    };
+
     ITerm += (ki * error) * deltaT;
+    
     if (ITerm > outMax)
       ITerm = outMax;
     else if (ITerm < outMin)
@@ -61,10 +66,14 @@ void PID::compute()
     dErr = (error - lastError) / deltaT;
    
     int temp = int(kp * error + ITerm + kd * dErr);
-    if (temp > outMax)
+    if (temp > outMax){
       Output = outMax;
-    else if (temp < outMin)
+    }
+    else if (temp < outMin){
       Output = outMin;
+    } else {
+      Output = temp;
+    }
 
 
     lastError = error;

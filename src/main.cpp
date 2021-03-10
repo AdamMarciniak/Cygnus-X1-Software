@@ -51,11 +51,11 @@ int y_val = 0;
 
 
 #define Y_KP 1.2
-#define Y_KI 0.8
+#define Y_KI 0.4
 #define Y_KD 0.9
 
 #define Z_KP 1.2
-#define Z_KI 0.8
+#define Z_KI 0.3
 #define Z_KD 0.9
 
 unsigned long passed = 0;
@@ -65,8 +65,8 @@ void setup()
 {
   Serial.println(115200);
 
-  // while (!Serial)
-  //   ;
+  while (!Serial)
+    ;
   initBuzzer();
   data.state = 1;
   data.kp_y = Y_KP;
@@ -103,7 +103,7 @@ void setup()
 
   y_PID.setTunings(Y_KP, Y_KI, Y_KD);
   y_PID.setOutputLimits(-SERVO_RANGE, SERVO_RANGE);
-  y_PID.setSetpoint(30);
+  y_PID.setSetpoint(25);
 
 
   initIMU();
@@ -172,7 +172,7 @@ void loop()
 
 
     if(t_ > 10000){
-      y_PID.setSetpoint(0);
+      //y_PID.setSetpoint(0);
     }
   
     if(pidTimer.hasPassed(10)){
@@ -180,13 +180,18 @@ void loop()
       z_PID.setInput(data.pitch);
       y_PID.setInput(data.yaw);
 
+      
+
       z_PID.compute();
       y_PID.compute();
 
       z_val = z_PID.Output;
       y_val = y_PID.Output;
+      Serial.println(data.yaw);
       
     };
+
+    
     
 
     zServo.write(Z_CENTER + z_val);
