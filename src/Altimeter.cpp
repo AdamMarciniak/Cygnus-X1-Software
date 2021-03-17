@@ -15,12 +15,15 @@ bool initAltimeter()
   {
     return 0;
   }
+  Altimeter.setOSR(4096);
 
   while (rawAltitude == 0)
   {
     Altimeter.handleAltimeter();
+    delay(10);
   }
 
+  
   Serial.println();
   Serial.print("Init Raw Altitude: ");
   Serial.println(rawAltitude);
@@ -33,6 +36,7 @@ bool initAltimeter()
 float getAltitude()
 {
   Altimeter.handleAltimeter();
+  data.altitude = rawAltitude - altitudeBias;
   return rawAltitude - altitudeBias;
 }
 
@@ -44,6 +48,7 @@ void getAltitudeBias()
   while (count < biasCount)
   {
     int newData = Altimeter.handleAltimeter();
+    delay(10);
     if (newData == 1)
     {
       delay(10);

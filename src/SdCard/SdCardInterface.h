@@ -24,7 +24,7 @@
  */
 #ifndef SdCardInterface_h
 #define SdCardInterface_h
-#include "../common/BlockDeviceInterface.h"
+#include "./common/BlockDeviceInterface.h"
 #include "SdCardInfo.h"
 /**
  * \class SdCardInterface

@@ -1,0 +1,173 @@
+#include <Arduino.h>
+#include <Servo.h>
+#include "Altimeter.h"
+#include "Data.h"
+#include "Chrono.h"
+#include "Buzzer.h"
+#include "LED.h"
+#include "Nav.h"
+//#include "electricui.h"
+
+#define PARACHUTE_SERVO_DEPLOY 53
+#define PARACHUTE_SERVO_INIT 95
+#define WINDOW_SIZE 25
+int INDEX = 0;
+float VALUE = 0;
+float SUM = 0;
+float READINGS[WINDOW_SIZE];
+float AVERAGED = 0;
+
+float detect = 0;
+
+float maxAlt = 1.5;
+unsigned long startTime = 0;
+
+float alt;
+
+Servo parachuteServo;
+
+Chrono altitudeTimer;
+
+// void serial_write( uint8_t *data, uint16_t len )
+// {
+//   Serial.write( data, len ); //output on the main serial port
+// }
+
+// eui_interface_t serial_comms = EUI_INTERFACE(&serial_write);
+
+// void serial_rx_handler()
+// {
+//   // While we have data, we will pass those bytes to the ElectricUI parser
+//   while( Serial.available() > 0 )  
+//   {  
+//     eui_parse( Serial.read(), &serial_comms );  // Ingest a byte
+//   }
+// }
+
+// eui_message_t tracked_vars[] =
+// {
+//   EUI_FLOAT(  "alt",  alt ),
+//   EUI_FLOAT(  "ave",  AVERAGED ),
+//   EUI_FLOAT(  "det",  detect ),
+// };
+
+
+void setup()
+{
+  Serial.println(115200);
+
+  // eui_setup_interface(&serial_comms);
+
+  // // Provide the tracked variables to the library
+  // EUI_TRACK(tracked_vars);
+
+  // // Provide a identifier to make this board easy to find in the UI
+  // eui_setup_identifier("hello", 4);
+
+  //while(!Serial){};
+  initBuzzer();
+  delay(10);
+  initLED();
+  delay(10);
+  initAltimeter();
+  //initIMU();
+  alt = getAltitude();
+  Serial.print("Altitude: ");
+  Serial.println(alt);
+  delay(500);
+  // parachuteServo.attach(SERVO3_PIN);
+
+  // parachuteServo.write(PARACHUTE_SERVO_INIT);
+  
+
+  Serial.println(maxAlt);
+
+  int k = 0;
+  
+  while(k < 100){
+    delay(20);
+    getAltitude();
+    k ++;
+  }
+
+  Serial.println("ENTERING LOOP");
+  buzzComplete();
+
+}
+
+bool launched = false;
+bool freefall = false;
+bool apogee = false;
+int i = 0;
+
+
+void loop(){
+    //serial_rx_handler();  //check for new inbound data
+
+  //getAccel();
+  alt = getAltitude();
+ 
+
+//  if(data.ax > 20 && launched == false){
+//     launched = true;
+//     Serial.println("LAUNCHED");
+//     buzz1();
+//   }
+
+//   if(data.ax < 3  && launched == true && freefall == false){
+//     freefall = true;
+//     Serial.println("FREEFALL");
+//   }
+
+//   if(data.ax > 9  &&  data.ax < 10 && launched == true && freefall == true && apogee == true){
+//     launched = false;
+//     freefall = false;
+//     apogee = false;
+//     Serial.println("LANDED");
+//   }
+
+ 
+ 
+  if(altitudeTimer.hasPassed(50)){
+
+  SUM = SUM - READINGS[INDEX]; 
+  READINGS[INDEX] = alt; 
+  SUM = SUM + alt;
+  INDEX = (INDEX+1) % WINDOW_SIZE;
+  AVERAGED = SUM / WINDOW_SIZE;
+
+
+    detect = 0;
+    if(AVERAGED > 1){
+      launched = true;
+    }
+
+    if(maxAlt < AVERAGED){
+      maxAlt = AVERAGED;
+    } 
+
+    if(AVERAGED > (maxAlt - 0.1)){
+      startTime = millis();
+    }
+
+    if(millis() > (startTime + 100) && launched == true){
+      Serial.print(AVERAGED);
+      Serial.print("   APOGEE DETECTED     ");
+      Serial.println(maxAlt);
+      buzzStartup();
+      maxAlt = 1;
+      startTime = millis();
+      launched = false;
+      detect = 1;
+    }
+  
+
+    altitudeTimer.restart();
+  }
+
+  
+ 
+  
+  
+  
+}

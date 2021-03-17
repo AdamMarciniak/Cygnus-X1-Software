@@ -25,7 +25,7 @@
 #ifndef SdCardInfo_h
 #define SdCardInfo_h
 #include <stdint.h>
-#include "../common/SysCall.h"
+#include "./common/SysCall.h"
 // Based on the document:
 //
 // SD Specifications

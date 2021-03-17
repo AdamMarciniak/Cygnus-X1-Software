@@ -5,4 +5,5 @@ void initBuzzer();
 void buzzStartup();
 void buzzerError();
 void buzzComplete();
+void buzz1();
 #endif

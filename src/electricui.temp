@@ -1,0 +1,150 @@
+#include <Arduino.h>
+#include "Data.h"
+#include "Nav.h"
+#include "Chrono.h"
+#include "Altimeter.h"
+#include "electricui.h"
+
+#define RAD_TO_DEG 57.295779513082320876798154814105
+float angleX = 0;
+float angleY = 0;
+float angleZ = 0;
+
+float estX = 0;
+float estY = 0;
+float estZ = 0;
+
+void serial_write( uint8_t *data, uint16_t len )
+{
+  Serial.write( data, len ); //output on the main serial port
+}
+
+
+
+eui_interface_t serial_comms = EUI_INTERFACE(&serial_write);
+
+void serial_rx_handler()
+{
+  // While we have data, we will pass those bytes to the ElectricUI parser
+  while( Serial.available() > 0 )  
+  {  
+    eui_parse( Serial.read(), &serial_comms );  // Ingest a byte
+  }
+}
+
+eui_message_t tracked_vars[] =
+{
+  EUI_FLOAT(  "estX",  estX ),
+  EUI_FLOAT(  "estY",  estY ),
+  EUI_FLOAT( "estZ",   estZ ),
+  EUI_FLOAT(  "angleX",  angleX ),
+  EUI_FLOAT(  "angleY",  angleY ),
+  EUI_FLOAT( "angleZ",   angleZ )
+};
+
+void setup()
+{
+
+    Serial.begin(115200);
+
+
+  eui_setup_interface(&serial_comms);
+
+  // Provide the tracked variables to the library
+  EUI_TRACK(tracked_vars);
+
+  // Provide a identifier to make this board easy to find in the UI
+  eui_setup_identifier("hello", 5);
+
+
+ 
+
+  initIMU();
+  delay(1000);
+  //initAltimeter();
+  //delay(200);
+}
+
+Chrono IMUTimer;
+
+
+float prevestX = 0;
+float prevestY = 0;
+float prevestZ = 0;
+
+float delX = 0;
+float delY = 0;
+float delZ = 0;
+
+unsigned int currentTime;
+unsigned int prevTime = 0;
+float dt;
+boolean firstTime = true;
+
+void loop()
+{
+  serial_rx_handler();  //check for new inbound data
+  currentTime = micros();
+  dt = float((currentTime - prevTime)) / 1000000;
+  if(IMUTimer.hasPassed(10)){
+  getYPR();
+  getAccel();
+
+  if(firstTime != true){
+  delX = -data.roll - angleX;
+  delY = data.pitch - angleY;
+  delZ = data.yaw - angleZ;
+
+  estX = 0.02 * (- atan2(data.ay, data.az) * RAD_TO_DEG)  + 0.98 * (estX + delX * dt);
+  estY = 0.02 * (- atan2(data.az, data.ax) * RAD_TO_DEG)  + 0.98 * (estY + delY * dt);
+  estZ = 0.02 * (- atan2(data.ay, data.ax) * RAD_TO_DEG)  + 0.98 * (estZ + delZ * dt);
+
+
+  angleX = - data.roll; 
+  angleY = data.pitch;
+  angleZ = data.yaw;
+
+  } else {
+    firstTime = false;
+  }
+  prevTime = currentTime;
+
+
+
+  
+
+  // Serial.print(data.ax);
+  // Serial.print(" ");
+  // Serial.print(data.ay);
+  // Serial.print(" ");
+  // Serial.print(data.az);
+  // Serial.print(" ");
+  // Serial.print(data.yaw);
+  // Serial.print(" ");
+  // Serial.print(data.pitch);
+  // Serial.print(" ");
+  // Serial.print(data.roll);
+  // Serial.print(" ");
+  // Serial.print(dt,10);
+  // Serial.print(" ");
+  // Serial.print(estX);
+  // Serial.print(" ");
+  // Serial.print(estY);
+  // Serial.print(" ");
+  // Serial.println(estZ);
+  // IMUTimer.restart();
+  }
+
+  
+
+  
+
+  
+  
+
+
+  
+    
+
+
+}

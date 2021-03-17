@@ -29,8 +29,8 @@
  * \brief FsBaseFile include file.
  */
 #include "FsNew.h"
-#include "FatLib/FatLib.h"
-#include "ExFatLib/ExFatLib.h"
+#include "../FatLib/FatLib.h"
+#include "../ExFatLib/ExFatLib.h"
 /**
  * \class FsBaseFile
  * \brief FsBaseFile class.

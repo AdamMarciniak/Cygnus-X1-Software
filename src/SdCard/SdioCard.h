@@ -24,7 +24,7 @@
  */
 #ifndef SdioCard_h
 #define SdioCard_h
-#include "../common/SysCall.h"
+#include "./common/SysCall.h"
 #include "SdCardInterface.h"
 
 #define FIFO_SDIO 0
