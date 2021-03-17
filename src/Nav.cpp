@@ -42,6 +42,7 @@ float worldAccelArray[4] = {0,0,0,0};
 float worldAccelAngles[3] = {0, 0, 0};
 
 
+
 void zeroGyroscope()
 {
     q_gyro[0] = 0;
@@ -88,6 +89,13 @@ void getGyroBiases()
     g_bias[0] /= (float)averageAmount;
     g_bias[1] /= (float)averageAmount;
     g_bias[2] /= (float)averageAmount;
+
+    Serial.print(g_bias[0],8);
+    Serial.print(" ");
+    Serial.print(g_bias[1],8);
+    Serial.print(" ");
+    Serial.print(g_bias[2],8);
+    Serial.println(" ");
 }
 
 bool initIMU()
@@ -102,8 +110,14 @@ bool initIMU()
     }
     Serial.println("Getting Gyro Biases...");
     zeroGyroscope();
-    getGyroBiases();
+    //getGyroBiases();
+    g_bias[0] = 0.004;
+    g_bias[1] = -0.0009;
+    g_bias[2] = 0.00001;
     zeroGyroscope();
+    data.worldVx = 0;
+    data.worldVy = 0;
+    data.worldVz = 0;
     return 1;
 }
 
@@ -173,48 +187,22 @@ void getYPR()
         q_body[3] = q_gyro[0] * q[3] + q_gyro[1] * q[2] - q_gyro[2] * q[1] + q_gyro[3] * q[0];
 
         
+        // For getting world frame acceleration
         float norm = sqrtf(powf(omega[2], 2) + powf(omega[1], 2) + powf(omega[0], 2));
         norm = copysignf(max(abs(norm), 1e-9), norm); // NO DIVIDE BY 0
-
         orientation *= from_axis_angle(gyro_dt * norm, omega[0] / norm, omega[1] / norm, omega[2] / norm);
-
         localAccelQuat = Quaternion(0, data.ax, data.ay, data.az);
         worldAccelQuat = orientation.rotate(localAccelQuat);
-
-        Serial.print(" ");
-        Serial.print(worldAccelQuat.b);
-        Serial.print(" ");
-        Serial.print(worldAccelQuat.c);
-        Serial.print(" ");
-        Serial.print(worldAccelQuat.d);
-        // Serial.print(" ");
-        // Serial.print(orientation.a);
-        // Serial.print(" ");
-        // Serial.print(orientation.b);
-        // Serial.print(" ");
-        // Serial.print(orientation.c);
-        // Serial.print(" ");
-        // Serial.print(orientation.d);
-        // Serial.print(" ");
-        // Serial.print(localAccelQuat.a);
-        // Serial.print(" ");
-        // Serial.print(localAccelQuat.b);
-        // Serial.print(" ");
-        // Serial.print(localAccelQuat.c);
-        // Serial.print(" ");
-        // Serial.print(localAccelQuat.d);
-        Serial.println();
-
-
-
         data.worldAx = worldAccelQuat.b;
         data.worldAy = worldAccelQuat.c;
         data.worldAz = worldAccelQuat.d;
 
-        // quatToEuler(q_body, ypr);
-        // data.yaw = ypr[0];
-        // data.pitch = ypr[1];
-        // data.roll = ypr[2];
+       
+
+        quatToEuler(q_body, ypr);
+        data.yaw = ypr[0];
+        data.pitch = ypr[1];
+        data.roll = ypr[2];
     }
     first_gyro_reading = false;
     gyro_past_time = gyro_current_time;

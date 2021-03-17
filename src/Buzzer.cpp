@@ -24,6 +24,17 @@ void buzzStartup()
   analogWrite(BUZZER_PIN, 0);
 }
 
+void buzzLongs()
+{
+  analogWrite(BUZZER_PIN, 150);
+  delay(1000);
+  analogWrite(BUZZER_PIN, 0);
+  delay(50);
+  analogWrite(BUZZER_PIN, 150);
+  delay(1000);
+  analogWrite(BUZZER_PIN, 0);
+}
+
 void buzz1()
 {
   analogWrite(BUZZER_PIN, 150);

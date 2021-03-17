@@ -9,7 +9,7 @@ SPIFlash flash(SS_FLASH, &SPI2);
 Data data;
 
 uint16_t rateHz = 100;
-uint16_t numSeconds = 10;
+uint16_t numSeconds = 15;
 uint16_t millisPerSample = 1000 / rateHz;
 uint16_t totalSamples = rateHz * numSeconds;
 
