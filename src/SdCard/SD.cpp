@@ -28,6 +28,9 @@ void writeHeader()
   file.print(F(",ax"));
   file.print(F(",ay"));
   file.print(F(",az"));
+  file.print(F(",worldAx"));
+  file.print(F(",worldAy"));
+  file.print(F(",worldAz"));
   file.print(F(",gx"));
   file.print(F(",gy"));
   file.print(F(",gz"));
@@ -69,6 +72,12 @@ void logData()
   file.print(data.ay, numDecimals);
   file.write(',');
   file.print(data.az, numDecimals);
+  file.write(',');
+  file.print(data.worldAx, numDecimals);
+  file.write(',');
+  file.print(data.worldAy, numDecimals);
+  file.write(',');
+  file.print(data.worldAz, numDecimals);
   file.write(',');
   file.print(data.gx, numDecimals);
   file.write(',');

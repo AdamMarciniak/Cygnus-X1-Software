@@ -51,7 +51,7 @@ float alt = 0;
 void loop()
 {
 
-    writingMode = true;
+    writingMode = false;
 
     getAltitude();
 
@@ -60,11 +60,11 @@ void loop()
       getAccel();
       alt = getAltitude();
 
-      // Serial.print(data.ax);
+      // Serial.print(data.worldAx);
       // Serial.print(" ");
-      // Serial.print(data.ay);
+      // Serial.print(data.worldAy);
       // Serial.print(" ");
-      // Serial.print(data.az);
+      // Serial.println(data.worldAz);
       // Serial.print(" ");
       // Serial.print(data.roll);
       // Serial.print(" ");

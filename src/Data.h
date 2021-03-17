@@ -13,6 +13,9 @@ struct Data
   float ax;
   float ay;
   float az;
+  float worldAx;
+  float worldAy;
+  float worldAz;
   float gx;
   float gy;
   float gz;

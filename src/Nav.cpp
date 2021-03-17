@@ -3,7 +3,7 @@
 #include "libraries/BMI088.h"
 #include "Nav.h"
 #include "Data.h"
-
+#include "Quaternion.h"
 Bmi088Accel accel(Wire, 0x18);
 Bmi088Gyro gyro(Wire, 0x68);
 
@@ -34,6 +34,13 @@ bool firstAccelReading = true;
 float accel_dt = 0;
 unsigned long accel_current_time = 0;
 unsigned long accel_past_time = 0;
+
+Quaternion localAccelQuat;
+Quaternion worldAccelQuat;
+Quaternion orientation(1,0,0,0);
+float worldAccelArray[4] = {0,0,0,0};
+float worldAccelAngles[3] = {0, 0, 0};
+
 
 void zeroGyroscope()
 {
@@ -128,6 +135,8 @@ void getAccel()
     accel_past_time = accel_current_time;
 }
 
+
+
 void getYPR()
 {
     gyro_current_time = micros();
@@ -163,10 +172,49 @@ void getYPR()
         q_body[2] = q_gyro[0] * q[2] - q_gyro[1] * q[3] + q_gyro[2] * q[0] + q_gyro[3] * q[1];
         q_body[3] = q_gyro[0] * q[3] + q_gyro[1] * q[2] - q_gyro[2] * q[1] + q_gyro[3] * q[0];
 
-        quatToEuler(q_body, ypr);
-        data.yaw = ypr[0];
-        data.pitch = ypr[1];
-        data.roll = ypr[2];
+        
+        float norm = sqrtf(powf(omega[2], 2) + powf(omega[1], 2) + powf(omega[0], 2));
+        norm = copysignf(max(abs(norm), 1e-9), norm); // NO DIVIDE BY 0
+
+        orientation *= from_axis_angle(gyro_dt * norm, omega[0] / norm, omega[1] / norm, omega[2] / norm);
+
+        localAccelQuat = Quaternion(0, data.ax, data.ay, data.az);
+        worldAccelQuat = orientation.rotate(localAccelQuat);
+
+        Serial.print(" ");
+        Serial.print(worldAccelQuat.b);
+        Serial.print(" ");
+        Serial.print(worldAccelQuat.c);
+        Serial.print(" ");
+        Serial.print(worldAccelQuat.d);
+        // Serial.print(" ");
+        // Serial.print(orientation.a);
+        // Serial.print(" ");
+        // Serial.print(orientation.b);
+        // Serial.print(" ");
+        // Serial.print(orientation.c);
+        // Serial.print(" ");
+        // Serial.print(orientation.d);
+        // Serial.print(" ");
+        // Serial.print(localAccelQuat.a);
+        // Serial.print(" ");
+        // Serial.print(localAccelQuat.b);
+        // Serial.print(" ");
+        // Serial.print(localAccelQuat.c);
+        // Serial.print(" ");
+        // Serial.print(localAccelQuat.d);
+        Serial.println();
+
+
+
+        data.worldAx = worldAccelQuat.b;
+        data.worldAy = worldAccelQuat.c;
+        data.worldAz = worldAccelQuat.d;
+
+        // quatToEuler(q_body, ypr);
+        // data.yaw = ypr[0];
+        // data.pitch = ypr[1];
+        // data.roll = ypr[2];
     }
     first_gyro_reading = false;
     gyro_past_time = gyro_current_time;
