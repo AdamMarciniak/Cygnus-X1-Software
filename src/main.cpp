@@ -22,7 +22,7 @@ int writeSecond = 0;
 
 float alt = 0;
 boolean flight = false;
-float aveAccel = 0;
+float measuredGravity = 0;
 unsigned long ind = 0;
 
 Servo parachuteServo;
@@ -57,10 +57,10 @@ void setup()
       getAccel();
       getYPR();
       
-      aveAccel += data.worldAx / 200;
+      measuredGravity += data.worldAx / 200;
       Serial.print(data.worldAx);
       Serial.print(" ");
-      Serial.println(aveAccel);
+      Serial.println(measuredGravity);
       ind += 1;
       gravityTimer.restart();
     }
@@ -88,7 +88,7 @@ void loop()
 
 
     if(flight == true){
-      if(data.worldVx <= 0){
+      if(data.worldVx <= 0.2){
         buzzStartup();
         parachuteServo.write(PARACHUTE_SERVO_DEPLOY);
         flight = false;
@@ -102,7 +102,7 @@ void loop()
       getAltitude();
 
     
-      data.worldVx += (data.worldAx - aveAccel) * 0.010;
+      data.worldVx += (data.worldAx - measuredGravity) * 0.010;
 
     };
 
@@ -133,7 +133,7 @@ void loop()
     transferToSD();
     buzzComplete();
     Serial.println("SD writing complete");
-    Serial.println(aveAccel, 8);
+    Serial.println(measuredGravity, 8);
     while (1)
       ;
   }
