@@ -27,6 +27,7 @@ struct Data
   float roll;
   float altitude;
   float biasAltitude;
+  int btleCmd;
   // int state;
   // int servo_z;
   // int servo_y;

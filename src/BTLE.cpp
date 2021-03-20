@@ -1,14 +1,12 @@
 
 #include <SPI.h>
-#include <lib_aci.h>
-#include <aci_setup.h>
-#include "uart_over_ble.h"
-#include "Servo.h"
+#include <./bluetooth/lib_aci.h>
+#include <./bluetooth/aci_setup.h>
+#include "./bluetooth/uart_over_ble.h"
+#include "Data.h"
 
-#include "services.h"
-
-#define PARACHUTE_SERVO_DEPLOY 53
-#define PARACHUTE_SERVO_INIT 95
+#include "./bluetooth/services.h"
+#include "BTLE.h"
 
 #ifdef SERVICES_PIPE_TYPE_MAPPING_CONTENT
 static services_pipe_type_mapping_t
@@ -42,6 +40,9 @@ static uint8_t uart_buffer[20];
 static uint8_t uart_buffer_len = 0;
 static uint8_t dummychar = 0;
 
+bool stringComplete = false; // whether the string is complete
+uint8_t stringIndex = 0;     //Initialize the index to store incoming chars
+
 /*
 Initialize the radio_ack. This is the ack received for every transmitted packet.
 */
@@ -69,42 +70,8 @@ See section 20.4.1 -> Opening a Transmit pipe
 In the master control panel, clicking Enable Services will open all the pipes on the nRF8001.
 The ACI Evt Data Credit provides the radio level ack of a transmitted packet.
 */
-void setup(void)
-{
-  Serial.begin(115200);
-//Wait until the serial port is available (useful only for the Leonardo)
-//As the Leonardo board is not reseted every time you open the Serial Monitor
-#if defined(__AVR_ATmega32U4__)
-  while (!Serial)
-  {
-  }
-  delay(5000); //5 seconds delay for enabling to see the start up comments on the serial board
-#elif defined(__PIC32MX__)
-  delay(1000);
-#endif
 
-  Serial.println(F("Arduino setup"));
-  Serial.println(F("Set line ending to newline to send data from the serial monitor"));
-
-  /**
-  Point ACI data structures to the the setup data that the nRFgo studio generated for the nRF8001
-  */
-  if (NULL != services_pipe_type_mapping)
-  {
-    aci_state.aci_setup_info.services_pipe_type_mapping = &services_pipe_type_mapping[0];
-  }
-  else
-  {
-    aci_state.aci_setup_info.services_pipe_type_mapping = NULL;
-  }
-  aci_state.aci_setup_info.number_of_pipes = NUMBER_OF_PIPES;
-  aci_state.aci_setup_info.setup_msgs = setup_msgs;
-  aci_state.aci_setup_info.num_setup_msgs = NB_SETUP_MESSAGES;
-
-  /*
-  Tell the ACI library, the MCU to nRF8001 pin connections.
-  The Active pin is optional and can be marked UNUSED
-  */
+void initPins() {
   aci_state.aci_pins.board_name = BOARD_DEFAULT; //See board.h for details REDBEARLAB_SHIELD_V1_1 or BOARD_DEFAULT
   aci_state.aci_pins.reqn_pin = REQN_BT;         //SS for Nordic board, 9 for REDBEARLAB_SHIELD_V1_1
   aci_state.aci_pins.rdyn_pin = RDYN_BT;         //3 for Nordic board, 8 for REDBEARLAB_SHIELD_V1_1
@@ -121,6 +88,25 @@ void setup(void)
 
   aci_state.aci_pins.interface_is_interrupt = false; //Interrupts still not available in Chipkit
   aci_state.aci_pins.interrupt_number = 1;
+}
+
+void initBluetooth() {
+  /**
+  Point ACI data structures to the the setup data that the nRFgo studio generated for the nRF8001
+  */
+  if (NULL != services_pipe_type_mapping)
+  {
+    aci_state.aci_setup_info.services_pipe_type_mapping = &services_pipe_type_mapping[0];
+  }
+  else
+  {
+    aci_state.aci_setup_info.services_pipe_type_mapping = NULL;
+  }
+  aci_state.aci_setup_info.number_of_pipes = NUMBER_OF_PIPES;
+  aci_state.aci_setup_info.setup_msgs = setup_msgs;
+  aci_state.aci_setup_info.num_setup_msgs = NB_SETUP_MESSAGES;
+
+  initPins();
 
   //We reset the nRF8001 here by toggling the RESET line connected to the nRF8001
   //If the RESET line is not available we call the ACI Radio Reset to soft reset the nRF8001
@@ -129,10 +115,8 @@ void setup(void)
   lib_aci_init(&aci_state, false);
   Serial.println(F("Set up done"));
 
-  parachuteServo.attach(SERVO3_PIN);
-  parachuteServo.write(PARACHUTE_SERVO_DEPLOY);
-
 }
+
 
 void uart_over_ble_init(void)
 {
@@ -229,7 +213,7 @@ bool uart_process_control_point_rx(uint8_t *byte, uint8_t length)
   return status;
 }
 
-void aci_loop()
+void checkBTLE()
 {
   static bool setup_required = false;
 
@@ -346,12 +330,8 @@ void aci_loop()
         Serial.print(F(" Data(Hex) : "));
         for (int i = 0; i < aci_evt->len - 2; i++)
         {
-          if(aci_evt->params.data_received.rx_data.aci_data[i] == 'd'){
-            parachuteServo.write(PARACHUTE_SERVO_DEPLOY);
-          }
-
-          if(aci_evt->params.data_received.rx_data.aci_data[i] == 'i'){
-            parachuteServo.write(PARACHUTE_SERVO_INIT);
+          if(aci_evt->params.data_received.rx_data.aci_data[i] == 'z'){
+            data.btleCmd = 1;
           }
           Serial.print((char)aci_evt->params.data_received.rx_data.aci_data[i]);
           uart_buffer[i] = aci_evt->params.data_received.rx_data.aci_data[i];
@@ -433,16 +413,6 @@ void aci_loop()
       setup_required = false;
     }
   }
-}
-
-bool stringComplete = false; // whether the string is complete
-uint8_t stringIndex = 0;     //Initialize the index to store incoming chars
-
-void loop()
-{
-
-  //Process any ACI commands or events
-  aci_loop();
 
   // print the string when a newline arrives:
   if (stringComplete)
@@ -467,14 +437,11 @@ void loop()
     stringIndex = 0;
     stringComplete = false;
   }
-//For ChipKit you have to call the function that reads from Serial
-#if defined(__PIC32MX__)
-  if (Serial.available())
-  {
-    serialEvent();
-  }
-#endif
 }
+
+
+
+
 
 /*
  COMMENT ONLY FOR ARDUINO
