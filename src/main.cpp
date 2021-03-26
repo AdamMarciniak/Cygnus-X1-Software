@@ -7,215 +7,336 @@
 #include "Buzzer.h"
 #include "Altimeter.h"
 #include <Servo.h>
-#include "electricui.h"
 #include "BTLE.h"
+#include "LED.h"
+#include "States.h"
+#include <avr/dtostrf.h>
 
 
-#define PARACHUTE_SERVO_DEPLOY 53
-#define PARACHUTE_SERVO_INIT 95
+Chrono telemetryTimer;
+
+#define PARACHUTE_ALTITUDE_THRESHOLD 30.0f // meters
+#define ABORT_ANGLE_THRESHOLD 30.0f // degrees
+#define ACCEL_UNPOWERED_THRESHOLD 2.0f //m/s^2
+#define TELEMETRY_RATE 100 // ms
+#define FIRE_ON_TIME 2000 // ms
+#define FIRE_TO_PID_DELAY 500 //ms
+#define POWERED_FLIGHT_SAFETY_TIME 4000 //ms
+#define UNPOWERED_ASCENT_SAFETY_TIME_LIMIT 2000 // ms
+#define FREE_DESCENT_SAFETY_TIME_LIMIT 1000  // ms
+
+float accelMag = 0;
+
+bool flashWriteStatus = false;
+
+
+void handleSendTelemetry() {
+   if(telemetryTimer.hasPassed(TELEMETRY_RATE)){
+    char yawBuff[8]; // Buffer big enough for 7-character float
+    dtostrf(data.yaw, 6, 2, yawBuff); // Leave room for too large numbers!
+    char pitchBuff[8]; // Buffer big enough for 7-character float
+    dtostrf(data.pitch, 6, 2, pitchBuff); // Leave room for too large numbers!
+    char message[50];
+    
+    strcpy(message, "y:");
+    strcat(message, yawBuff);
+    strcat(message, " p:");
+    strcat(message, pitchBuff);
+    Serial.println(message);
+    sendTelemetry(message);
+    telemetryTimer.restart();
+  }
+}
+
+void initServos() {
+
+  // Attach servos
+  // Write centers to servos
+}
+
+void initStatusVariables(){
+    nonLoggedData.servoCentersAvailable = false;
+    nonLoggedData.zeroGyrosStatus = false;
+}
+
+unsigned long timer = 0;
+
+void checkAngleThreshold() {
+  if(abs(data.yaw) >= ABORT_ANGLE_THRESHOLD || abs(data.pitch) >= ABORT_ANGLE_THRESHOLD){
+    Serial.println("Angle Past Limit");
+    currentState = ABORT;
+  }
+
+}
+
+unsigned long fireTime = 0; // millis
+bool firingStatus = false;
+float launchAccelThreshold = 13; // m/s^2
+bool PIDStatus = false;
+bool gyroZeroStatus = false;
+unsigned long landingTimer = 0;
+bool landingWait = false;
+
+
+void handleServoCentering() {
+  if(nonLoggedData.servoCentersAvailable == true){
+    nonLoggedData.servoCentersAvailable = false;
+    Serial.print("Writing To servos");
+    Serial.print("   Y: ");
+    Serial.print(data.Y_Servo_Center);
+    Serial.print("   Z: ");
+    Serial.println(data.Z_Servo_Center);
+    // Write new center values to servos
+  }
+}
 
 bool writingMode = false;
 bool finishedWriting = false;
 
-Chrono writeTimer;
-Chrono dataTimer;
-Chrono gravityTimer;
-int servoFlag = 0;
-int writeSecond = 0;
+void setup(){
 
-float alt = 0;
-boolean flight = false;
-float measuredGravity = 0;
-unsigned long ind = 0;
-float gravMag = 0;
-Servo parachuteServo;
-
-float pos = 0;
-float prevPos = 0;
-float compPos = 0;
-float prevCompPos = 0;
-float compVel = 0;
-
-
-
-void serial_write( uint8_t *data, uint16_t len )
-{
-  Serial.write( data, len ); //output on the main serial port
-}
-
-
-
-eui_interface_t serial_comms = EUI_INTERFACE(&serial_write);
-
-void serial_rx_handler()
-{
-  // While we have data, we will pass those bytes to the ElectricUI parser
-  while( Serial.available() > 0 )  
-  {  
-    eui_parse( Serial.read(), &serial_comms );  // Ingest a byte
-  }
-}
-
-
-
-eui_message_t tracked_vars[] =
-{
-  EUI_FLOAT(  "worldVx",  data.worldVx ),
-  EUI_FLOAT(  "worldAx",  data.worldAx ),
-  EUI_FLOAT(  "baro",  data.altitude ),
-  EUI_FLOAT(  "pos",  pos ),
-  EUI_FLOAT(  "compPos",  compPos ),
-  EUI_FLOAT(  "compVel",  compVel ),
-};
-
-
-void setup()
-{
-  Serial.println(115200);
-
+  initStatusVariables();
+   // Attach servos and center them 
+  initServos();
   initBuzzer();
-  data.btleCmd = 0;
- 
-  delay(3000);
+  delay(10);
+  buzzStartup();
   initBluetooth();
 
-  buzzStartup();
   initFlash();
-  Serial.println("Flash Initialized");
+  initSD();
+
+ // Initialize all sensors and stuff.
+ // Put state into error if not all good.
+
+  // Init IMU, Altimeter, Gyros, Buzzer,
+  if(!initIMU()){
+    Serial.println("Error init IMU");
+    currentState = ERROR;
+  };
+  if(!initAltimeter()){
+    Serial.println("Error init altimeter");
+    currentState = ERROR;
+  };
+  
+  // Initialize PID classes
+  delay(1000);
+  // Put state into IDLE when finished if all good.
+  Serial.println("Setup Success. Entering Loop");
+  currentState = IDLE;
+}
+
+unsigned long poweredFlightSafetyTime = 0;
+unsigned long unpoweredAscentSafetyTime = 0;
+unsigned long freeDescentSafetyTime = 0;
+
+void loop() {
+
+  checkBTLE();
+  getYPR();
+  getAccel();
+  getAltitude();
 
 
- 
-  initIMU();
-  delay(10);
-  initAltimeter();
-  delay(10);
-  buzzStartup();
-  delay(100);
-  buzzStartup();
-  delay(100);
-  buzzStartup();
-  delay(100);
-
-
-  while(ind < 200){
-  if(gravityTimer.hasPassed(10)){
-      getAccel();
-      getYPR();
-      measuredGravity += data.worldAx / 200;
-      Serial.print(data.worldAx);
-      Serial.print(" ");
-      Serial.println(measuredGravity);
-      ind += 1;
-      gravityTimer.restart();
-    }
+  if(PIDStatus == true){
+    //compute PID and write to servos;
+    // do this every 10 ms
   }
-  parachuteServo.attach(SERVO3_PIN);
-  //parachuteServo.write(PARACHUTE_SERVO_INIT);
-  delay(10000);
-  buzzLongs();
 
-  eui_setup_interface(&serial_comms);
+// Handle writing to flash
+  if(flashWriteStatus == true){
+      if (!handleWriteFlash())
+      {
+        flashWriteStatus = false;
+        finishedWriting = true;
+      }
+  }
+  
 
-  // Provide the tracked variables to the library
-  EUI_TRACK(tracked_vars);
+switch (currentState) {
 
-  // Provide a identifier to make this board easy to find in the UI
-  eui_setup_identifier("hello", 5);
+  case IDLE:
+    // Wait for BTLE Launch command
+    // Send periodic data to BTLE
+
+    handleSendTelemetry();
+
+    // wait for zero gyros command
+    if(nonLoggedData.zeroGyrosStatus == true){
+      nonLoggedData.zeroGyrosStatus = false;
+      zeroGyroscope();
+    }
+
+    // listen to BTLE for TVC centering commands if needed. Update accordingly
+    handleServoCentering();
+    // if rocket goes to > angleThresh => abort
+    checkAngleThreshold();
+
+    
+    break;
 
 
+
+  case LAUNCH_COMMANDED:
+  flashWriteStatus = true;
+    // Zero Gyros and other sensors as needed
+    if(gyroZeroStatus == false){
+      gyroZeroStatus = true;
+      zeroGyroscope();
+    }
+
+    if(firingStatus == false && fireTime == 0){
+      //Fire pyro charge
+      fireTime = millis();
+      firingStatus = true;
+      Serial.println("FIRE");
+      // if gimbal test switch to POWERED_ASCENT NOW;
+    }
+
+    if(firingStatus == true && millis() - fireTime >= FIRE_ON_TIME){
+      //Stop pyro charge
+      Serial.println("FIRE OFF");
+      firingStatus = false;
+    }
+
+    if(PIDStatus == false && millis() - fireTime >= FIRE_TO_PID_DELAY){
+      // 
+      PIDStatus = true;
+    }
+  
+    if(data.worldAx > launchAccelThreshold){
+      // stop pyro charge 
+      poweredFlightSafetyTime = millis();
+      currentState = POWERED_ASCENT;
+    }
+    // Or wait 0.25 sec if gimbal test
+    // If BTLE Abort button pressed, deploy parachute and enter error state.
+    // If more than angle thresh => abort.
+    checkAngleThreshold();
+
+    break;
+  case POWERED_ASCENT:
+    // Turn on TVC
+    // or check if 4 seconds passed.
+    // If more than angle thresh => abort.
+    checkAngleThreshold();
+
+    // Check if accel magnitude is less than thresh 
+    accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
+    if(accelMag < ACCEL_UNPOWERED_THRESHOLD){
+      currentState = UNPOWERED_ASCENT;
+    }
+
+    if(millis() - poweredFlightSafetyTime >= POWERED_FLIGHT_SAFETY_TIME){
+      unpoweredAscentSafetyTime = millis();
+      currentState = UNPOWERED_ASCENT;
+    }
+    
+    break;
+  case UNPOWERED_ASCENT:
+    // Center and turn off TVC
+    PIDStatus = false;
+    // Center Servos
+
+
+    // Velocity X passes 0 or barometer detects apogee
+    // or timer runs out
+    if(millis() - unpoweredAscentSafetyTime >= UNPOWERED_ASCENT_SAFETY_TIME_LIMIT){
+      freeDescentSafetyTime = millis();
+      currentState = FREE_DESCENT;
+    }
+
+    break;
+  case FREE_DESCENT:
+    // Detect barometer min altitude for parachute
+    if(data.altitude < PARACHUTE_ALTITUDE_THRESHOLD){
+      // Write prachute launch to servo
+      currentState = PARACHUTE_DESCENT;
+    }
+
+    // or timer runs out
+    if(millis() - freeDescentSafetyTime >= FREE_DESCENT_SAFETY_TIME_LIMIT){
+      // Write prachute launch to servo
+      currentState = PARACHUTE_DESCENT;
+    }
+
+    break;
+
+  case PARACHUTE_DESCENT:
+  // wait for accel, magnitude threshold for gravity or something
+  // to detect landing
+   accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
+
+  if(accelMag > 9.3f && accelMag < 10.5f && landingWait == false){
+    landingWait = true;
+    landingTimer = millis();
+    Serial.println("Waiting for Landing");
+  } 
+
+  if((accelMag < 9.3f || accelMag > 10.5f) && landingWait == true){
+    landingWait = false;
+     Serial.println("Landing timer reset");
+  } 
+
+
+  if(landingWait == true && millis() - landingTimer >= 4000){
+     Serial.println("vehicle Landed");
+    currentState = LANDED;
+  }
+
+  break;
+  case LANDED:
+  // wait a second
+  // Dump all data to SD card
+  delay(2000);
+  // Dump all data to SD
+  flashWriteStatus = false;
+  Serial.println("Writing to SD");
+  transferToSD();
+  buzzComplete();
+  Serial.println("SD writing complete");
+  while (1){
+    delay(500);
+    buzzComplete();
+  };
+  
+  while(1);
+
+  break;
+
+  case ERROR:
+  // Send error message to BTLE
+  flashWriteStatus = false;
+  while(1);
+  break;
+
+  case ABORT:
+    Serial.println("ABORTED");
+
+  // Launch parachute
+
+
+
+  delay(6000);
+  // Dump all data to SD
+  flashWriteStatus = false;
+  Serial.println("Writing to SD");
+  transferToSD();
+  buzzComplete();
+  Serial.println("SD writing complete");
+  while (1){
+    delay(500);
+    buzzComplete();
+  };
+  
+  
+  
+  while(1);
+  break;
+  default:
+  break;
 }
 
 
-
-
-void loop()
-{
-  checkBTLE();
-    serial_rx_handler();  //check for new inbound data
-
-    
-
-    if(data.btleCmd == 1){
-      data.worldAx = 0;
-      data.worldAy = 0;
-      data.worldAz = 0;
-      data.worldVx = 0;
-      pos = 0;
-      compPos = 0;
-      data.biasAltitude = data.altitude;
-      compVel = 0;
-      prevPos = 0;
-      prevCompPos = 0;
-      data.btleCmd = 0;
-    }
-
-    writingMode = false;
-
-    getAltitude();
-
-
-    if(data.worldVx > 2.0 && flight == false){
-      flight = true;
-    }
-
-
-    if(flight == true){
-      if(data.worldVx <= 0.2){
-        buzzStartup();
-        parachuteServo.write(PARACHUTE_SERVO_DEPLOY);
-        flight = false;
-      }
-    }
-
-
-    if(dataTimer.hasPassed(10)){
-      getYPR();
-      getAccel();
-      getAltitude();
-
-
-      data.worldVx += (data.worldAx - 9.74) * 0.010;
-      pos = prevPos + data.worldVx * 0.010;
-
-      compPos = 0.01 * pos + 0.99 * data.altitude;
-      compVel = (compPos - prevCompPos) / 0.010;
-
-      prevPos = pos;
-      prevCompPos = compPos;
-    
-
-    };
-
-  
-    if (writingMode == true)
-    {
-      if (!handleWriteFlash())
-      {
-        writingMode = false;
-        finishedWriting = true;
-      }
-      else
-      {
-        if (writeTimer.hasPassed(1000))
-        {
-          writeSecond += 1;
-          Serial.println(writeSecond);
-          writeTimer.restart();
-        }
-      }
-    }
-  
-
-  if (finishedWriting)
-  {
-    Serial.println("Writing to SD");
-    buzz1();
-    transferToSD();
-    buzzComplete();
-    Serial.println("SD writing complete");
-    Serial.println(measuredGravity, 8);
-    while (1)
-      ;
-  }
 
 }

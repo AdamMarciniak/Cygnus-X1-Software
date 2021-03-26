@@ -7,6 +7,8 @@
 Chrono dataWriteTimer;
 SPIFlash flash(SS_FLASH, &SPI2);
 Data data;
+NonLoggedData nonLoggedData;
+
 
 uint16_t rateHz = 100;
 uint16_t numSeconds = 15;
@@ -40,7 +42,6 @@ void initFlash()
 
   getMaxAddr();
 
-  Serial.println("Continuing...");
   delay(200);
 }
 

@@ -3,5 +3,6 @@
 
 void initBluetooth();
 void checkBTLE();
+void sendTelemetry(char message[]);
 
 #endif

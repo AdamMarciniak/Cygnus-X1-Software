@@ -28,6 +28,8 @@ struct Data
   float altitude;
   float biasAltitude;
   int btleCmd;
+  int Y_Servo_Center;
+  int Z_Servo_Center;
   // int state;
   // int servo_z;
   // int servo_y;
@@ -46,6 +48,14 @@ struct Data
   // float i_err_z;
   // float d_err_z;
 };
+
+struct NonLoggedData
+{
+  bool servoCentersAvailable;
+  bool zeroGyrosStatus;
+};
+
+extern NonLoggedData nonLoggedData;
 extern Data data;
 
 extern unsigned long write_addr;

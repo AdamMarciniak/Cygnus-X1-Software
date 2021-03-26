@@ -4,7 +4,7 @@
 float rawAltitude = 0;
 float altitudeBias = 0;
 float altitude = 0;
-const int biasCount = 100;
+const int biasCount = 50;
 
 MS5607 Altimeter(&rawAltitude);
 

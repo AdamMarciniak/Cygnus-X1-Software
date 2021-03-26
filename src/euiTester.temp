@@ -1,0 +1,275 @@
+#include <Arduino.h>
+#include "Data.h"
+#include "Nav.h"
+#include "Chrono.h"
+#include "./SdCard/SD.h"
+#include "Data.h"
+#include "Buzzer.h"
+#include "Altimeter.h"
+#include <Servo.h>
+#include "electricui.h"
+#include "BTLE.h"
+
+
+#define PARACHUTE_SERVO_DEPLOY 53
+#define PARACHUTE_SERVO_INIT 95
+
+bool writingMode = false;
+bool finishedWriting = false;
+
+Chrono writeTimer;
+Chrono dataTimer;
+Chrono gravityTimer;
+Chrono beepTimer;
+int servoFlag = 0;
+int writeSecond = 0;
+
+float alt = 0;
+boolean flight = false;
+float measuredGravity = 0;
+unsigned long ind = 0;
+float gravMag = 0;
+Servo parachuteServo;
+
+float pos = 0;
+float prevPos = 0;
+float compPos = 0;
+float prevCompPos = 0;
+float compVel = 0;
+
+float valCount = 0;
+
+uint32_t step = 0;
+
+
+
+void serial_write( uint8_t *data, uint16_t len )
+{
+  Serial.write( data, len ); //output on the main serial port
+}
+
+
+
+eui_interface_t serial_comms = EUI_INTERFACE(&serial_write);
+
+void serial_rx_handler()
+{
+  // While we have data, we will pass those bytes to the ElectricUI parser
+  while( Serial.available() > 0 )  
+  {  
+    eui_parse( Serial.read(), &serial_comms );  // Ingest a byte
+  }
+}
+
+
+
+eui_message_t tracked_vars[] =
+{
+  EUI_FLOAT(  "worldVx",  data.worldVx ),
+  EUI_FLOAT(  "worldAx",  data.worldAx ),
+  EUI_FLOAT(  "baro",  data.altitude ),
+  EUI_FLOAT(  "pos",  pos ),
+  EUI_FLOAT(  "compPos",  compPos ),
+  EUI_FLOAT(  "compVel",  compVel ),
+  EUI_UINT32("step", step)
+};
+
+
+void setup()
+{
+  Serial.begin(115200);
+
+  eui_setup_interface(&serial_comms);
+
+  // Provide the tracked variables to the library
+  EUI_TRACK(tracked_vars);
+
+  // Provide a identifier to make this board easy to find in the UI
+  eui_setup_identifier("hello", 5);
+
+  initBuzzer();
+  data.btleCmd = 0;
+ 
+  delay(3000);
+  initBluetooth();
+
+  buzzStartup();
+  initFlash();
+  //ln("Flash Initialized");
+
+
+ 
+  initIMU();
+  delay(10);
+  initAltimeter();
+  delay(10);
+  buzzStartup();
+  delay(100);
+  buzzStartup();
+  delay(100);
+  buzzStartup();
+  delay(100);
+
+
+  while(ind < 200){
+  if(gravityTimer.hasPassed(10)){
+      getAccel();
+      getYPR();
+      measuredGravity += data.worldAx / 200;
+      //(data.worldAx);
+      //(" ");
+      //ln(measuredGravity);
+      ind += 1;
+      gravityTimer.restart();
+    }
+  }
+
+  //("Measured Gravity: ");
+  //ln(measuredGravity);
+
+
+  parachuteServo.attach(SERVO3_PIN);
+  //parachuteServo.write(PARACHUTE_SERVO_INIT);
+  buzzStartup();
+
+
+
+}
+
+bool firstLoop = true;
+unsigned long currentTime = 0;
+unsigned long prevTime = 0;
+float dt = 0;
+
+void loop()
+{
+  checkBTLE();
+    serial_rx_handler();  //check for new inbound data
+
+
+    if(beepTimer.hasPassed(16)){
+      eui_send_tracked("worldVx");
+      eui_send_tracked("worldAx");
+      eui_send_tracked("baro");
+      eui_send_tracked("pos");
+      eui_send_tracked("compPos");
+      eui_send_tracked("compVel");
+      eui_send_tracked("step");
+      beepTimer.restart();
+    }
+
+    step += 1;
+
+    if(data.btleCmd == 1){
+      data.worldAx = 0;
+      data.worldAy = 0;
+      data.worldAz = 0;
+      data.worldVx = 0;
+      pos = 0;
+      compPos = 0;
+      data.biasAltitude = data.altitude;
+      compVel = 0;
+      prevPos = 0;
+      prevCompPos = 0;
+      data.btleCmd = 0;
+    }
+
+    writingMode = false;
+
+
+
+    if(data.worldVx > 2.0 && flight == false){
+      flight = true;
+    }
+
+
+    if(flight == true){
+      if(data.worldVx <= 0.2){
+        buzzStartup();
+        //parachuteServo.write(PARACHUTE_SERVO_DEPLOY);
+        flight = false;
+        data.btleCmd = 1;
+      }
+    }
+
+
+    if(dataTimer.hasPassed(10)){
+       
+      currentTime = micros();
+      getYPR();
+      getAccel();
+      getAltitude();
+
+      if(valCount < 500){
+        //("W_AX: ");
+        //(data.worldAx,5);
+        //("  W_VX: ");
+        //(data.worldVx,5);
+        //("  Pos: ");
+        //(pos,5);
+        //("  Baro: ");
+        //(data.altitude,5);
+        //("  Comp_Pos: ");
+        //(compPos,5);
+        //("  CALC_COMP_POS: ");
+        //(0.01 * pos + 0.99 * data.altitude);
+        //("  Comp_Vel: ");
+        //(compVel,5);
+        //("  Dt: ");
+        //ln(dt,5);
+        valCount += 1;
+      }
+
+    
+
+    if(!firstLoop){
+      dt = (currentTime - prevTime) / 1000000.0f;
+      data.worldVx += (data.worldAx - measuredGravity) * dt;
+      pos = prevCompPos + data.worldVx * dt;
+      compPos = 0.95 * pos + 0.05 * data.altitude;
+      compVel = (compPos - prevCompPos) / dt;
+    }
+      firstLoop = false;
+
+  
+      prevPos = pos;
+      prevCompPos = compPos;
+      prevTime = currentTime;
+
+    
+      dataTimer.restart();
+    };
+
+  
+    if (writingMode == true)
+    {
+      if (!handleWriteFlash())
+      {
+        writingMode = false;
+        finishedWriting = true;
+      }
+      else
+      {
+        if (writeTimer.hasPassed(1000))
+        {
+          writeSecond += 1;
+          //ln(writeSecond);
+          writeTimer.restart();
+        }
+      }
+    }
+  
+
+  if (finishedWriting)
+  {
+    //ln("Writing to SD");
+    buzz1();
+    transferToSD();
+    buzzComplete();
+    //ln("SD writing complete");
+    //ln(measuredGravity, 8);
+    while (1)
+      ;
+  }
+
+}

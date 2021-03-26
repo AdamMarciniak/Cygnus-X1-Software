@@ -4,6 +4,7 @@
 #include <./bluetooth/aci_setup.h>
 #include "./bluetooth/uart_over_ble.h"
 #include "Data.h"
+#include "States.h"
 
 #include "./bluetooth/services.h"
 #include "BTLE.h"
@@ -321,6 +322,7 @@ void checkBTLE()
       break;
 
     case ACI_EVT_DATA_RECEIVED:
+      data.btleCmd = 1;
       Serial.print(F("Pipe Number: "));
       Serial.println(aci_evt->params.data_received.rx_data.pipe_number, DEC);
 
@@ -330,8 +332,37 @@ void checkBTLE()
         Serial.print(F(" Data(Hex) : "));
         for (int i = 0; i < aci_evt->len - 2; i++)
         {
-          if(aci_evt->params.data_received.rx_data.aci_data[i] == 'z'){
-            data.btleCmd = 1;
+
+          char dataChar = aci_evt->params.data_received.rx_data.aci_data[i];
+
+          switch(dataChar) {
+            case 'f':
+            currentState = LAUNCH_COMMANDED;
+            break;
+            case 'z':
+            nonLoggedData.zeroGyrosStatus = true;
+            break;
+            case 'a':
+            currentState = ABORT;
+            break;
+            case '>':
+            data.Y_Servo_Center += 1;
+            nonLoggedData.servoCentersAvailable = true;
+            break;
+            case '<':
+            data.Y_Servo_Center -= 1;
+            nonLoggedData.servoCentersAvailable = true;
+            break;
+            case ')':
+            data.Z_Servo_Center += 1;
+            nonLoggedData.servoCentersAvailable = true;
+            break;
+            case '(':
+            data.Z_Servo_Center -= 1;
+            nonLoggedData.servoCentersAvailable = true;
+            break;
+            default :
+            break;
           }
           Serial.print((char)aci_evt->params.data_received.rx_data.aci_data[i]);
           uart_buffer[i] = aci_evt->params.data_received.rx_data.aci_data[i];
@@ -437,9 +468,40 @@ void checkBTLE()
     stringIndex = 0;
     stringComplete = false;
   }
+
+
 }
 
 
+
+
+void sendTelemetry(char message[]) {
+    stringIndex = 0;
+    for(int i = 0; i < strlen(message); i += 1){
+      uart_buffer[i] = message[i];
+      stringIndex += 1;
+    }
+ 
+    Serial.print(F("Sending: "));
+    Serial.println((char *)&uart_buffer[0]);
+
+    uart_buffer_len = stringIndex + 1;
+
+    if (!lib_aci_send_data(PIPE_UART_OVER_BTLE_UART_TX_TX, uart_buffer, uart_buffer_len))
+    {
+      Serial.println(F("Serial input dropped"));
+    }
+
+    // clear the uart_buffer:
+    for (int i = 0; i < stringIndex; i++)
+    {
+      uart_buffer[stringIndex] = ' ';
+    }
+
+    // reset the flag and the index in order to receive more data
+    stringIndex = 0;
+  
+}
 
 
 

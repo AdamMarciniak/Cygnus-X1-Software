@@ -1,0 +1,18 @@
+#ifndef STATES_H
+#define STATES_H
+enum State {
+  INITIALIZING,
+  IDLE,
+  LAUNCH_COMMANDED,
+  POWERED_ASCENT,
+  UNPOWERED_ASCENT,
+  FREE_DESCENT,
+  PARACHUTE_DESCENT,
+  LANDED,
+  ERROR,
+  ABORT,
+};
+
+extern State currentState;
+
+#endif
