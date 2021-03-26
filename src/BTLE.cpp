@@ -37,7 +37,7 @@ static bool timing_change_done = false;
 Used to test the UART TX characteristic notification
 */
 static uart_over_ble_t uart_over_ble;
-static uint8_t uart_buffer[20];
+static uint8_t uart_buffer[23];
 static uint8_t uart_buffer_len = 0;
 static uint8_t dummychar = 0;
 
@@ -459,7 +459,7 @@ void checkBTLE()
     }
 
     // clear the uart_buffer:
-    for (stringIndex = 0; stringIndex < 20; stringIndex++)
+    for (stringIndex = 0; stringIndex < 23; stringIndex++)
     {
       uart_buffer[stringIndex] = ' ';
     }

@@ -82,18 +82,18 @@ void initEUI() {
 }
 
 void sendEUIVars(){
-  eui_send_tracked("yaw");
-  eui_send_tracked("pitch");
-  eui_send_tracked("roll");
-  eui_send_tracked("baro");
-  eui_send_tracked("barobias");
-  eui_send_tracked("accelX");
-  eui_send_tracked("accelY");
-  eui_send_tracked("accelZ");
-  eui_send_tracked("worldAx");
-  eui_send_tracked("worldVx");
-  eui_send_tracked("loopTime");
-  eui_send_tracked("state");
+  // eui_send_tracked("yaw");
+  // eui_send_tracked("pitch");
+  // eui_send_tracked("roll");
+  // eui_send_tracked("baro");
+  // eui_send_tracked("barobias");
+  // eui_send_tracked("accelX");
+  // eui_send_tracked("accelY");
+  // eui_send_tracked("accelZ");
+  // eui_send_tracked("worldAx");
+  // eui_send_tracked("worldVx");
+  // eui_send_tracked("loopTime");
+  // eui_send_tracked("state");
 }
 
 void handleEUI(){
@@ -104,21 +104,51 @@ void handleEUI(){
     }
 }
 
-
+int telemetryState = 0;
 
 void handleSendTelemetry() {
    if(telemetryTimer.hasPassed(TELEMETRY_RATE)){
-    char yawBuff[8]; // Buffer big enough for 7-character float
-    dtostrf(data.yaw, 6, 2, yawBuff); // Leave room for too large numbers!
-    char pitchBuff[8]; // Buffer big enough for 7-character float
-    dtostrf(data.pitch, 6, 2, pitchBuff); // Leave room for too large numbers!
-    char message[50];
-    
-    strcpy(message, "y:");
-    strcat(message, yawBuff);
-    strcat(message, " p:");
-    strcat(message, pitchBuff);
-    Serial.println(message);
+
+    char message[23];
+    char xBuff[8]; // Buffer big enough for 7-character float
+    char yBuff[8]; // Buffer big enough for 7-character float
+    char zBuff[8]; // Buffer big enough for 7-character float
+
+    switch(telemetryState){
+      case 0:
+      dtostrf(data.yaw, 6, 2, xBuff); // Leave room for too large numbers!
+      dtostrf(data.pitch, 6, 2, yBuff); // Leave room for too large numbers!
+      dtostrf(data.pitch, 6, 2, zBuff); // Leave room for too large numbers!
+      strcpy(message, "G");
+      //telemetryState += 1;
+      break;
+      // case 1:
+      // dtostrf(data.ax, 6, 2, xBuff); // Leave room for too large numbers!
+      // dtostrf(data.ay, 6, 2, yBuff); // Leave room for too large numbers!
+      // dtostrf(data.az, 6, 2, zBuff); // Leave room for too large numbers!
+      // strcpy(message, "A");
+      // telemetryState += 1;
+      // break;
+      // case 2:
+      // dtostrf(data.altitude, 6, 2, xBuff); // Leave room for too large numbers!
+      // dtostrf(0.0, 6, 2, yBuff); // Leave room for too large numbers!
+      // dtostrf(0.0, 6, 2, zBuff); // Leave room for too large numbers!
+      // strcpy(message, "B");
+      // telemetryState += 1;
+      // break;
+      // case 3:
+      // dtostrf(data.state, 6, 2, xBuff); // Leave room for too large numbers!
+      // dtostrf(0.0, 6, 2, yBuff); // Leave room for too large numbers!
+      // dtostrf(0.0, 6, 2, zBuff); // Leave room for too large numbers!
+      // strcpy(message, "B");
+      // telemetryState = 0;
+      // break;
+    }
+    strcat(message, xBuff);
+    strcat(message, " ");
+    strcat(message, yBuff);
+    strcat(message, " ");
+    strcat(message, zBuff);
     sendTelemetry(message);
     telemetryTimer.restart();
   }
