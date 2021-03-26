@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include "States.h"
 
 extern uint16_t rateHz;
 extern uint16_t numSeconds;
@@ -30,6 +31,8 @@ struct Data
   int btleCmd;
   int Y_Servo_Center;
   int Z_Servo_Center;
+  float loopTime;
+  State state;
   // int state;
   // int servo_z;
   // int servo_y;

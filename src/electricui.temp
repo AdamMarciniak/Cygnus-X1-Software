@@ -19,8 +19,6 @@ void serial_write( uint8_t *data, uint16_t len )
   Serial.write( data, len ); //output on the main serial port
 }
 
-
-
 eui_interface_t serial_comms = EUI_INTERFACE(&serial_write);
 
 void serial_rx_handler()

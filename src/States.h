@@ -13,6 +13,5 @@ enum State {
   ABORT,
 };
 
-extern State currentState;
 
 #endif

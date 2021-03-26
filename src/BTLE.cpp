@@ -337,13 +337,13 @@ void checkBTLE()
 
           switch(dataChar) {
             case 'f':
-            currentState = LAUNCH_COMMANDED;
+            data.state = LAUNCH_COMMANDED;
             break;
             case 'z':
             nonLoggedData.zeroGyrosStatus = true;
             break;
             case 'a':
-            currentState = ABORT;
+            data.state = ABORT;
             break;
             case '>':
             data.Y_Servo_Center += 1;
