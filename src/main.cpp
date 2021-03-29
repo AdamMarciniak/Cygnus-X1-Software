@@ -16,7 +16,7 @@
 #define PARACHUTE_ALTITUDE_THRESHOLD 30.0f // meters
 #define ABORT_ANGLE_THRESHOLD 30.0f // degrees
 #define ACCEL_UNPOWERED_THRESHOLD 2.0f //m/s^2
-#define TELEMETRY_RATE 100 // ms
+#define TELEMETRY_RATE 50 // ms
 #define FIRE_ON_TIME 2000 // ms
 #define FIRE_TO_PID_DELAY 500 //ms
 #define POWERED_FLIGHT_SAFETY_TIME 4000 //ms
@@ -109,46 +109,39 @@ int telemetryState = 0;
 void handleSendTelemetry() {
    if(telemetryTimer.hasPassed(TELEMETRY_RATE)){
 
-    char message[23];
-    char xBuff[8]; // Buffer big enough for 7-character float
-    char yBuff[8]; // Buffer big enough for 7-character float
-    char zBuff[8]; // Buffer big enough for 7-character float
+    char message[20];
+    char buff[10]; // Buffer big enough for 7-character float
 
     switch(telemetryState){
       case 0:
-      dtostrf(data.yaw, 6, 2, xBuff); // Leave room for too large numbers!
-      dtostrf(data.pitch, 6, 2, yBuff); // Leave room for too large numbers!
-      dtostrf(data.pitch, 6, 2, zBuff); // Leave room for too large numbers!
-      strcpy(message, "G");
-      //telemetryState += 1;
+      dtostrf(data.yaw, 6, 2, buff); // Leave room for too large numbers!
+      strcpy(message, "Ox");
+      telemetryState += 1;
       break;
-      // case 1:
-      // dtostrf(data.ax, 6, 2, xBuff); // Leave room for too large numbers!
-      // dtostrf(data.ay, 6, 2, yBuff); // Leave room for too large numbers!
-      // dtostrf(data.az, 6, 2, zBuff); // Leave room for too large numbers!
-      // strcpy(message, "A");
-      // telemetryState += 1;
-      // break;
-      // case 2:
-      // dtostrf(data.altitude, 6, 2, xBuff); // Leave room for too large numbers!
-      // dtostrf(0.0, 6, 2, yBuff); // Leave room for too large numbers!
-      // dtostrf(0.0, 6, 2, zBuff); // Leave room for too large numbers!
-      // strcpy(message, "B");
-      // telemetryState += 1;
-      // break;
-      // case 3:
-      // dtostrf(data.state, 6, 2, xBuff); // Leave room for too large numbers!
-      // dtostrf(0.0, 6, 2, yBuff); // Leave room for too large numbers!
-      // dtostrf(0.0, 6, 2, zBuff); // Leave room for too large numbers!
-      // strcpy(message, "B");
-      // telemetryState = 0;
-      // break;
+      case 1:
+      dtostrf(data.pitch, 6, 2, buff); // Leave room for too large numbers!
+      strcpy(message, "Oy");
+      telemetryState += 1;
+      break;
+      case 2:
+      dtostrf(data.roll, 6, 2, buff); // Leave room for too large numbers!
+      strcpy(message, "Oz");
+      telemetryState += 1;
+      break;
+      case 3:
+      itoa(data.state, buff, 2);
+      strcpy(message, "S");
+      telemetryState += 1;
+      break;
+      case 4:
+      dtostrf(data.altitude, 6, 2, buff); // Leave room for too large numbers!
+      strcpy(message, "B");
+      telemetryState = 0;
+      break;
+    
     }
-    strcat(message, xBuff);
-    strcat(message, " ");
-    strcat(message, yBuff);
-    strcat(message, " ");
-    strcat(message, zBuff);
+    strcat(message, ",");
+    strcat(message, buff);
     sendTelemetry(message);
     telemetryTimer.restart();
   }

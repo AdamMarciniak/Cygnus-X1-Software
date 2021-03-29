@@ -342,7 +342,7 @@ void checkBTLE()
             case 'z':
             nonLoggedData.zeroGyrosStatus = true;
             break;
-            case 'a':
+            case 'A':
             data.state = ABORT;
             break;
             case '>':
@@ -482,8 +482,8 @@ void sendTelemetry(char message[]) {
       stringIndex += 1;
     }
  
-    Serial.print(F("Sending: "));
-    Serial.println((char *)&uart_buffer[0]);
+    // Serial.print(F("Sending: "));
+    // Serial.println((char *)&uart_buffer[0]);
 
     uart_buffer_len = stringIndex + 1;
 

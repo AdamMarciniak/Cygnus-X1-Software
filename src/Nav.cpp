@@ -41,8 +41,6 @@ Quaternion orientation(1,0,0,0);
 float worldAccelArray[4] = {0,0,0,0};
 float worldAccelAngles[3] = {0, 0, 0};
 
-
-
 void zeroGyroscope()
 {
     q_gyro[0] = 0;
