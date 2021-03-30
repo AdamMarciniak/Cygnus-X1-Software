@@ -129,13 +129,43 @@ void handleSendTelemetry() {
       telemetryState += 1;
       break;
       case 3:
-      itoa(data.state, buff, 2);
+      sprintf(buff, "%d", data.state);
       strcpy(message, "S");
       telemetryState += 1;
       break;
       case 4:
       dtostrf(data.altitude, 6, 2, buff); // Leave room for too large numbers!
       strcpy(message, "B");
+      telemetryState += 1;
+      break;
+      case 5:
+      dtostrf(data.ax, 6, 2, buff); // Leave room for too large numbers!
+      strcpy(message, "Ax");
+      telemetryState += 1;
+      break;
+      case 6:
+      dtostrf(data.ay, 6, 2, buff); // Leave room for too large numbers!
+      strcpy(message, "Ay");
+      telemetryState += 1;
+      break;
+      case 7:
+      dtostrf(data.az, 6, 2, buff); // Leave room for too large numbers!
+      strcpy(message, "Az");
+      telemetryState += 1;
+      break;
+      case 8:
+      dtostrf(data.gx, 6, 2, buff); // Leave room for too large numbers!
+      strcpy(message, "Gx");
+      telemetryState += 1;
+      break;
+      case 9:
+      dtostrf(data.gy, 6, 2, buff); // Leave room for too large numbers!
+      strcpy(message, "Gy");
+      telemetryState += 1;
+      break;
+      case 10:
+      dtostrf(data.gz, 6, 2, buff); // Leave room for too large numbers!
+      strcpy(message, "Gz");
       telemetryState = 0;
       break;
     
@@ -252,14 +282,14 @@ void loop() {
       }
   }
   
-
+handleSendTelemetry();
 switch (data.state) {
 
   case IDLE:
     // Wait for BTLE Launch command
     // Send periodic data to BTLE
     data.state = IDLE;
-    handleSendTelemetry();
+    
 
     // wait for zero gyros command
     if(nonLoggedData.zeroGyrosStatus == true){
