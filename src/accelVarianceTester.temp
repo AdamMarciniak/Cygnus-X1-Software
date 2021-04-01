@@ -1,10 +1,11 @@
 #include <Arduino.h>
 #include "Chrono.h"
 #include "Altimeter.h"
-
+#include "Nav.h"
+#include "Data.h"
 #define numPoints 1000
 
-Chrono altimeterTimer;
+Chrono valTimer;
 
 float altitudes[numPoints];
 
@@ -20,27 +21,33 @@ void setup()
   Serial.begin(115200);
   while (!Serial)
     ;
-  initAltimeter();
+  initIMU();
+  getAccel();
+  getYPR();
   delay(1000);
 
   while (i < numPoints)
   {
-
-    handleAltimeter();
-    if (isNewAltimeterData())
+    if (valTimer.hasPassed(10))
     {
-      altitudes[i] = getAltitude();
+      getAccel();
+      getYPR();
+      altitudes[i] = data.worldAx;
       sum += altitudes[i];
       i += 1;
-      delay(5);
+      valTimer.restart();
     }
   }
 
   mean = sum / numPoints;
 
+  Serial.print("Mean: ");
+  Serial.println(mean);
+
   for (int k = 0; k < numPoints; k += 1)
   {
     val = sq(altitudes[k] - mean);
+    Serial.println(val, 6);
     valSum += val;
   }
 

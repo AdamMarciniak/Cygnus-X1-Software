@@ -7,9 +7,9 @@ BLA::Matrix<3, 3> Q = {1, 0, 0,
                        0, 1, 0,
                        0, 0, 1};
 
-BLA::Matrix<1, 1> R_Accel = {1};
+BLA::Matrix<1, 1> R_Accel = {0.00105434};
 
-BLA::Matrix<1, 1> R_Baro = {1};
+BLA::Matrix<1, 1> R_Baro = {0.03251531};
 
 BLA::Matrix<3, 1> X = {
     0,
