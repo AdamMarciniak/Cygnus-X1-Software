@@ -9,3 +9,4 @@ extern float getKalmanPosition();
 extern float getKalmanVelocity();
 
 extern float getKalmanAcceleration();
+extern void zeroKalman();

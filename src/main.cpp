@@ -1,55 +1,76 @@
 #include <Arduino.h>
+#include "Data.h"
+#include "Nav.h"
 #include "Chrono.h"
+#include "Data.h"
+#include "Buzzer.h"
 #include "Altimeter.h"
-
-#define numPoints 1000
+#include "Kalman.h"
+#include "EUIMyLib.h"
 
 Chrono altimeterTimer;
+Chrono accelTimer;
+Chrono kalmanTimer;
+Chrono biasTimer;
 
-float altitudes[numPoints];
-
-unsigned long i = 0;
-int measState = 0;
-float mean = 0;
+int i = 0;
+int numSteps = 500;
 float sum = 0;
-float valSum = 0;
-float val = 0;
-float variance = 0;
+float accelBias = 0;
 void setup()
 {
   Serial.begin(115200);
-  while (!Serial)
-    ;
+  initEUI();
+  initBuzzer();
+  buzzStartup();
+  initFlash();
+  initIMU();
+  delay(10);
   initAltimeter();
-  delay(1000);
+  delay(10);
+  getAccel();
+  getYPR();
+  buzzStartup();
 
-  while (i < numPoints)
+  while (i < numSteps)
   {
-
-    handleAltimeter();
-    if (isNewAltimeterData())
+    if (biasTimer.hasPassed(5))
     {
-      altitudes[i] = getAltitude();
-      sum += altitudes[i];
+      getAccel();
+      getYPR();
+      sum += data.worldAx;
       i += 1;
-      delay(5);
+      biasTimer.restart();
     }
   }
 
-  mean = sum / numPoints;
-
-  for (int k = 0; k < numPoints; k += 1)
-  {
-    val = sq(altitudes[k] - mean);
-    valSum += val;
-  }
-
-  variance = valSum / numPoints;
-
-  Serial.print(" Variance: ");
-  Serial.println(variance, 8);
+  accelBias = sum / numSteps;
+  zeroKalman();
 }
 
 void loop()
 {
+
+  handleEUI();
+  handleAltimeter();
+  if (kalmanTimer.hasPassed(5))
+  {
+    data.kal_X = getKalmanPosition();
+    data.kal_V = getKalmanVelocity();
+    data.kal_A = getKalmanAcceleration();
+    kalmanTimer.restart();
+  }
+
+  if (accelTimer.hasPassed(5))
+  {
+    getAccel();
+    getYPR();
+    updateAccel(data.worldAx - accelBias);
+    accelTimer.restart();
+  }
+
+  if (isNewAltimeterData())
+  {
+    updateBaro(getAltitude());
+  }
 }

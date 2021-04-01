@@ -4,7 +4,7 @@
 float rawAltitude = 0;
 float altitudeBias = 0;
 float altitude = 0;
-const int biasCount = 50;
+const int biasCount = 100;
 
 MS5607 Altimeter(&rawAltitude);
 
@@ -63,16 +63,18 @@ void getAltitudeBias()
   int count = 0;
   while (count < biasCount)
   {
-    int newData = Altimeter.handleAltimeter();
-    delay(10);
-    if (newData == 1)
+    Altimeter.handleAltimeter();
+    if (isNewAltimeterData())
     {
-      delay(10);
-      altitudeBias += rawAltitude / (float)biasCount;
+      if (count > 10)
+      {
+        altitudeBias += rawAltitude;
+      }
       Serial.print(".");
       count += 1;
     }
   }
+  altitudeBias = altitudeBias / ((float)biasCount - 10.0f);
   data.biasAltitude = altitudeBias;
   return;
 }
