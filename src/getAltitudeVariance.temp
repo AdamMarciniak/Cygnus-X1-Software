@@ -1,0 +1,54 @@
+#include <Arduino.h>
+#include "Chrono.h"
+#include "Altimeter.h"
+
+
+Chrono altimeterTimer;
+const int numPoints = 1000;
+float altitudes[numPoints];
+unsigned long i = 0;
+int measState = 0;
+float mean = 0;
+float sum = 0;
+float valSum = 0;
+float val = 0;
+float variance = 0;
+void setup()
+{
+  Serial.begin(115200);
+
+  initAltimeter();
+  delay(1000);
+
+  while(i < numPoints){
+    Serial.println(i);
+    handleAltimeter();
+    if (isNewAltimeterData())
+    {
+      altitudes[i] = getAltitude();
+      sum += altitudes[i];
+      i += 1;
+      delay(5);
+    }
+  }
+
+mean = sum / numPoints;
+  
+for(int k = 0; k < numPoints; k += 1){
+  val = sq(altitudes[i] - mean)
+  valSum += val;
+}
+
+variance = valSum / numPoints;
+
+Serial.print(" Variance: ");
+Serial.println(variance);
+
+
+}
+
+void loop()
+{
+
+  
+}
