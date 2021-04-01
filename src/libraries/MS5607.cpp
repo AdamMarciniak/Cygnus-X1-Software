@@ -133,6 +133,21 @@ char MS5607::startConversion(char CMD)
   }
 }
 
+bool dataAvailable = false;
+
+bool MS5607::isDataAvailable()
+{
+  if (dataAvailable)
+  {
+    dataAvailable = false;
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
 int MS5607::handleAltimeter(void)
 
 {
@@ -175,6 +190,7 @@ int MS5607::handleAltimeter(void)
   if (state == 6)
   {
     *internal_altitude = getAltitude();
+    dataAvailable = true;
     state = 0;
     return 1;
   }

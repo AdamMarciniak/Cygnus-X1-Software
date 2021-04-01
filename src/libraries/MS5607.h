@@ -24,6 +24,7 @@ public:
   float getAltitude(void);
   int handleAltimeter(void);
   float altitude;
+  bool isDataAvailable(void);
 
 private:
   const float P0 = 1013.25;

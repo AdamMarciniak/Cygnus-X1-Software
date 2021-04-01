@@ -33,6 +33,9 @@ struct Data
   int Z_Servo_Center;
   float loopTime;
   State state;
+  float kal_X;
+  float kal_V;
+  float kal_A;
   // int state;
   // int servo_z;
   // int servo_y;

@@ -23,7 +23,6 @@ bool initAltimeter()
     delay(10);
   }
 
-  
   Serial.println();
   Serial.print("Init Raw Altitude: ");
   Serial.println(rawAltitude);
@@ -31,6 +30,23 @@ bool initAltimeter()
   getAltitudeBias();
   delay(200);
   return true;
+}
+
+void handleAltimeter()
+{
+  Altimeter.handleAltimeter();
+}
+
+bool isNewAltimeterData()
+{
+  if (Altimeter.isDataAvailable())
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 float getAltitude()
