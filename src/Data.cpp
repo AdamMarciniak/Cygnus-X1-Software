@@ -9,7 +9,6 @@ SPIFlash flash(SS_FLASH, &SPI2);
 Data data;
 NonLoggedData nonLoggedData;
 
-
 uint16_t rateHz = 100;
 uint16_t numSeconds = 15;
 uint16_t millisPerSample = 1000 / rateHz;
@@ -73,7 +72,7 @@ bool writeToFlash()
 
 bool readFromFlash()
 {
-  if (read_addr <= write_addr)
+  if (read_addr < write_addr)
   {
     Serial.print("Reading From Flash Addr: ");
     Serial.print(" ");

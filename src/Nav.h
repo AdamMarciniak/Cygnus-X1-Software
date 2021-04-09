@@ -1,5 +1,4 @@
-#ifndef NAV_H
-#define NAV_H
+#pragma once
 
 extern float ypr[3];
 extern float accel_raw[3];
@@ -9,5 +8,5 @@ extern void getAccel();
 extern void getYPR();
 extern void getAccel();
 extern void zeroGyroscope();
-
-#endif
+extern void getCurrentYawAndPitchFromAccel();
+extern void getInitYawAndPitchBiases();

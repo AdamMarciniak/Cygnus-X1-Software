@@ -37,8 +37,8 @@ unsigned long accel_past_time = 0;
 
 Quaternion localAccelQuat;
 Quaternion worldAccelQuat;
-Quaternion orientation(1,0,0,0);
-float worldAccelArray[4] = {0,0,0,0};
+Quaternion orientation(1, 0, 0, 0);
+float worldAccelArray[4] = {0, 0, 0, 0};
 float worldAccelAngles[3] = {0, 0, 0};
 
 void zeroGyroscope()
@@ -88,11 +88,11 @@ void getGyroBiases()
     g_bias[1] /= (float)averageAmount;
     g_bias[2] /= (float)averageAmount;
 
-    Serial.print(g_bias[0],8);
+    Serial.print(g_bias[0], 8);
     Serial.print(" ");
-    Serial.print(g_bias[1],8);
+    Serial.print(g_bias[1], 8);
     Serial.print(" ");
-    Serial.print(g_bias[2],8);
+    Serial.print(g_bias[2], 8);
     Serial.println(" ");
 }
 
@@ -116,6 +116,7 @@ bool initIMU()
     data.worldVx = 0;
     data.worldVy = 0;
     data.worldVz = 0;
+    getInitYawAndPitchBiases();
     return 1;
 }
 
@@ -128,7 +129,6 @@ void getAccel()
     accel_raw[2] = accel.getAccelZ_mss();
     if (!firstAccelReading)
     {
-
         accel_dt = (float)(accel_current_time - accel_past_time) / 1000000.0f;
         vel_local[0] += accel_raw[0] * accel_dt;
         vel_local[1] += accel_raw[1] * accel_dt;
@@ -147,7 +147,37 @@ void getAccel()
     accel_past_time = accel_current_time;
 }
 
+float axAve = 0;
+float ayAve = 0;
+float azAve = 0;
+const int accelAveCount = 50;
+int i = 0;
 
+void getInitYawAndPitchBiases()
+{
+
+    while (i < accelAveCount)
+    {
+        getAccel();
+        axAve += data.ax;
+        ayAve += data.ay;
+        azAve += data.az;
+        delay(10);
+        i += 1;
+    }
+    axAve /= float(accelAveCount);
+    ayAve /= float(accelAveCount);
+    azAve /= float(accelAveCount);
+
+    data.pitchBias = atan2(-azAve, (sqrt(sq(axAve) + sq(ayAve)))) * RAD_TO_DEG;
+    data.yawBias = atan2(ayAve, (sqrt(sq(axAve) + sq(azAve)))) * RAD_TO_DEG;
+}
+
+void getCurrentYawAndPitchFromAccel()
+{
+    data.pitchBias = atan2(-data.az, (sqrt(sq(data.ax) + sq(data.ay)))) * RAD_TO_DEG;
+    data.yawBias = atan2(data.ay, (sqrt(sq(data.ax) + sq(data.az)))) * RAD_TO_DEG;
+}
 
 void getYPR()
 {
@@ -184,7 +214,6 @@ void getYPR()
         q_body[2] = q_gyro[0] * q[2] - q_gyro[1] * q[3] + q_gyro[2] * q[0] + q_gyro[3] * q[1];
         q_body[3] = q_gyro[0] * q[3] + q_gyro[1] * q[2] - q_gyro[2] * q[1] + q_gyro[3] * q[0];
 
-        
         // For getting world frame acceleration
         float norm = sqrtf(powf(omega[2], 2) + powf(omega[1], 2) + powf(omega[0], 2));
         norm = copysignf(max(abs(norm), 1e-9), norm); // NO DIVIDE BY 0
@@ -195,11 +224,9 @@ void getYPR()
         data.worldAy = worldAccelQuat.c;
         data.worldAz = worldAccelQuat.d;
 
-       
-
         quatToEuler(q_body, ypr);
-        data.yaw = ypr[0];
-        data.pitch = ypr[1];
+        data.yaw = ypr[0] + data.yawBias;
+        data.pitch = ypr[1] + data.pitchBias;
         data.roll = ypr[2];
     }
     first_gyro_reading = false;

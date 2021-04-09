@@ -72,7 +72,8 @@ In the master control panel, clicking Enable Services will open all the pipes on
 The ACI Evt Data Credit provides the radio level ack of a transmitted packet.
 */
 
-void initPins() {
+void initPins()
+{
   aci_state.aci_pins.board_name = BOARD_DEFAULT; //See board.h for details REDBEARLAB_SHIELD_V1_1 or BOARD_DEFAULT
   aci_state.aci_pins.reqn_pin = REQN_BT;         //SS for Nordic board, 9 for REDBEARLAB_SHIELD_V1_1
   aci_state.aci_pins.rdyn_pin = RDYN_BT;         //3 for Nordic board, 8 for REDBEARLAB_SHIELD_V1_1
@@ -91,7 +92,8 @@ void initPins() {
   aci_state.aci_pins.interrupt_number = 1;
 }
 
-void initBluetooth() {
+void initBluetooth()
+{
   /**
   Point ACI data structures to the the setup data that the nRFgo studio generated for the nRF8001
   */
@@ -115,9 +117,7 @@ void initBluetooth() {
   //The second parameter is for turning debug printing on for the ACI Commands and Events so they be printed on the Serial
   lib_aci_init(&aci_state, false);
   Serial.println(F("Set up done"));
-
 }
-
 
 void uart_over_ble_init(void)
 {
@@ -335,33 +335,35 @@ void checkBTLE()
 
           char dataChar = aci_evt->params.data_received.rx_data.aci_data[i];
 
-          switch(dataChar) {
-            case 'f':
+          switch (dataChar)
+          {
+          case 'f':
             data.state = LAUNCH_COMMANDED;
             break;
-            case 'z':
+          case 'z':
             nonLoggedData.zeroGyrosStatus = true;
             break;
-            case 'A':
-            data.state = ABORT;
+          case 'A':
+            data.state = PARACHUTE_DESCENT;
             break;
-            case '>':
+          case '>':
             data.Y_Servo_Center += 1;
             nonLoggedData.servoCentersAvailable = true;
             break;
-            case '<':
+          case '<':
             data.Y_Servo_Center -= 1;
             nonLoggedData.servoCentersAvailable = true;
             break;
-            case ')':
+          case ')':
             data.Z_Servo_Center += 1;
             nonLoggedData.servoCentersAvailable = true;
             break;
-            case '(':
+          case '(':
             data.Z_Servo_Center -= 1;
             nonLoggedData.servoCentersAvailable = true;
             break;
-            default :
+
+          default:
             break;
           }
           Serial.print((char)aci_evt->params.data_received.rx_data.aci_data[i]);
@@ -468,42 +470,36 @@ void checkBTLE()
     stringIndex = 0;
     stringComplete = false;
   }
-
-
 }
 
+void sendTelemetry(char message[])
+{
+  stringIndex = 0;
+  for (int i = 0; i < strlen(message); i += 1)
+  {
+    uart_buffer[i] = message[i];
+    stringIndex += 1;
+  }
 
+  // Serial.print(F("Sending: "));
+  // Serial.println((char *)&uart_buffer[0]);
 
+  uart_buffer_len = stringIndex + 1;
 
-void sendTelemetry(char message[]) {
-    stringIndex = 0;
-    for(int i = 0; i < strlen(message); i += 1){
-      uart_buffer[i] = message[i];
-      stringIndex += 1;
-    }
- 
-    // Serial.print(F("Sending: "));
-    // Serial.println((char *)&uart_buffer[0]);
+  if (!lib_aci_send_data(PIPE_UART_OVER_BTLE_UART_TX_TX, uart_buffer, uart_buffer_len))
+  {
+    Serial.println(F("Serial input dropped"));
+  }
 
-    uart_buffer_len = stringIndex + 1;
+  // clear the uart_buffer:
+  for (int i = 0; i < stringIndex; i++)
+  {
+    uart_buffer[stringIndex] = ' ';
+  }
 
-    if (!lib_aci_send_data(PIPE_UART_OVER_BTLE_UART_TX_TX, uart_buffer, uart_buffer_len))
-    {
-      Serial.println(F("Serial input dropped"));
-    }
-
-    // clear the uart_buffer:
-    for (int i = 0; i < stringIndex; i++)
-    {
-      uart_buffer[stringIndex] = ' ';
-    }
-
-    // reset the flag and the index in order to receive more data
-    stringIndex = 0;
-  
+  // reset the flag and the index in order to receive more data
+  stringIndex = 0;
 }
-
-
 
 /*
  COMMENT ONLY FOR ARDUINO

@@ -16,8 +16,8 @@ public:
   float getPError();
   float getDError();
   float getIError();
-  int getOutput();
-  int Output;
+  float getOutput();
+  float Output;
   float kp, ki, kd;
 
 private:

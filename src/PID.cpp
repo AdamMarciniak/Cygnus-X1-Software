@@ -35,7 +35,8 @@ float PID::getIError()
   return ITerm;
 }
 
-int PID::getOutput(){
+float PID::getOutput()
+{
   return Output;
 }
 
@@ -53,37 +54,47 @@ void PID::compute()
     unsigned long now = micros();
     deltaT = float((now - lastTime)) / 1000000.0f;
     error = Setpoint - Input;
-    if(abs(error) < 5){
-      ki = 1;
-    };
 
     ITerm += (ki * error) * deltaT;
-    
+
+    if (lastError < 0.0 && error > 0.0)
+    {
+      ITerm = 0.0;
+    }
+
+    if (lastError > 0.0 && error < 0.0)
+    {
+      ITerm = 0.0;
+    }
+
+    if (error == 0.0)
+    {
+      ITerm = 0.0;
+    }
+
     if (ITerm > outMax)
       ITerm = outMax;
     else if (ITerm < outMin)
       ITerm = outMin;
     dErr = (error - lastError) / deltaT;
-   
-    int temp = int(kp * error + ITerm + kd * dErr);
-    if (temp > outMax){
+
+    Output = kp * error + ITerm + kd * dErr;
+    if (Output > outMax)
+    {
       Output = outMax;
     }
-    else if (temp < outMin){
+    if (Output < outMin)
+    {
       Output = outMin;
-    } else {
-      Output = temp;
     }
 
+    Serial.println(Output);
 
     lastError = error;
     lastTime = now;
-
   }
   return;
 }
-
-
 
 void PID::setTunings(float Kp, float Ki, float Kd)
 {

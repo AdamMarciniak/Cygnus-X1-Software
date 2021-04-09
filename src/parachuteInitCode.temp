@@ -1,0 +1,15 @@
+#include <Servo.h>
+#include <Arduino.h>
+
+#define PARACHUTE_SERVO_INIT 93
+
+Servo parachuteServo;
+
+void setup()
+{
+  parachuteServo.attach(SERVO3_PIN);
+
+  parachuteServo.write(PARACHUTE_SERVO_INIT);
+}
+
+void loop() {}

@@ -2,5 +2,5 @@
 #define PARACHUTE_H
 
 extern void deployParachute();
-
+extern void initParachute();
 #endif
