@@ -342,9 +342,11 @@ void checkBTLE()
             break;
           case 'z':
             nonLoggedData.zeroGyrosStatus = true;
+            eraseFlightData();
             break;
           case 'A':
             data.state = PARACHUTE_DESCENT;
+            readTVCCenters();
             break;
           case '>':
             data.Y_Servo_Center += 1;
@@ -360,6 +362,10 @@ void checkBTLE()
             break;
           case '(':
             data.Z_Servo_Center -= 1;
+            nonLoggedData.servoCentersAvailable = true;
+            break;
+          case 'R':
+            readTVCCenters();
             nonLoggedData.servoCentersAvailable = true;
             break;
 

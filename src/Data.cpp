@@ -10,15 +10,49 @@ Data data;
 NonLoggedData nonLoggedData;
 
 uint16_t rateHz = 100;
-uint16_t numSeconds = 15;
+uint16_t numSeconds = 20;
 uint16_t millisPerSample = 1000 / rateHz;
 uint16_t totalSamples = rateHz * numSeconds;
 
-unsigned long write_addr = 0;
-unsigned long read_addr = 0;
+// Starting at next 4K block
+unsigned long startAddress = 4097;
+unsigned int startSector = 1;
+int sectorSize = 4096;
+
+unsigned long write_addr = startAddress;
+unsigned long read_addr = startAddress;
 
 unsigned long addrStep = sizeof(data);
 unsigned long maxAddr = totalSamples * sizeof(data);
+
+float YCENTER;
+float ZCENTER;
+
+void writeTVCCenters()
+{
+  flash.eraseSector(0);
+  flash.writeAnything(0, data.Y_Servo_Center);
+  flash.writeAnything(sizeof(float), data.Z_Servo_Center);
+  Serial.println("Wrote TVC Centers");
+}
+
+void readTVCCenters()
+{
+  flash.readAnything(0, YCENTER);
+  flash.readAnything(sizeof(float), ZCENTER);
+  Serial.print("Reading TVC Centers: ");
+  Serial.print("Y: ");
+  Serial.print(YCENTER);
+  Serial.print("  Z: ");
+  Serial.println(ZCENTER);
+  if (YCENTER >= -200)
+  {
+    data.Y_Servo_Center = YCENTER;
+  }
+
+  if (ZCENTER >= -200)
+    data.Z_Servo_Center = ZCENTER;
+}
 
 void getMaxAddr()
 {
@@ -29,19 +63,35 @@ void getMaxAddr()
   }
 }
 
+void eraseFlightData()
+{
+  Serial.println("Erasing flight data sectors");
+  unsigned long capacity = flash.getCapacity();
+  for (unsigned long i = startAddress; i < capacity; i += sectorSize)
+  {
+    // Erases 1 4K sector
+    Serial.print(i);
+    Serial.print(",");
+    flash.eraseSector(i);
+  }
+}
+
 void initFlash()
 {
   flash.begin();
-  delay(50);
+
+  readTVCCenters();
 
   if (flash.eraseChip())
   {
     Serial.println("Erased Flash");
   };
 
-  getMaxAddr();
+  writeTVCCenters();
 
-  delay(200);
+  //eraseFlightData();
+
+  getMaxAddr();
 }
 
 bool handleWriteFlash()

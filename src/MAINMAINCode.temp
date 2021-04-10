@@ -11,21 +11,20 @@
 #include "LED.h"
 #include "States.h"
 #include <avr/dtostrf.h>
-#include "electricui.h"
 #include "Kalman.h"
+#include "Parachute.h"
 
-#define PARACHUTE_ALTITUDE_THRESHOLD 30.0f      // meters
+#define PARACHUTE_ALTITUDE_THRESHOLD 40.0f      // meters
 #define ABORT_ANGLE_THRESHOLD 30.0f             // degrees
 #define ACCEL_UNPOWERED_THRESHOLD 2.0f          //m/s^2
 #define TELEMETRY_RATE 50                       // ms
-#define FIRE_ON_TIME 2000                       // ms
+#define FIRE_ON_TIME 1000                       // ms
 #define FIRE_TO_PID_DELAY 500                   //ms
-#define POWERED_FLIGHT_SAFETY_TIME 4000         //ms
-#define UNPOWERED_ASCENT_SAFETY_TIME_LIMIT 2000 // ms
-#define FREE_DESCENT_SAFETY_TIME_LIMIT 1000     // ms
+#define POWERED_FLIGHT_SAFETY_TIME 3800         //ms
+#define UNPOWERED_ASCENT_SAFETY_TIME_LIMIT 3000 // ms
+#define FREE_DESCENT_SAFETY_TIME_LIMIT 3000     // ms
 
 Chrono telemetryTimer;
-Chrono EUITimer;
 
 float accelMag = 0;
 bool flashWriteStatus = false;
@@ -40,76 +39,6 @@ bool landingWait = false;
 unsigned long poweredFlightSafetyTime = 0;
 unsigned long unpoweredAscentSafetyTime = 0;
 unsigned long freeDescentSafetyTime = 0;
-
-void serial_write(uint8_t *data, uint16_t len)
-{
-  Serial.write(data, len); //output on the main serial port
-}
-
-eui_interface_t serial_comms = EUI_INTERFACE(&serial_write);
-
-void serial_rx_handler()
-{
-  // While we have data, we will pass those bytes to the ElectricUI parser
-  while (Serial.available() > 0)
-  {
-    eui_parse(Serial.read(), &serial_comms); // Ingest a byte
-  }
-}
-
-eui_message_t tracked_vars[] =
-    {
-        EUI_FLOAT("yaw", data.yaw),
-        EUI_FLOAT("pitch", data.pitch),
-        EUI_FLOAT("roll", data.roll),
-        EUI_FLOAT("baro", data.altitude),
-        EUI_FLOAT("baroBias", data.biasAltitude),
-        EUI_FLOAT("accelX", data.ax),
-        EUI_FLOAT("accelY", data.ay),
-        EUI_FLOAT("accelZ", data.az),
-        EUI_FLOAT("worldAx", data.worldAx),
-        EUI_FLOAT("worldVx", data.worldVx),
-        EUI_FLOAT("loopTime", data.loopTime),
-        EUI_UINT32("state", data.state),
-        EUI_FLOAT("kal_X", data.kal_X),
-        EUI_FLOAT("kal_V", data.kal_V),
-        EUI_FLOAT("kal_A", data.kal_A),
-};
-
-void initEUI()
-{
-  eui_setup_interface(&serial_comms);
-  // Provide the tracked variables to the library
-  EUI_TRACK(tracked_vars);
-  // Provide a identifier to make this board easy to find in the UI
-  eui_setup_identifier("hello", 5);
-}
-
-void sendEUIVars()
-{
-  // eui_send_tracked("yaw");
-  // eui_send_tracked("pitch");
-  // eui_send_tracked("roll");
-  // eui_send_tracked("baro");
-  // eui_send_tracked("barobias");
-  // eui_send_tracked("accelX");
-  // eui_send_tracked("accelY");
-  // eui_send_tracked("accelZ");
-  // eui_send_tracked("worldAx");
-  // eui_send_tracked("worldVx");
-  // eui_send_tracked("loopTime");
-  // eui_send_tracked("state");
-}
-
-void handleEUI()
-{
-  serial_rx_handler(); //check for new inbound data
-  if (EUITimer.hasPassed(16))
-  {
-    sendEUIVars();
-    EUITimer.restart();
-  }
-}
 
 int telemetryState = 0;
 
@@ -206,7 +135,7 @@ void checkAngleThreshold()
   if (abs(data.yaw) >= ABORT_ANGLE_THRESHOLD || abs(data.pitch) >= ABORT_ANGLE_THRESHOLD)
   {
     Serial.println("Angle Past Limit");
-    data.state = ABORT;
+    data.state = PARACHUTE_DESCENT;
   }
 }
 
@@ -228,11 +157,11 @@ bool writingMode = false;
 bool finishedWriting = false;
 unsigned long prevLoopTime;
 unsigned long currentLoopTime;
+
 void setup()
 {
   data.state = INITIALIZING;
   Serial.begin(115200);
-  initEUI();
   initStatusVariables();
   // Attach servos and center them
   initServos();
@@ -242,6 +171,7 @@ void setup()
   initBluetooth();
   initFlash();
   initSD();
+  pinMode(PYRO2_PIN, OUTPUT);
 
   // Initialize all sensors and stuff.
   // Put state into error if not all good.
@@ -265,6 +195,15 @@ void setup()
   prevLoopTime = micros();
   currentLoopTime = micros();
   data.state = IDLE;
+
+  if (analogRead(PYRO2_DETECT_PIN) < 500)
+  {
+    while (1)
+    {
+      buzzerError();
+      delay(500);
+    }
+  }
 }
 
 void loop()
@@ -276,7 +215,6 @@ void loop()
   getYPR();
   getAccel();
   getAltitude();
-  handleEUI();
 
   if (PIDStatus == true)
   {
@@ -332,6 +270,7 @@ void loop()
       fireTime = millis();
       firingStatus = true;
       Serial.println("FIRE");
+      analogWrite(PYRO2_PIN, 255);
       // if gimbal test switch to POWERED_ASCENT NOW;
     }
 
@@ -339,12 +278,14 @@ void loop()
     {
       //Stop pyro charge
       Serial.println("FIRE OFF");
+      analogWrite(PYRO2_PIN, 0);
       firingStatus = false;
     }
 
     if (PIDStatus == false && millis() - fireTime >= FIRE_TO_PID_DELAY)
     {
       //
+      analogWrite(PYRO2_PIN, 0);
       PIDStatus = true;
     }
 
@@ -352,6 +293,7 @@ void loop()
     {
       // stop pyro charge
       poweredFlightSafetyTime = millis();
+      analogWrite(PYRO2_PIN, 0);
       data.state = POWERED_ASCENT;
     }
     // Or wait 0.25 sec if gimbal test
@@ -385,6 +327,12 @@ void loop()
     PIDStatus = false;
     // Center Servos
 
+    if (data.altitude < PARACHUTE_ALTITUDE_THRESHOLD)
+    {
+      // Write prachute launch to servo
+      data.state = PARACHUTE_DESCENT;
+    }
+
     // Velocity X passes 0 or barometer detects apogee
     // or timer runs out
     if (millis() - unpoweredAscentSafetyTime >= UNPOWERED_ASCENT_SAFETY_TIME_LIMIT)
@@ -414,6 +362,7 @@ void loop()
   case PARACHUTE_DESCENT:
     // wait for accel, magnitude threshold for gravity or something
     // to detect landing
+    deployParachute();
     accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
 
     if (accelMag > 9.3f && accelMag < 10.5f && landingWait == false)
@@ -439,7 +388,6 @@ void loop()
   case LANDED:
     // wait a second
     // Dump all data to SD card
-    sendEUIVars();
     delay(2000);
     // Dump all data to SD
     flashWriteStatus = false;
@@ -460,32 +408,11 @@ void loop()
 
   case ERROR:
     // Send error message to BTLE
-    sendEUIVars();
     flashWriteStatus = false;
     while (1)
       ;
     break;
 
-  case ABORT:
-    Serial.println("ABORTED");
-    // Launch parachute
-    sendEUIVars();
-    delay(10000);
-    // Dump all data to SD
-    flashWriteStatus = false;
-    Serial.println("Writing to SD");
-    transferToSD();
-    buzzComplete();
-    Serial.println("SD writing complete");
-    while (1)
-    {
-      delay(500);
-      buzzComplete();
-    };
-
-    while (1)
-      ;
-    break;
   default:
     break;
   }

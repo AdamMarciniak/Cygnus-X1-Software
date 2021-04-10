@@ -38,6 +38,9 @@ unsigned long accel_past_time = 0;
 Quaternion localAccelQuat;
 Quaternion worldAccelQuat;
 Quaternion orientation(1, 0, 0, 0);
+
+Quaternion yawBiasQuaternion;
+Quaternion pitchBiasQuaternion;
 float worldAccelArray[4] = {0, 0, 0, 0};
 float worldAccelAngles[3] = {0, 0, 0};
 
@@ -171,6 +174,10 @@ void getInitYawAndPitchBiases()
 
     data.pitchBias = atan2(-azAve, (sqrt(sq(axAve) + sq(ayAve)))) * RAD_TO_DEG;
     data.yawBias = atan2(ayAve, (sqrt(sq(axAve) + sq(azAve)))) * RAD_TO_DEG;
+
+    // Still figuring out how to get world accel rotated properly based on biases
+    // yawBiasQuaternion = from_axis_angle(data.yawBias * DEG_TO_RAD, 0, 0, 1);
+    // pitchBiasQuaternion = from_axis_angle(data.pitchBias * DEG_TO_RAD, 0, 1, 0);
 }
 
 void getCurrentYawAndPitchFromAccel()
@@ -215,14 +222,18 @@ void getYPR()
         q_body[3] = q_gyro[0] * q[3] + q_gyro[1] * q[2] - q_gyro[2] * q[1] + q_gyro[3] * q[0];
 
         // For getting world frame acceleration
-        float norm = sqrtf(powf(omega[2], 2) + powf(omega[1], 2) + powf(omega[0], 2));
+        float norm = sqrtf(sq(omega[0]) + sq(omega[1]) + sq(omega[2]));
         norm = copysignf(max(abs(norm), 1e-9), norm); // NO DIVIDE BY 0
         orientation *= from_axis_angle(gyro_dt * norm, omega[0] / norm, omega[1] / norm, omega[2] / norm);
+        // Leave these out still figuring out world accel based on biases
+        // orientation = pitchBiasQuaternion.rotate(orientation);
+        // orientation = yawBiasQuaternion.rotate(orientation);
         localAccelQuat = Quaternion(0, data.ax, data.ay, data.az);
         worldAccelQuat = orientation.rotate(localAccelQuat);
         data.worldAx = worldAccelQuat.b;
         data.worldAy = worldAccelQuat.c;
         data.worldAz = worldAccelQuat.d;
+        Serial.println(data.worldAx);
 
         quatToEuler(q_body, ypr);
         data.yaw = ypr[0] + data.yawBias;

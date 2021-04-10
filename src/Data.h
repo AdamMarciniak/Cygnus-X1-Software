@@ -79,3 +79,7 @@ extern void initFlash();
 extern bool writeToFlash();
 extern bool readFromFlash();
 extern bool handleWriteFlash();
+
+extern void readTVCCenters();
+extern void writeTVCCenters();
+extern void eraseFlightData();

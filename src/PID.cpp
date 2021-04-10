@@ -88,8 +88,6 @@ void PID::compute()
       Output = outMin;
     }
 
-    Serial.println(Output);
-
     lastError = error;
     lastTime = now;
   }
