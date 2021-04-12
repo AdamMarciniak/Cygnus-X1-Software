@@ -58,6 +58,7 @@ struct Data
   float d_err_z;
   float yawBias;
   float pitchBias;
+  float batteryVoltage;
 };
 
 struct NonLoggedData

@@ -1,8 +1,48 @@
 #include "PID.h"
-#include "Chrono.h"
-#include <Arduino.h>
-#include "Data.h"
+
+
+
 Chrono PIDTimer;
+
+PID z_PID;
+PID y_PID;
+
+
+void initPIDs()
+{
+  z_PID.setTunings(Z_KP, Z_KI, Z_KD);
+  z_PID.setOutputLimits(-SERVO_RANGE, SERVO_RANGE);
+  z_PID.setSetpoint(0);
+
+  y_PID.setTunings(Y_KP, Y_KI, Y_KD);
+  y_PID.setOutputLimits(-SERVO_RANGE, SERVO_RANGE);
+  y_PID.setSetpoint(0);
+}
+
+void setZPIDInput(float val) {
+  z_PID.setInput(val);
+}
+
+void setYPIDInput(float val) {
+  y_PID.setInput(val);
+}
+
+void computeBothPIDs(){
+  z_PID.compute();
+  y_PID.compute();
+
+  data.p_err_y = y_PID.getPError();
+  data.p_err_z = z_PID.getPError();
+
+  data.i_err_y = y_PID.getIError();
+  data.i_err_z = z_PID.getIError();
+
+  data.d_err_y = y_PID.getDError();
+  data.d_err_z = z_PID.getDError();
+
+  data.servo_z = z_PID.getOutput();
+  data.servo_y = y_PID.getOutput();
+}
 
 PID::PID()
 {

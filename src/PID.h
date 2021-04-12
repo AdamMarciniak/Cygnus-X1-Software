@@ -1,5 +1,23 @@
-#ifndef PID_H
-#define PID_H
+#pragma once
+
+#include "Chrono.h"
+#include <Arduino.h>
+#include "Data.h"
+#include "ServoControl.h"
+
+#define Y_KP 1.5
+#define Y_KI 0.9
+#define Y_KD 0.8
+
+#define Z_KP 1.5
+#define Z_KI 0.9
+#define Z_KD 0.8
+
+extern void initPIDs();
+
+extern void setZPIDInput(float val);
+extern void setYPIDInput(float val);
+extern void computeBothPIDs();
 
 class PID
 {
@@ -29,4 +47,3 @@ private:
   bool firstCompute;
 };
 
-#endif
