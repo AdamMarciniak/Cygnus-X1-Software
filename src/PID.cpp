@@ -5,6 +5,8 @@ PID z_PID;
 PID y_PID;
 
 
+#define Y_SETPOINT 0.0f
+#define Z_SETPOINT 0.0f
 
 
 void initPIDs()
@@ -18,11 +20,11 @@ void initPIDs()
   data.kd_z = Z_KD;
   z_PID.setTunings(Z_KP, Z_KI, Z_KD);
   z_PID.setOutputLimits(-SERVO_RANGE, SERVO_RANGE);
-  z_PID.setSetpoint(0);
+  z_PID.setSetpoint(Z_SETPOINT);
 
   y_PID.setTunings(Y_KP, Y_KI, Y_KD);
   y_PID.setOutputLimits(-SERVO_RANGE, SERVO_RANGE);
-  y_PID.setSetpoint(0);
+  y_PID.setSetpoint(Y_SETPOINT);
 }
 
 void setZPIDInput(float val) {

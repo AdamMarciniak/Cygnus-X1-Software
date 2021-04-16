@@ -99,7 +99,7 @@ void handleDoNav()
     setZPIDInput(data.pitch);
     setYPIDInput(data.yaw);
     computeBothPIDs();
-    
+  
     moveZServo(int(round(data.Z_Servo_Center + data.servo_z)));
     moveYServo(int(round(data.Y_Servo_Center + data.servo_y)));
   };
@@ -135,6 +135,7 @@ void loop()
 
   if (data.state == INITIALIZING){
       handleServoCentering();
+      handleSendTelemetry();
   }
 
   if (data.state == LAUNCH_COMMANDED)
