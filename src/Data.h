@@ -10,7 +10,7 @@ extern uint16_t millisPerSample;
 
 struct Data
 {
-  unsigned int ms;
+  float ms;
   float ax;
   float ay;
   float az;
@@ -48,8 +48,6 @@ struct Data
   float kp_z;
   float ki_z;
   float kd_z;
-  float pid_delta_y;
-  float pid_delta_z;
   float p_err_y;
   float i_err_y;
   float d_err_y;

@@ -10,7 +10,7 @@ Data data;
 NonLoggedData nonLoggedData;
 
 uint16_t rateHz = 100;
-uint16_t numSeconds = 20;
+uint16_t numSeconds = 10;
 uint16_t millisPerSample = 1000 / rateHz;
 uint16_t totalSamples = rateHz * numSeconds;
 
@@ -106,10 +106,20 @@ bool handleWriteFlash()
   return writing;
 }
 
+bool firstWrite = true;
+unsigned long startTime = 0;
+
 bool writeToFlash()
 {
   if (write_addr < maxAddr)
   {
+    if(firstWrite == true){
+      firstWrite = false;
+      data.ms = 0.0;
+      startTime = millis();
+    } else {
+      data.ms = float(millis() - startTime);
+    }
     flash.writeAnything(write_addr, data);
     write_addr += addrStep;
     return true;

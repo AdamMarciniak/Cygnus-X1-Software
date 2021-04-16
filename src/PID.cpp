@@ -1,15 +1,21 @@
 #include "PID.h"
-
-
-
 Chrono PIDTimer;
 
 PID z_PID;
 PID y_PID;
 
 
+
+
 void initPIDs()
 {
+
+  data.kp_y = Y_KP;
+  data.ki_y = Y_KI;
+  data.kd_y = Y_KD;
+  data.kp_z = Z_KP;
+  data.ki_z = Z_KI;
+  data.kd_z = Z_KD;
   z_PID.setTunings(Z_KP, Z_KI, Z_KD);
   z_PID.setOutputLimits(-SERVO_RANGE, SERVO_RANGE);
   z_PID.setSetpoint(0);

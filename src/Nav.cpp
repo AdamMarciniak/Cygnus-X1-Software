@@ -4,6 +4,8 @@
 #include "Nav.h"
 #include "Data.h"
 #include "Quaternion.h"
+#include "Kalman.h"
+#include "Altimeter.h"
 Bmi088Accel accel(Wire, 0x18);
 Bmi088Gyro gyro(Wire, 0x68);
 
@@ -99,8 +101,10 @@ void getGyroBiases()
     Serial.println(" ");
 }
 
-bool initIMU()
+bool initNav()
 {
+
+    initAltimeter();
     if (accel.begin() < 0)
     {
         return 0;
@@ -148,6 +152,16 @@ void getAccel()
 
     firstAccelReading = false;
     accel_past_time = accel_current_time;
+}
+
+void measureNav() {
+    getAccel();
+    handleAltimeter();
+
+    if(isNewAltimeterData()){
+        updateBaro(getAltitude());
+    }
+    updateAccel(data.worldAx);
 }
 
 float axAve = 0;

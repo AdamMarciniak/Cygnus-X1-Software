@@ -8,7 +8,6 @@
 #include "Buzzer.h"
 #include "PID.h"
 #include "./SdCard/SD.h"
-#include "Altimeter.h"
 #include "BTLE.h"
 #include "Parachute.h"
 #include "ServoControl.h"
@@ -37,15 +36,7 @@ int writeSecond = 0;
 unsigned long passed = 0;
 unsigned long t_ = 0;
 
-void initExtraData()
-{
-  data.kp_y = Y_KP;
-  data.ki_y = Y_KI;
-  data.kd_y = Y_KD;
-  data.kp_z = Z_KP;
-  data.ki_z = Z_KI;
-  data.kd_z = Z_KD;
-}
+
 
 void checkBatteryVoltage()
 {
@@ -61,9 +52,12 @@ void checkBatteryVoltage()
 
 void setup()
 {
+  delay(2000);
   Serial.begin(115200);
   data.state = INITIALIZING;
-  //checkBatteryVoltage();
+  
+  checkBatteryVoltage();
+  
   //initPyro();
 
   buzzStartup();
@@ -71,15 +65,14 @@ void setup()
   initFlash();
   initBluetooth();
   initBuzzer();
-  initExtraData();
   initPIDs();
   initServos();
   initParachute();
 
   delay(2000);
 
-  initAltimeter();
-  initIMU();
+  
+  initNav();
 
   buzzStartup();
   delay(500);
@@ -103,7 +96,6 @@ void handleDoNav()
 
   if (pidTimer.hasPassed(NAV_RATE))
   {
-    getAltitude();
     setZPIDInput(data.pitch);
     setYPIDInput(data.yaw);
     computeBothPIDs();
@@ -150,10 +142,7 @@ void loop()
     t_ += (millis() - passed);
     passed = millis();
 
-   
-
     //handleFirePyro();
-
     handleDoNav();
     handleWritingToFlash();
   }

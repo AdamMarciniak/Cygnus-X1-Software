@@ -5,13 +5,13 @@
 #include "Data.h"
 #include "ServoControl.h"
 
-#define Y_KP 1.5
-#define Y_KI 0.9
-#define Y_KD 0.8
+#define Y_KP 0.9
+#define Y_KI 0.2
+#define Y_KD 0.5
 
-#define Z_KP 1.5
-#define Z_KI 0.9
-#define Z_KD 0.8
+#define Z_KP 0.9
+#define Z_KI 0.2
+#define Z_KD 0.5
 
 extern void initPIDs();
 

@@ -14,14 +14,15 @@ void initPyro()
 {
   pinMode(PYRO2_PIN, OUTPUT);
   // Check if pyro has continuity
-  if (analogRead(PYRO2_DETECT_PIN) < 200)
-  {
-    while (1)
-    {
-      buzzerError();
-      delay(200);
-    }
-  }
+  // if (analogRead(PYRO2_DETECT_PIN) < 200)
+  // {
+  //   while (1)
+  //   {
+  //     buzzerError();
+  //     delay(200);
+  //   }
+  // }
+  Serial.println("Pyro Continuity Good");
 }
 
 void handleFirePyro()

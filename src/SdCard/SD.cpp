@@ -49,8 +49,6 @@ void writeHeader()
   file.print(F(",KP_Z"));
   file.print(F(",KI_Z"));
   file.print(F(",KD_Z"));
-  file.print(F(",pid_delta_y"));
-  file.print(F(",pid_delta_z"));
   file.print(F(",p_err_y"));
   file.print(F(",i_err_y"));
   file.print(F(",d_err_y"));
@@ -120,10 +118,6 @@ void logData()
   file.print(data.ki_z, numDecimals);
   file.write(',');
   file.print(data.kd_z, numDecimals);
-  file.write(',');
-  file.print(data.pid_delta_y, numDecimals);
-  file.write(',');
-  file.print(data.pid_delta_z, numDecimals);
   file.write(',');
   file.print(data.p_err_y, numDecimals);
   file.write(',');
