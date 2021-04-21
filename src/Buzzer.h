@@ -10,4 +10,6 @@ void buzzerError();
 void buzzComplete();
 void buzz1();
 void buzzLongs();
+void handleBuzzer();
+void buzzOff();
 #endif

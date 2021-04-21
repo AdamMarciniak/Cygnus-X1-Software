@@ -134,23 +134,18 @@ void handleWritingToFlash()
       writingMode = false;
       finishedWriting = true;
     }
-    else
-    {
-      if (writeTimer.hasPassed(1000))
-      {
-        writeSecond += 1;
-        Serial.println(writeSecond);
-        writeTimer.restart();
-      }
-    }
   }
 }
+
+bool launchFlag = true;
+Chrono launchTimer;
 
 void loop()
 {
   handleEUI();
   checkBTLE();
-  
+
+  handleDoNav();
 
   if (data.state == INITIALIZING){
       handleServoCentering();
@@ -164,11 +159,34 @@ void loop()
     passed = millis();
 
     //handleFirePyro();
-    handleDoNav();
+    
     
     //handleWritingToFlash();
   }
 
+  if(data.worldAx > 5.0 && data.state == LAUNCH_COMMANDED){
+    data.state = POWERED_ASCENT;
+  }
+
+  if(data.state == POWERED_ASCENT && data.kal_V <= -0.3){
+    data.state = FREE_DESCENT;
+  }
+
+  if(data.state == FREE_DESCENT && data.kal_X < 30){
+    
+    data.state = IDLE;
+  }
+
+
+  if(data.state == IDLE){
+    handleBuzzer();
+    deployParachute();
+    if(launchTimer.hasPassed(2000)){
+      data.state = LAUNCH_COMMANDED;
+      buzzOff();
+      launchTimer.restart();
+    }
+  }
   // if (finishedWriting)
   // {
   //   Serial.println("Writing to SD");

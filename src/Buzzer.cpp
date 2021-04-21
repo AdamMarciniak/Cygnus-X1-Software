@@ -11,6 +11,30 @@ void initBuzzer()
   buzzStartup();
 }
 
+void buzzOff(){
+  buzzerState = false;
+  analogWrite(BUZZER_PIN, 0);
+}
+
+void handleBuzzer(){
+  if (buzzOnTimer.hasPassed(200))
+  {
+    if (buzzerState == false)
+    {
+      buzzerState = true;
+      analogWrite(BUZZER_PIN, 150);
+    }
+
+    else if (buzzerState == true)
+    {
+      buzzerState = false;
+      analogWrite(BUZZER_PIN, 0);
+    }
+
+    buzzOnTimer.restart();
+  }
+}
+
 void buzzStartup()
 {
   analogWrite(BUZZER_PIN, 150);

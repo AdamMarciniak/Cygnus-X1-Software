@@ -16,7 +16,6 @@
 #define DATA_SAMPLE_RATE 100 // hz
 #define DATA_SAMPLE_TOTAL_TIME 20 // seconds
 
-#define FIRE_TO_PID_DELAY 500 //ms
 #define BATTERY_VOLTAGE_MIN 11.5 //volts
 #define NAV_RATE 10 //ms
 
@@ -25,7 +24,7 @@
 
 #define TELEMETRY_RATE 50     // ms
 
-#define SERVO_RANGE 20
+#define SERVO_RANGE 22
 #define TVC_TO_SERVO_SCALE 4
 #define Y_CENTER 91
 #define Z_CENTER 102
@@ -33,3 +32,15 @@
 
 #define PYRO_CONTINUITY_THRESHOLD 200;
 #define FIRE_ON_TIME 1000     // ms
+
+#define LAUNCH_ACCEL_THRESHOLD 2.0f // m/s^2
+
+#define PARACHUTE_ALTITUDE_THRESHOLD 40.0f      // meters
+#define ABORT_ANGLE_THRESHOLD 30.0f             // degrees
+#define ACCEL_UNPOWERED_THRESHOLD 2.0f          //m/s^2
+#define FIRE_ON_TIME 1000                       // ms
+#define FIRE_TO_PID_DELAY 500                   //ms
+
+#define PARACHUTE_EJECT_SAFETY_TIME 10000 // ms
+
+#define LANDING_DETECT_DELAY 10000 //ms
