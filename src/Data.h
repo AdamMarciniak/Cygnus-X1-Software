@@ -2,6 +2,11 @@
 
 #include <Arduino.h>
 #include "States.h"
+#include "Config.h"
+#include "./SdCard/SPI.h"
+#include "./SdCard/SPIMemory.h"
+#include "Chrono.h"
+
 
 extern uint16_t rateHz;
 extern uint16_t numSeconds;

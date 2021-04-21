@@ -3,9 +3,6 @@
 #include <./bluetooth/lib_aci.h>
 #include <./bluetooth/aci_setup.h>
 #include "./bluetooth/uart_over_ble.h"
-#include "Data.h"
-#include "States.h"
-
 #include "./bluetooth/services.h"
 #include "BTLE.h"
 

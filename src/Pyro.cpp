@@ -1,9 +1,4 @@
 #include "Pyro.h"
-#include <Arduino.h>
-#include "Buzzer.h"
-
-#define PYRO_CONTINUITY_THRESHOLD 200;
-#define FIRE_ON_TIME 1000     // ms
 
 
 unsigned long fireTime = 0; // millis

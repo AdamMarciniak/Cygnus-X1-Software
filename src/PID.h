@@ -4,17 +4,9 @@
 #include <Arduino.h>
 #include "Data.h"
 #include "ServoControl.h"
-
-#define Y_KP 0.5
-#define Y_KI 0.06
-#define Y_KD 0.14
-
-#define Z_KP 0.5
-#define Z_KI 0.06
-#define Z_KD 0.14
+#include "Config.h"
 
 extern void initPIDs();
-
 extern void setZPIDInput(float val);
 extern void setYPIDInput(float val);
 extern void computeBothPIDs();

@@ -1,11 +1,7 @@
-
-#include "Arduino.h"
-#include "libraries/BMI088.h"
 #include "Nav.h"
-#include "Data.h"
-#include "Quaternion.h"
-#include "Kalman.h"
-#include "Altimeter.h"
+
+
+
 Bmi088Accel accel(Wire, 0x18);
 Bmi088Gyro gyro(Wire, 0x68);
 
@@ -124,6 +120,7 @@ bool initNav()
     data.worldVy = 0;
     data.worldVz = 0;
     getInitYawAndPitchBiases();
+    getWorldAxBiases();
     return 1;
 }
 
@@ -155,13 +152,29 @@ void getAccel()
 }
 
 void measureNav() {
-    getAccel();
+    //getAccel();
     handleAltimeter();
 
     if(isNewAltimeterData()){
-        updateBaro(getAltitude());
+        getAltitude();
     }
-    updateAccel(data.worldAx);
+    // updateAccel(data.worldAx);
+}
+
+float tempWorldAxBias = 0.0f;
+float worldAxBias = 0.0f;
+
+void getWorldAxBiases() {
+    int i = 0;
+    while(i < 100){
+        i += 1;
+        getYPR();
+        tempWorldAxBias += data.worldAx;
+        delay(10);
+        
+    }
+    worldAxBias = tempWorldAxBias / 100.0f;
+
 }
 
 float axAve = 0;
@@ -244,7 +257,7 @@ void getYPR()
         // orientation = yawBiasQuaternion.rotate(orientation);
         localAccelQuat = Quaternion(0, data.ax, data.ay, data.az);
         worldAccelQuat = orientation.rotate(localAccelQuat);
-        data.worldAx = worldAccelQuat.b;
+        data.worldAx = worldAccelQuat.b - worldAxBias;
         data.worldAy = worldAccelQuat.c;
         data.worldAz = worldAccelQuat.d;
         Serial.println(data.worldAx);

@@ -5,8 +5,7 @@ PID z_PID;
 PID y_PID;
 
 
-#define Y_SETPOINT 0.0f
-#define Z_SETPOINT 0.0f
+
 
 
 void initPIDs()

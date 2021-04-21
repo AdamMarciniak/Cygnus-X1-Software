@@ -1,5 +1,4 @@
-#ifndef BLA_H
-#define BLA_H
+#pragma once
 
 #include <stdlib.h>
 #include <string.h>
@@ -275,11 +274,11 @@ Matrix<rows,cols,MemT> &Matrix<rows,cols,MemT>::operator-=(const Matrix<rows,col
 }
 
 template<int rows, int cols, class MemT, class opMemT, class retMemT>
-Matrix<rows,cols,retMemT> &Subtract(const Matrix<rows,cols,MemT> &A, const Matrix<rows,cols,opMemT> &B, Matrix<rows,cols,retMemT> &C)
+Matrix<rows,cols,retMemT> &Subtract(const Matrix<rows,cols,MemT> &A, const Matrix<rows,cols,opMemT> &D, Matrix<rows,cols,retMemT> &C)
 {
     for(int i = 0; i < rows; i++)
         for(int j = 0; j < cols; j++)
-            C(i,j) = A(i,j) - B(i,j);
+            C(i,j) = A(i,j) - D(i,j);
 
     return C;
 }
@@ -456,11 +455,11 @@ Matrix<rows,cols,retMemT> &ElementwiseMultiply(const Matrix<rows,cols,MemT> &A, 
 
 // Multiplies corresponding elements of two matrices  and stores result in third matrix C
 template<int rows, int cols, class MemT, class opMemT, class retMemT>
-Matrix<rows,cols,retMemT> &ElementwiseMultiply(const Matrix<rows,cols,MemT> &A, const Matrix<rows,cols,opMemT> &B, Matrix<rows,cols,retMemT> &C)
+Matrix<rows,cols,retMemT> &ElementwiseMultiply(const Matrix<rows,cols,MemT> &A, const Matrix<rows,cols,opMemT> &D, Matrix<rows,cols,retMemT> &C)
 {
     for(int i = 0; i < rows; i++)
         for(int j = 0; j < cols; j++)
-            C(i,j) = A(i,j) * B(i,j);
+            C(i,j) = A(i,j) * D(i,j);
 	
     return C;
 }
@@ -637,4 +636,4 @@ Print &operator<<(Print &strm, const Matrix<rows,cols,MemT> &obj)
 
 } // namespace BLA
 
-#endif // BLA_H
+

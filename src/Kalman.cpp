@@ -1,16 +1,15 @@
 #include "Kalman.h"
-#include "BasicLinearAlgebra.h"
-#include "Data.h"
+
 using namespace BLA;
 
-BLA::Matrix<3, 3> Q = {0.001, 0, 0,
-                       0, 0.001, 0,
-                       0, 0, 0.001};
+BLA::Matrix<3, 3> Q = {0.1, 0, 0,
+                       0, 0.1, 0,
+                       0, 0, 20};
 
-BLA::Matrix<1, 1> R_Accel = {0.105434};
+BLA::Matrix<1, 1> R_Accel = {10.5434};
 
 // Measured baro variance was 0.03251531
-BLA::Matrix<1, 1> R_Baro = {0.7};
+BLA::Matrix<1, 1> R_Baro = {3.25};
 
 BLA::Matrix<3, 1> X = {
     0,
@@ -35,6 +34,10 @@ BLA::Matrix<1, 1> Z_Baro;
 BLA::Matrix<3, 1> K_Accel;
 BLA::Matrix<3, 1> K_Baro;
 
+void initKalman() {
+  zeroKalman();
+}
+
 void zeroKalman()
 {
   X = {
@@ -43,9 +46,9 @@ void zeroKalman()
       0,
   };
 
-  P = {1, 0, 0,
-       0, 1, 0,
-       0, 0, 1};
+  P = {0.1, 0, 0,
+       0, 0.1, 0,
+       0, 0, 10};
 }
 
 unsigned long currentTime = 0;

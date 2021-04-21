@@ -1,8 +1,4 @@
-#include <Arduino.h>
 #include "Battery.h"
-
-#define R1 150000
-#define R2 47000
 
 float getBattVoltage()
 {

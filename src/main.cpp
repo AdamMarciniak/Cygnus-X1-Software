@@ -13,10 +13,11 @@
 #include "ServoControl.h"
 #include "Telemetry.h"
 #include "Pyro.h"
+#include "Config.h"
+#include "Kalman.h"
+#include "./eui/EUIMyLib.h"
 
-#define FIRE_TO_PID_DELAY 500 //ms
-#define BATTERY_VOLTAGE_MIN 11.5 //volts
-#define NAV_RATE 10 //ms
+
 
 bool goMode = false;
 bool writingMode = false;
@@ -54,10 +55,10 @@ void setup()
 {
   delay(2000);
   Serial.begin(115200);
-  data.state = INITIALIZING;
+  data.state = LAUNCH_COMMANDED;
   
-  checkBatteryVoltage();
-  
+  //checkBatteryVoltage();
+
   //initPyro();
 
   buzzStartup();
@@ -89,20 +90,39 @@ void setup()
   passed = millis();
   t_ = 0;
   writingMode = true;
+    initEUI();
+    initKalman();
+
 }
 
 void handleDoNav()
 {
 
+  handleAltimeter();
+
+
   if (pidTimer.hasPassed(NAV_RATE))
   {
+
+    getAccel();
+    getYPR();
+    updateAccel(data.worldAx);
+
     setZPIDInput(data.pitch);
     setYPIDInput(data.yaw);
     computeBothPIDs();
-  
+
+
     moveZServo(int(round(data.Z_Servo_Center + data.servo_z)));
     moveYServo(int(round(data.Y_Servo_Center + data.servo_y)));
+
+    pidTimer.restart();
   };
+
+  if (isNewAltimeterData())
+  {
+    updateBaro(getAltitude());
+  }
 }
 
 void handleWritingToFlash()
@@ -128,14 +148,14 @@ void handleWritingToFlash()
 
 void loop()
 {
-
-  getYPR();
-  getAccel();
+  handleEUI();
   checkBTLE();
+  
 
   if (data.state == INITIALIZING){
       handleServoCentering();
       handleSendTelemetry();
+      
   }
 
   if (data.state == LAUNCH_COMMANDED)
@@ -145,20 +165,44 @@ void loop()
 
     //handleFirePyro();
     handleDoNav();
-    handleWritingToFlash();
+    
+    //handleWritingToFlash();
   }
 
-  if (finishedWriting)
-  {
-    Serial.println("Writing to SD");
-    transferToSD();
-    buzzComplete();
-    delay(200);
-    buzzComplete();
-    delay(200);
-    buzzComplete();
-    Serial.println("SD writing complete");
-    while (1)
-      ;
-  }
+  // if (finishedWriting)
+  // {
+  //   Serial.println("Writing to SD");
+  //   transferToSD();
+  //   buzzComplete();
+  //   delay(200);
+  //   buzzComplete();
+  //   delay(200);
+  //   buzzComplete();
+  //   Serial.println("SD writing complete");
+  //   while (1)
+  //     ;
+  // }
 }
+
+
+
+// void loop()
+// {
+
+//   handleEUI();
+//   handleAltimeter();
+//   handleChangeBaroNoise();
+
+//   if (accelTimer.hasPassed(5))
+//   {
+//     getAccel();
+//     getYPR();
+//     updateAccel(data.worldAx);
+//     accelTimer.restart();
+//   }
+
+//   if (isNewAltimeterData())
+//   {
+//     updateBaro(getAltitude());
+//   }
+// }

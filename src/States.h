@@ -1,5 +1,5 @@
-#ifndef STATES_H
-#define STATES_H
+#pragma once
+
 enum State {
   INITIALIZING,
   IDLE,
@@ -14,4 +14,3 @@ enum State {
 };
 
 
-#endif

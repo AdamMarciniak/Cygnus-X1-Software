@@ -1,6 +1,4 @@
-#include <Arduino.h>
 #include "Buzzer.h"
-#include "Chrono.h"
 
 Chrono buzzOnTimer;
 Chrono buzzOffTimer;

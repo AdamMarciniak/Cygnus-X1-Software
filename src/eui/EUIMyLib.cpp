@@ -28,7 +28,6 @@ eui_message_t tracked_vars[] =
         EUI_FLOAT("kal_XP", data.kal_XP),
         EUI_FLOAT("kal_VP", data.kal_VP),
         EUI_FLOAT("kal_AP", data.kal_AP),
-        EUI_FLOAT("baroNoise", data.baroNoise),
 
 };
 
@@ -51,7 +50,6 @@ void sendEUIVars()
   eui_send_tracked("kal_XP");
   eui_send_tracked("kal_VP");
   eui_send_tracked("kal_AP");
-  eui_send_tracked("baroNoise");
 }
 
 void handleEUI()

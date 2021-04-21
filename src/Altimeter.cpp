@@ -1,6 +1,6 @@
-#include "libraries/MS5607.h"
+
 #include "Altimeter.h"
-#include "Data.h"
+
 float rawAltitude = 0;
 float altitudeBias = 0;
 float altitude = 0;
@@ -66,15 +66,13 @@ void getAltitudeBias()
     Altimeter.handleAltimeter();
     if (isNewAltimeterData())
     {
-      if (count > 10)
-      {
-        altitudeBias += rawAltitude;
-      }
+      
+      altitudeBias += rawAltitude;
       Serial.print(".");
       count += 1;
     }
   }
-  altitudeBias = altitudeBias / ((float)biasCount - 10.0f);
+  altitudeBias = altitudeBias / ((float)biasCount);
   data.biasAltitude = altitudeBias;
   return;
 }

@@ -1,16 +1,13 @@
-#include <Arduino.h>
 #include "Data.h"
-#include "./SdCard/SPI.h"
-#include "./SdCard/SPIMemory.h"
-#include "Chrono.h"
+
 
 Chrono dataWriteTimer;
 SPIFlash flash(SS_FLASH, &SPI2);
 Data data;
 NonLoggedData nonLoggedData;
 
-uint16_t rateHz = 100;
-uint16_t numSeconds = 10;
+uint16_t rateHz = DATA_SAMPLE_RATE;
+uint16_t numSeconds = DATA_SAMPLE_TOTAL_TIME;
 uint16_t millisPerSample = 1000 / rateHz;
 uint16_t totalSamples = rateHz * numSeconds;
 

@@ -180,6 +180,7 @@ int transferToSD()
   }
   while (readFromFlash())
   {
+    Serial.println("Logging data");
     logData();
   }
   file.close();
