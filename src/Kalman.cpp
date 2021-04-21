@@ -2,14 +2,14 @@
 
 using namespace BLA;
 
-BLA::Matrix<3, 3> Q = {0.1, 0, 0,
-                       0, 0.1, 0,
-                       0, 0, 20};
+BLA::Matrix<3, 3> Q = {0.01, 0, 0,
+                       0, 0.01, 0,
+                       0, 0, 0.01};
 
-BLA::Matrix<1, 1> R_Accel = {10.5434};
+BLA::Matrix<1, 1> R_Accel = {10};
 
 // Measured baro variance was 0.03251531
-BLA::Matrix<1, 1> R_Baro = {3.25};
+BLA::Matrix<1, 1> R_Baro = {10};
 
 BLA::Matrix<3, 1> X = {
     0,
@@ -46,9 +46,9 @@ void zeroKalman()
       0,
   };
 
-  P = {0.1, 0, 0,
-       0, 0.1, 0,
-       0, 0, 10};
+  P = {0.001, 0, 0,
+       0, 0.001, 0,
+       0, 0, 0.001};
 }
 
 unsigned long currentTime = 0;
