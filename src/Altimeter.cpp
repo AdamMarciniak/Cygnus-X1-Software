@@ -51,8 +51,7 @@ bool isNewAltimeterData()
 
 float getAltitude()
 {
-  Altimeter.handleAltimeter();
-  data.altitude = rawAltitude - altitudeBias;
+  data.altitude = rawAltitude - data.biasAltitude;
   return rawAltitude - altitudeBias;
 }
 

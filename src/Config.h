@@ -41,6 +41,6 @@
 #define FIRE_ON_TIME 1000                       // ms
 #define FIRE_TO_PID_DELAY 500                   //ms
 
-#define PARACHUTE_EJECT_SAFETY_TIME 10000 // ms
+#define PARACHUTE_EJECT_SAFETY_TIME 100000 // ms
 
-#define LANDING_DETECT_DELAY 10000 //ms
+#define LANDING_DETECT_DELAY 2000 //ms

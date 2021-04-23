@@ -25,6 +25,12 @@ unsigned long maxAddr = totalSamples * sizeof(data);
 float YCENTER;
 float ZCENTER;
 
+void goToState(State state) {
+  data.state = state;
+  data.fState = float(state);
+  
+}
+
 void writeTVCCenters()
 {
   flash.eraseSector(0);

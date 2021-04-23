@@ -335,14 +335,14 @@ void checkBTLE()
           switch (dataChar)
           {
           case 'f':
-            data.state = LAUNCH_COMMANDED;
+            goToState(LAUNCH_COMMANDED);
             break;
           case 'z':
             nonLoggedData.zeroGyrosStatus = true;
             eraseFlightData();
             break;
           case 'A':
-            data.state = PARACHUTE_DESCENT;
+            goToState(PARACHUTE_DESCENT);
             readTVCCenters();
             break;
           case '>':

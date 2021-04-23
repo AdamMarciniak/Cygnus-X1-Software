@@ -29,9 +29,9 @@ void writeHeader()
   file.print(F(",worldAx"));
   file.print(F(",worldAy"));
   file.print(F(",worldAz"));
-  file.print(F(",worldVx"));
-  file.print(F(",worldVy"));
-  file.print(F(",worldVz"));
+  file.print(F(",kalX"));
+  file.print(F(",kalV"));
+  file.print(F(",kalA"));
   file.print(F(",gx"));
   file.print(F(",gy"));
   file.print(F(",gz"));
@@ -79,11 +79,11 @@ void logData()
   file.write(',');
   file.print(data.worldAz, numDecimals);
   file.write(',');
-  file.print(data.worldVx, numDecimals);
+  file.print(data.kal_X, numDecimals);
   file.write(',');
-  file.print(data.worldVy, numDecimals);
+  file.print(data.kal_V, numDecimals);
   file.write(',');
-  file.print(data.worldVz, numDecimals);
+  file.print(data.kal_A, numDecimals);
   file.write(',');
   file.print(data.gx, numDecimals);
   file.write(',');
@@ -101,7 +101,7 @@ void logData()
   file.write(',');
   file.print(data.biasAltitude, numDecimals);
   file.write(',');
-  file.print(data.state, numDecimals);
+  file.print(data.fState, numDecimals);
   file.write(',');
   file.print(data.servo_z, numDecimals);
   file.write(',');

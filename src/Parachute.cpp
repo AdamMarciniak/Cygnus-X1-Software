@@ -13,5 +13,5 @@ void initParachute()
 
 void deployParachute()
 {
-  parachuteServo.write(PARACHUTE_SERVO_DEPLOY);
+  //parachuteServo.write(PARACHUTE_SERVO_DEPLOY);
 }

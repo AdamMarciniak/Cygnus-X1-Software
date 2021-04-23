@@ -13,6 +13,8 @@ extern uint16_t numSeconds;
 extern uint16_t totalSamples;
 extern uint16_t millisPerSample;
 
+void goToState(State state);
+
 struct Data
 {
   float ms;
@@ -38,6 +40,7 @@ struct Data
   float Z_Servo_Center;
   float loopTime;
   State state;
+  float fState;
   float kal_X;
   float kal_V;
   float kal_A;

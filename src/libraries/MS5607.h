@@ -29,7 +29,7 @@ public:
 private:
   const float P0 = 1013.25;
   short MS5607_ADDR = 0X76; // default device address of MS5607 (CBS == HIGH)
-  short OSR = 4096;         // default over sampling ratio
+  short OSR = 512;         // default over sampling ratio
   short CONV_D1 = 0x48;     // corresponding temp conv. command for OSR
   short CONV_D2 = 0x58;     // corresponding pressure conv. command for OSR
   char Conv_Delay = 10;     // corresponding conv. delay for OSR
