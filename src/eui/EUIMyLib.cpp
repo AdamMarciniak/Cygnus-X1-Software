@@ -1,5 +1,5 @@
 #include "EUIMyLib.h"
-
+#include "Config.h"
 Chrono EUITimer;
 
 void serial_write(uint8_t *data, uint16_t len)
@@ -33,11 +33,15 @@ eui_message_t tracked_vars[] =
 
 void initEUI()
 {
-  eui_setup_interface(&serial_comms);
-  // Provide the tracked variables to the library
-  EUI_TRACK(tracked_vars);
-  // Provide a identifier to make this board easy to find in the UI
-  eui_setup_identifier("hello", 5);
+
+  if (DO_EUI == true)
+  {
+    eui_setup_interface(&serial_comms);
+    // Provide the tracked variables to the library
+    EUI_TRACK(tracked_vars);
+    // Provide a identifier to make this board easy to find in the UI
+    eui_setup_identifier("hello", 5);
+  }
 }
 
 void sendEUIVars()
@@ -54,10 +58,13 @@ void sendEUIVars()
 
 void handleEUI()
 {
-  serial_rx_handler(); //check for new inbound data
-  if (EUITimer.hasPassed(16))
+  if (DO_EUI == true)
   {
-    sendEUIVars();
-    EUITimer.restart();
+    serial_rx_handler(); //check for new inbound data
+    if (EUITimer.hasPassed(16))
+    {
+      sendEUIVars();
+      EUITimer.restart();
+    }
   }
 }

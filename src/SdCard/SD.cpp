@@ -39,7 +39,7 @@ void writeHeader()
   file.print(F(",pitch"));
   file.print(F(",roll"));
   file.print(F(",altitude"));
-  file.print(F(",altitude_bias"));
+  file.print(F(",altitudeBias"));
   file.print(F(",state"));
   file.print(F(",zServo"));
   file.print(F(",yServo"));
@@ -57,6 +57,8 @@ void writeHeader()
   file.print(F(",d_err_z"));
   file.print(F(",yServoCenter"));
   file.print(F(",zServoCenter"));
+  file.print(F(",batteryVoltage"));
+  file.print(F(",Loop Time"));
   file.println();
 }
 
@@ -134,6 +136,10 @@ void logData()
   file.print(data.Y_Servo_Center, numDecimals);
   file.write(',');
   file.print(data.Z_Servo_Center, numDecimals);
+  file.write(',');
+  file.print(data.batteryVoltage, numDecimals);
+  file.write(',');
+  file.print(data.loopTime, numDecimals);
   file.println();
 }
 

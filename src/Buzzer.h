@@ -12,4 +12,5 @@ void buzz1();
 void buzzLongs();
 void handleBuzzer();
 void buzzOff();
+void buzzFast();
 #endif

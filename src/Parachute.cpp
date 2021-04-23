@@ -13,5 +13,7 @@ void initParachute()
 
 void deployParachute()
 {
-  //parachuteServo.write(PARACHUTE_SERVO_DEPLOY);
+  if(ENABLE_PARACHUTE == true){
+      parachuteServo.write(PARACHUTE_SERVO_DEPLOY);
+  }
 }

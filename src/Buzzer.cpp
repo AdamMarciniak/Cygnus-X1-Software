@@ -11,12 +11,14 @@ void initBuzzer()
   buzzStartup();
 }
 
-void buzzOff(){
+void buzzOff()
+{
   buzzerState = false;
   analogWrite(BUZZER_PIN, 0);
 }
 
-void handleBuzzer(){
+void handleBuzzer()
+{
   if (buzzOnTimer.hasPassed(200))
   {
     if (buzzerState == false)
@@ -101,4 +103,31 @@ void buzzerError()
 
     buzzOnTimer.restart();
   }
+}
+
+void buzzFast()
+{
+  analogWrite(BUZZER_PIN, 150);
+  delay(50);
+  analogWrite(BUZZER_PIN, 0);
+  delay(50);
+  analogWrite(BUZZER_PIN, 150);
+  delay(50);
+  analogWrite(BUZZER_PIN, 0);
+  delay(400);
+  analogWrite(BUZZER_PIN, 150);
+  delay(50);
+  analogWrite(BUZZER_PIN, 0);
+  delay(50);
+  analogWrite(BUZZER_PIN, 150);
+  delay(50);
+  analogWrite(BUZZER_PIN, 0);
+  delay(400);
+  analogWrite(BUZZER_PIN, 150);
+  delay(50);
+  analogWrite(BUZZER_PIN, 0);
+  delay(50);
+  analogWrite(BUZZER_PIN, 150);
+  delay(50);
+  analogWrite(BUZZER_PIN, 0);
 }
