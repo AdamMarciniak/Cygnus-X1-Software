@@ -7,7 +7,6 @@
 #include "./SdCard/SPIMemory.h"
 #include "Chrono.h"
 
-
 extern uint16_t rateHz;
 extern uint16_t numSeconds;
 extern uint16_t totalSamples;
@@ -24,9 +23,6 @@ struct Data
   float worldAx;
   float worldAy;
   float worldAz;
-  float worldVx;
-  float worldVy;
-  float worldVz;
   float gx;
   float gy;
   float gz;
@@ -41,12 +37,20 @@ struct Data
   float loopTime;
   State state;
   float fState;
-  float kal_X;
-  float kal_V;
-  float kal_A;
-  float kal_XP;
-  float kal_VP;
-  float kal_AP;
+  float kal_X_pos;
+  float kal_X_vel;
+  float kal_X_accel;
+  float kal_X_posP;
+  float kal_X_velP;
+  float kal_X_accelP;
+  float kal_Y_pos;
+  float kal_Y_vel;
+  float kal_Y_accel;
+  float kal_Z_pos;
+  float kal_Z_vel;
+  float kal_Z_accel;
+  float kal_Z_bias;
+  float kal_Y_bias;
   float baroNoise;
   float servo_z;
   float servo_y;

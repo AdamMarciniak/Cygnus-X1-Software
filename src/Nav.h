@@ -17,4 +17,4 @@ extern void zeroGyroscope();
 extern void getCurrentYawAndPitchFromAccel();
 extern void getInitYawAndPitchBiases();
 extern void measureNav();
-extern void getWorldAxBiases();
+extern void getWorldABiases();

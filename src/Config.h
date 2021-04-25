@@ -2,28 +2,30 @@
 
 #define ENABLE_PARACHUTE false
 #define ENABLE_ANGLE_CHECK false
+#define ENGAGE_PYRO false
+#define DO_EUI false
 
 #define Y_SETPOINT 0.0f //deg
 #define Z_SETPOINT 0.0f //deg
 
-#define KP 0.5
-#define KI 0.06
-#define KD 0.14
+#define KPF15 0.3
+#define KIF15 0.1
+#define KDF15 0.15
 
-#define Y_KP KP
-#define Y_KI KI
-#define Y_KD KD
+#define KPE12 0.5
+#define KIE12 0.06
+#define KDE12 0.14
 
-#define Z_KP KP
-#define Z_KI KI
-#define Z_KD KD
+#define Y_KP KPE12
+#define Y_KI KIE12
+#define Y_KD KDE12
 
-#define ENGAGE_PYRO false
-
-#define DO_EUI false
+#define Z_KP KPE12
+#define Z_KI KIE12
+#define Z_KD KDE12
 
 #define DATA_SAMPLE_RATE 200      // hz
-#define DATA_SAMPLE_TOTAL_TIME 50 // seconds
+#define DATA_SAMPLE_TOTAL_TIME 15 // seconds
 
 #define BATTERY_VOLTAGE_MIN 11.0 //volts
 #define NAV_RATE 10              //ms
@@ -33,8 +35,7 @@
 
 #define TELEMETRY_RATE 10 // ms
 
-#define SERVO_RANGE 24
-#define TVC_TO_SERVO_SCALE 4
+#define SERVO_RANGE 26
 #define Y_CENTER 91
 #define Z_CENTER 102
 

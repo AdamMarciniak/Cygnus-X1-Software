@@ -34,7 +34,8 @@ BLA::Matrix<1, 1> Z_Baro;
 BLA::Matrix<3, 1> K_Accel;
 BLA::Matrix<3, 1> K_Baro;
 
-void initKalman() {
+void initKalman()
+{
   zeroKalman();
 }
 
@@ -105,13 +106,13 @@ void handleChangeBaroNoise()
 
 void setDataVariables()
 {
-  data.kal_X = X(0, 0);
-  data.kal_V = X(1, 0);
-  data.kal_A = X(2, 0);
+  data.kal_X_pos = X(0, 0);
+  data.kal_X_vel = X(1, 0);
+  data.kal_X_accel = X(2, 0);
 
-  data.kal_XP = P(0, 0);
-  data.kal_VP = P(1, 1);
-  data.kal_AP = P(2, 2);
+  data.kal_X_posP = P(0, 0);
+  data.kal_X_velP = P(1, 1);
+  data.kal_X_accelP = P(2, 2);
 }
 
 float getKalmanPosition()

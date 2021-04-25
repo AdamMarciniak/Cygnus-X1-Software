@@ -16,9 +16,13 @@
 #include "Config.h"
 #include "Kalman.h"
 #include "./eui/EUIMyLib.h"
+#include "KalmanHorizontal.h"
 
-Chrono pidTimer;
-Chrono landingDetectTimer;
+Chrono navTimer;
+Chrono batteryCheckTimer;
+
+KalmanH yKalman;
+KalmanH zKalman;
 
 float accelMag = 0;
 bool flashWriteStatus = false;
@@ -85,18 +89,35 @@ void setup()
 }
 
 Chrono altitudeTimer;
+Chrono kalmanTimer;
 
 void handleRunPID()
 {
 
   handleAltimeter();
 
-  if (pidTimer.hasPassed(NAV_RATE))
+  if (kalmanTimer.hasPassed(1))
+  {
+    predict();
+    kalmanTimer.restart();
+  }
+
+  if (navTimer.hasPassed(NAV_RATE))
   {
 
     getAccel();
     getYPR();
     updateAccel(data.worldAx);
+    yKalman.update(data.worldAy);
+    zKalman.update(data.worldAz);
+
+    data.kal_Y_pos = yKalman.getPosition();
+    data.kal_Y_vel = yKalman.getVelocity();
+    data.kal_Y_accel = yKalman.getAcceleration();
+
+    data.kal_Z_pos = zKalman.getPosition();
+    data.kal_Z_vel = zKalman.getVelocity();
+    data.kal_Z_accel = zKalman.getAcceleration();
 
     if (PIDStatus == true)
     {
@@ -106,7 +127,7 @@ void handleRunPID()
       moveZServo(int(round(data.Z_Servo_Center + data.servo_z)));
       moveYServo(int(round(data.Y_Servo_Center + data.servo_y)));
     }
-    pidTimer.restart();
+    navTimer.restart();
   };
 
   if (isNewAltimeterData())
@@ -123,6 +144,7 @@ void handleWritingToFlash()
     {
       flashWriteStatus = false;
       finishedWriting = true;
+      goToState(LANDED);
     }
   }
 }
@@ -134,6 +156,12 @@ void loop()
   currentLoopTime = micros();
   data.loopTime = float(currentLoopTime - prevLoopTime) / 1000000.0f;
   prevLoopTime = currentLoopTime;
+
+  if (batteryCheckTimer.hasPassed(50))
+  {
+    data.batteryVoltage = getBattVoltage();
+    batteryCheckTimer.restart();
+  }
 
   checkBTLE();
 
@@ -185,11 +213,11 @@ void loop()
 
     PIDStatus = true;
 
-    if (data.worldAx > LAUNCH_ACCEL_THRESHOLD)
-    {
-      analogWrite(PYRO2_PIN, 0);
-      goToState(POWERED_ASCENT);
-    }
+    // if (data.worldAx > LAUNCH_ACCEL_THRESHOLD || data.ax > LAUNCH_ACCEL_THRESHOLD)
+    // {
+    //   analogWrite(PYRO2_PIN, 0);
+    //   goToState(POWERED_ASCENT);
+    // }
 
     break;
   case POWERED_ASCENT:
@@ -210,7 +238,7 @@ void loop()
     moveZServo(data.Z_Servo_Center);
     moveYServo(data.Y_Servo_Center);
 
-    if (data.kal_V <= -1.0f)
+    if (data.kal_X_vel <= -1.0f)
     {
       goToState(FREE_DESCENT);
     }

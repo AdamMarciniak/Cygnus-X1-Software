@@ -17,8 +17,6 @@
 #include "Kalman.h"
 #include "./eui/EUIMyLib.h"
 
-
-
 bool goMode = false;
 bool writingMode = false;
 bool finishedWriting = false;
@@ -29,15 +27,11 @@ Chrono pidTimer;
 Chrono printTimer;
 Chrono batteryCheckTimer;
 
-
 int servoFlag = 0;
 int writeSecond = 0;
 
-
 unsigned long passed = 0;
 unsigned long t_ = 0;
-
-
 
 void checkBatteryVoltage()
 {
@@ -56,7 +50,7 @@ void setup()
   delay(2000);
   Serial.begin(115200);
   data.state = LAUNCH_COMMANDED;
-  
+
   //checkBatteryVoltage();
 
   //initPyro();
@@ -72,7 +66,6 @@ void setup()
 
   delay(2000);
 
-  
   initNav();
 
   buzzStartup();
@@ -90,16 +83,14 @@ void setup()
   passed = millis();
   t_ = 0;
   writingMode = true;
-    initEUI();
-    initKalman();
-
+  initEUI();
+  initKalman();
 }
 
 void handleDoNav()
 {
 
   handleAltimeter();
-
 
   if (pidTimer.hasPassed(NAV_RATE))
   {
@@ -111,7 +102,6 @@ void handleDoNav()
     setZPIDInput(data.pitch);
     setYPIDInput(data.yaw);
     computeBothPIDs();
-
 
     moveZServo(int(round(data.Z_Servo_Center + data.servo_z)));
     moveYServo(int(round(data.Y_Servo_Center + data.servo_y)));
@@ -147,10 +137,10 @@ void loop()
 
   handleDoNav();
 
-  if (data.state == INITIALIZING){
-      handleServoCentering();
-      handleSendTelemetry();
-      
+  if (data.state == INITIALIZING)
+  {
+    handleServoCentering();
+    handleSendTelemetry();
   }
 
   if (data.state == LAUNCH_COMMANDED)
@@ -159,29 +149,32 @@ void loop()
     passed = millis();
 
     //handleFirePyro();
-    
-    
+
     //handleWritingToFlash();
   }
 
-  if(data.worldAx > 5.0 && data.state == LAUNCH_COMMANDED){
+  if (data.worldAx > 5.0 && data.state == LAUNCH_COMMANDED)
+  {
     data.state = POWERED_ASCENT;
   }
 
-  if(data.state == POWERED_ASCENT && data.kal_V <= -0.3){
+  if (data.state == POWERED_ASCENT && data.kal_X_vel <= -0.3)
+  {
     data.state = FREE_DESCENT;
   }
 
-  if(data.state == FREE_DESCENT && data.kal_X < 30){
-    
+  if (data.state == FREE_DESCENT && data.kal_X_pos < 30)
+  {
+
     data.state = IDLE;
   }
 
-
-  if(data.state == IDLE){
+  if (data.state == IDLE)
+  {
     handleBuzzer();
     deployParachute();
-    if(launchTimer.hasPassed(2000)){
+    if (launchTimer.hasPassed(2000))
+    {
       data.state = LAUNCH_COMMANDED;
       buzzOff();
       launchTimer.restart();
@@ -201,8 +194,6 @@ void loop()
   //     ;
   // }
 }
-
-
 
 // void loop()
 // {

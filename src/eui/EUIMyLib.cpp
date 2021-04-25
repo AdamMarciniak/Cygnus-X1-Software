@@ -22,12 +22,12 @@ eui_message_t tracked_vars[] =
     {
         EUI_FLOAT("baro", data.altitude),
         EUI_FLOAT("worldAx", data.worldAx),
-        EUI_FLOAT("kal_X", data.kal_X),
-        EUI_FLOAT("kal_V", data.kal_V),
-        EUI_FLOAT("kal_A", data.kal_A),
-        EUI_FLOAT("kal_XP", data.kal_XP),
-        EUI_FLOAT("kal_VP", data.kal_VP),
-        EUI_FLOAT("kal_AP", data.kal_AP),
+        EUI_FLOAT("kal_X_pos", data.kal_X_pos),
+        EUI_FLOAT("kal_X_vel", data.kal_X_vel),
+        EUI_FLOAT("kal_X_accel", data.kal_X_accel),
+        EUI_FLOAT("kal_X_posP", data.kal_X_posP),
+        EUI_FLOAT("kal_X_velP", data.kal_X_velP),
+        EUI_FLOAT("kal_X_accelP", data.kal_X_accelP),
 
 };
 
@@ -48,12 +48,12 @@ void sendEUIVars()
 {
   eui_send_tracked("baro");
   eui_send_tracked("worldAx");
-  eui_send_tracked("kal_X");
-  eui_send_tracked("kal_V");
-  eui_send_tracked("kal_A");
-  eui_send_tracked("kal_XP");
-  eui_send_tracked("kal_VP");
-  eui_send_tracked("kal_AP");
+  eui_send_tracked("kal_X_pos");
+  eui_send_tracked("kal_X_vel");
+  eui_send_tracked("kal_X_accel");
+  eui_send_tracked("kal_X_posP");
+  eui_send_tracked("kal_X_velP");
+  eui_send_tracked("kal_X_accelP");
 }
 
 void handleEUI()

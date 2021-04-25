@@ -1,7 +1,5 @@
 #include "Nav.h"
 
-
-
 Bmi088Accel accel(Wire, 0x18);
 Bmi088Gyro gyro(Wire, 0x68);
 
@@ -116,65 +114,59 @@ bool initNav()
     g_bias[1] = -0.0009;
     g_bias[2] = 0.00001;
     zeroGyroscope();
-    data.worldVx = 0;
-    data.worldVy = 0;
-    data.worldVz = 0;
     getInitYawAndPitchBiases();
-    getWorldAxBiases();
+    getWorldABiases();
     return 1;
 }
 
 void getAccel()
 {
-    accel_current_time = micros();
     accel.readSensor();
     accel_raw[0] = accel.getAccelX_mss();
     accel_raw[1] = accel.getAccelY_mss();
     accel_raw[2] = accel.getAccelZ_mss();
-    if (!firstAccelReading)
-    {
-        accel_dt = (float)(accel_current_time - accel_past_time) / 1000000.0f;
-        vel_local[0] += accel_raw[0] * accel_dt;
-        vel_local[1] += accel_raw[1] * accel_dt;
-        vel_local[2] += accel_raw[2] * accel_dt;
-    }
-
-    accel_raw_prev[0] = accel_raw[0];
-    accel_raw_prev[1] = accel_raw[1];
-    accel_raw_prev[2] = accel_raw[2];
 
     data.ax = accel_raw[0];
     data.ay = accel_raw[1];
     data.az = accel_raw[2];
-
-    firstAccelReading = false;
-    accel_past_time = accel_current_time;
 }
 
-void measureNav() {
+void measureNav()
+{
     //getAccel();
     handleAltimeter();
 
-    if(isNewAltimeterData()){
+    if (isNewAltimeterData())
+    {
         getAltitude();
     }
     // updateAccel(data.worldAx);
 }
 
-float tempWorldAxBias = 0.0f;
 float worldAxBias = 0.0f;
+float worldAyBias = 0.0f;
+float worldAzBias = 0.0f;
 
-void getWorldAxBiases() {
+float worldAxBiasTemp = 0.0f;
+float worldAyBiasTemp = 0.0f;
+float worldAzBiasTemp = 0.0f;
+
+void getWorldABiases()
+{
     int i = 0;
-    while(i < 100){
+    const int count = 100;
+    while (i < count)
+    {
         i += 1;
-        getYPR();
-        tempWorldAxBias += data.worldAx;
         delay(10);
-        
+        getYPR();
+        worldAxBiasTemp += data.worldAx;
+        worldAyBiasTemp += data.worldAy;
+        worldAzBiasTemp += data.worldAz;
     }
-    worldAxBias = tempWorldAxBias / 100.0f;
-
+    worldAxBias = worldAxBiasTemp / 100.0;
+    worldAyBias = worldAyBiasTemp / 100.0;
+    worldAzBias = worldAzBiasTemp / 100.0;
 }
 
 float axAve = 0;
@@ -258,9 +250,8 @@ void getYPR()
         localAccelQuat = Quaternion(0, data.ax, data.ay, data.az);
         worldAccelQuat = orientation.rotate(localAccelQuat);
         data.worldAx = worldAccelQuat.b - worldAxBias;
-        data.worldAy = worldAccelQuat.c;
-        data.worldAz = worldAccelQuat.d;
-        Serial.println(data.worldAx);
+        data.worldAy = worldAccelQuat.c - worldAyBias;
+        data.worldAz = worldAccelQuat.d - worldAzBias;
 
         quatToEuler(q_body, ypr);
         data.yaw = ypr[0] + data.yawBias;

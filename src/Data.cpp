@@ -1,6 +1,5 @@
 #include "Data.h"
 
-
 Chrono dataWriteTimer;
 SPIFlash flash(SS_FLASH, &SPI2);
 Data data;
@@ -25,10 +24,10 @@ unsigned long maxAddr = totalSamples * sizeof(data);
 float YCENTER;
 float ZCENTER;
 
-void goToState(State state) {
+void goToState(State state)
+{
   data.state = state;
   data.fState = float(state);
-  
 }
 
 void writeTVCCenters()
@@ -116,11 +115,14 @@ bool writeToFlash()
 {
   if (write_addr < maxAddr)
   {
-    if(firstWrite == true){
+    if (firstWrite == true)
+    {
       firstWrite = false;
       data.ms = 0.0;
       startTime = millis();
-    } else {
+    }
+    else
+    {
       data.ms = float(millis() - startTime);
     }
     flash.writeAnything(write_addr, data);
@@ -150,5 +152,3 @@ bool readFromFlash()
     return false;
   }
 }
-
-

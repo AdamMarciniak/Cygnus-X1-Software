@@ -13,4 +13,5 @@ extern float getKalmanAcceleration();
 extern void zeroKalman();
 extern void handleChangeBaroNoise();
 extern void initKalman();
+extern void predict();
 void setDataVariables();
