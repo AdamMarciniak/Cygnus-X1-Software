@@ -6,6 +6,9 @@
 #define DO_EUI false
 #define ENABLE_HORIZONTAL_KALMAN false
 
+#define LANDING_DETECT_DELAY 15000  //ms
+#define ABORT_TO_LANDED_DELAY 20000 //ms
+
 #define Y_SETPOINT 0.0f //deg
 #define Z_SETPOINT 0.0f //deg
 
@@ -57,5 +60,3 @@
 // Parachute will eject if this takes too long
 // Probably useless
 #define PARACHUTE_EJECT_SAFETY_TIME 100000 // ms
-
-#define LANDING_DETECT_DELAY 2000 //ms

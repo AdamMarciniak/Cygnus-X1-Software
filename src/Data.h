@@ -43,14 +43,6 @@ struct Data
   float kal_X_posP;
   float kal_X_velP;
   float kal_X_accelP;
-  float kal_Y_pos;
-  float kal_Y_vel;
-  float kal_Y_accel;
-  float kal_Z_pos;
-  float kal_Z_vel;
-  float kal_Z_accel;
-  float kal_Z_bias;
-  float kal_Y_bias;
   float baroNoise;
   float servo_z;
   float servo_y;

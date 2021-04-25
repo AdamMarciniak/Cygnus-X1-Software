@@ -244,12 +244,10 @@ void checkBTLE()
         //When an iPhone connects to us we will get an ACI_EVT_CONNECTED event from the nRF8001
         if (aci_evt->params.device_started.hw_error)
         {
-          delay(20); //Handle the HW error event correctly.
         }
         else
         {
           lib_aci_connect(0 /* in seconds : 0 means forever */, 0x0050 /* advertising interval 50ms*/);
-          Serial.println(F("Advertising started : Tap Connect on the nRF UART app"));
         }
 
         break;
@@ -261,13 +259,6 @@ void checkBTLE()
       //If an ACI command response event comes with an error -> stop
       if (ACI_STATUS_SUCCESS != aci_evt->params.cmd_rsp.cmd_status)
       {
-        //ACI ReadDynamicData and ACI WriteDynamicData will have status codes of
-        //TRANSACTION_CONTINUE and TRANSACTION_COMPLETE
-        //all other ACI commands will have status code of ACI_STATUS_SCUCCESS for a successful command
-        Serial.print(F("ACI Command "));
-        Serial.println(aci_evt->params.cmd_rsp.cmd_opcode, HEX);
-        Serial.print(F("Evt Cmd respone: Status "));
-        Serial.println(aci_evt->params.cmd_rsp.cmd_status, HEX);
       }
       if (ACI_CMD_GET_DEVICE_VERSION == aci_evt->params.cmd_rsp.cmd_opcode)
       {
@@ -278,7 +269,6 @@ void checkBTLE()
       break;
 
     case ACI_EVT_CONNECTED:
-      Serial.println(F("Evt Connected"));
       uart_over_ble_init();
       timing_change_done = false;
       aci_state.data_credit_available = aci_state.data_credit_total;
@@ -296,11 +286,6 @@ void checkBTLE()
         lib_aci_change_timing_GAP_PPCP(); // change the timing on the link as specified in the nRFgo studio -> nRF8001 conf. -> GAP.
                                           // Used to increase or decrease bandwidth
         timing_change_done = true;
-
-        char hello[] = "Hello World, works";
-        uart_tx((uint8_t *)&hello[0], strlen(hello));
-        Serial.print(F("Sending :"));
-        Serial.println(hello);
       }
       break;
 
@@ -313,9 +298,7 @@ void checkBTLE()
       break;
 
     case ACI_EVT_DISCONNECTED:
-      Serial.println(F("Evt Disconnected/Advertising timed out"));
       lib_aci_connect(0 /* in seconds  : 0 means forever */, 0x0050 /* advertising interval 50ms*/);
-      Serial.println(F("Advertising started. Tap Connect on the nRF UART app"));
       break;
 
     case ACI_EVT_DATA_RECEIVED:
@@ -326,7 +309,6 @@ void checkBTLE()
       if (PIPE_UART_OVER_BTLE_UART_RX_RX == aci_evt->params.data_received.rx_data.pipe_number)
       {
 
-        Serial.print(F(" Data(Hex) : "));
         for (int i = 0; i < aci_evt->len - 2; i++)
         {
 
@@ -335,15 +317,17 @@ void checkBTLE()
           switch (dataChar)
           {
           case 'f':
-            goToState(LAUNCH_COMMANDED);
+            if (data.state == IDLE)
+            {
+              goToState(LAUNCH_COMMANDED);
+            }
+
             break;
           case 'z':
             nonLoggedData.zeroGyrosStatus = true;
-            eraseFlightData();
             break;
           case 'A':
-            goToState(PARACHUTE_DESCENT);
-            readTVCCenters();
+            goToState(ABORT);
             break;
           case '>':
             data.Y_Servo_Center += 1;
@@ -369,12 +353,9 @@ void checkBTLE()
           default:
             break;
           }
-          Serial.print((char)aci_evt->params.data_received.rx_data.aci_data[i]);
           uart_buffer[i] = aci_evt->params.data_received.rx_data.aci_data[i];
-          Serial.print(F(" "));
         }
         uart_buffer_len = aci_evt->len - 2;
-        Serial.println(F(""));
         if (lib_aci_is_pipe_available(&aci_state, PIPE_UART_OVER_BTLE_UART_TX_TX))
         {
           /*Do this to test the loopback otherwise comment it out*/

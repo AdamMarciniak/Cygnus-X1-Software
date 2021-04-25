@@ -19,7 +19,7 @@ void buzzOff()
 
 void handleBuzzer()
 {
-  if (buzzOnTimer.hasPassed(200))
+  if (buzzOnTimer.hasPassed(1000))
   {
     if (buzzerState == false)
     {

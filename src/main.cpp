@@ -16,13 +16,9 @@
 #include "Config.h"
 #include "Kalman.h"
 #include "./eui/EUIMyLib.h"
-#include "KalmanHorizontal.h"
 
 Chrono navTimer;
 Chrono batteryCheckTimer;
-
-KalmanH yKalman;
-KalmanH zKalman;
 
 float accelMag = 0;
 bool flashWriteStatus = false;
@@ -36,17 +32,20 @@ bool finishedWriting = false;
 unsigned long prevLoopTime;
 unsigned long currentLoopTime;
 
-unsigned long timer = 0;
+bool firstLaunchLoop = true;
+bool firstAbortLoop = true;
+unsigned long abortLoopTime = 0;
 
-void checkAngleThreshold()
+bool isAnglePassedThreshold()
 {
   if (ENABLE_ANGLE_CHECK == true)
   {
     if (abs(data.yaw) >= ABORT_ANGLE_THRESHOLD || abs(data.pitch) >= ABORT_ANGLE_THRESHOLD)
     {
-      goToState(PARACHUTE_DESCENT);
+      return true;
     }
   }
+  return false;
 }
 
 void setup()
@@ -109,23 +108,6 @@ void handleRunPID()
     getYPR();
     updateAccel(data.worldAx);
 
-    if (ENABLE_HORIZONTAL_KALMAN)
-    {
-      yKalman.update(data.worldAy);
-      zKalman.update(data.worldAz);
-
-      data.kal_Y_pos = yKalman.getPosition();
-      data.kal_Y_vel = yKalman.getVelocity();
-      data.kal_Y_accel = yKalman.getAcceleration();
-
-      data.kal_Z_pos = zKalman.getPosition();
-      data.kal_Z_vel = zKalman.getVelocity();
-      data.kal_Z_accel = zKalman.getAcceleration();
-
-      data.kal_Y_bias = yKalman.getBias();
-      data.kal_Z_bias = zKalman.getBias();
-    }
-
     if (PIDStatus == true)
     {
       setZPIDInput(data.pitch);
@@ -156,8 +138,6 @@ void handleWritingToFlash()
   }
 }
 
-bool firstLaunchLoop = true;
-
 void loop()
 {
   currentLoopTime = micros();
@@ -183,6 +163,14 @@ void loop()
     analogWrite(PYRO1_PIN, 0);
   }
 
+  if (data.state == LAUNCH_COMMANDED || data.state == POWERED_ASCENT)
+  {
+    if (isAnglePassedThreshold())
+    {
+      goToState(ABORT);
+    }
+  }
+
   switch (data.state)
   {
 
@@ -197,16 +185,11 @@ void loop()
       zeroGyroscope();
     }
 
-    // listen to BTLE for TVC centering commands if needed. Update accordingly
     handleServoCentering();
-    // if rocket goes to > angleThresh => abort
-    checkAngleThreshold();
 
     break;
 
   case LAUNCH_COMMANDED:
-
-    checkAngleThreshold();
 
     flashWriteStatus = true;
     // Zero Gyros and other sensors as needed
@@ -220,16 +203,14 @@ void loop()
 
     PIDStatus = true;
 
-    // if (data.worldAx > LAUNCH_ACCEL_THRESHOLD || data.ax > LAUNCH_ACCEL_THRESHOLD)
-    // {
-    //   analogWrite(PYRO2_PIN, 0);
-    //   goToState(POWERED_ASCENT);
-    // }
+    if (data.worldAx > LAUNCH_ACCEL_THRESHOLD || data.ax > LAUNCH_ACCEL_THRESHOLD)
+    {
+      analogWrite(PYRO2_PIN, 0);
+      goToState(POWERED_ASCENT);
+    }
 
     break;
   case POWERED_ASCENT:
-
-    checkAngleThreshold();
 
     // Check if accel magnitude is less than thresh
     accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
@@ -263,12 +244,29 @@ void loop()
     break;
 
   case PARACHUTE_DESCENT:
-    // wait for accel, magnitude threshold for gravity or something
-    // to detect landing
-    analogWrite(PYRO1_PIN, 0);
+
     deployParachute();
+    handleBuzzer();
 
     if (millis() - landingDetectTime > LANDING_DETECT_DELAY)
+    {
+      goToState(LANDED);
+    }
+
+    break;
+
+  case ABORT:
+
+    deployParachute();
+    handleBuzzer();
+
+    if (firstAbortLoop)
+    {
+      abortLoopTime = millis();
+      firstAbortLoop = false;
+    }
+
+    if (millis() - abortLoopTime > ABORT_TO_LANDED_DELAY)
     {
       goToState(LANDED);
     }
