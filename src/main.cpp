@@ -108,16 +108,23 @@ void handleRunPID()
     getAccel();
     getYPR();
     updateAccel(data.worldAx);
-    yKalman.update(data.worldAy);
-    zKalman.update(data.worldAz);
 
-    data.kal_Y_pos = yKalman.getPosition();
-    data.kal_Y_vel = yKalman.getVelocity();
-    data.kal_Y_accel = yKalman.getAcceleration();
+    if (ENABLE_HORIZONTAL_KALMAN)
+    {
+      yKalman.update(data.worldAy);
+      zKalman.update(data.worldAz);
 
-    data.kal_Z_pos = zKalman.getPosition();
-    data.kal_Z_vel = zKalman.getVelocity();
-    data.kal_Z_accel = zKalman.getAcceleration();
+      data.kal_Y_pos = yKalman.getPosition();
+      data.kal_Y_vel = yKalman.getVelocity();
+      data.kal_Y_accel = yKalman.getAcceleration();
+
+      data.kal_Z_pos = zKalman.getPosition();
+      data.kal_Z_vel = zKalman.getVelocity();
+      data.kal_Z_accel = zKalman.getAcceleration();
+
+      data.kal_Y_bias = yKalman.getBias();
+      data.kal_Z_bias = zKalman.getBias();
+    }
 
     if (PIDStatus == true)
     {

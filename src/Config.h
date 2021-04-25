@@ -4,6 +4,7 @@
 #define ENABLE_ANGLE_CHECK false
 #define ENGAGE_PYRO false
 #define DO_EUI false
+#define ENABLE_HORIZONTAL_KALMAN false
 
 #define Y_SETPOINT 0.0f //deg
 #define Z_SETPOINT 0.0f //deg
