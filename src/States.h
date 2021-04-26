@@ -1,6 +1,7 @@
 #pragma once
 
-enum State {
+enum State
+{
   INITIALIZING,
   IDLE,
   LAUNCH_COMMANDED,
@@ -11,6 +12,5 @@ enum State {
   LANDED,
   ERROR,
   ABORT,
+  TEST
 };
-
-

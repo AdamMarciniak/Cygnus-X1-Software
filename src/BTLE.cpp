@@ -5,6 +5,7 @@
 #include "./bluetooth/uart_over_ble.h"
 #include "./bluetooth/services.h"
 #include "BTLE.h"
+#include "Config.h"
 
 #ifdef SERVICES_PIPE_TYPE_MAPPING_CONTENT
 static services_pipe_type_mapping_t
@@ -319,6 +320,10 @@ void checkBTLE()
           case 'f':
             if (data.state == IDLE)
             {
+              if (IS_TEST_MODE)
+              {
+                goToState(TEST);
+              }
               goToState(LAUNCH_COMMANDED);
             }
 

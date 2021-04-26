@@ -61,6 +61,14 @@ struct Data
   float yawBias;
   float pitchBias;
   float batteryVoltage;
+  float kal_Y_pos;
+  float kal_Y_vel;
+  float kal_Y_accel;
+  float kal_Z_pos;
+  float kal_Z_vel;
+  float kal_Z_accel;
+  float kal_Z_bias;
+  float kal_Y_bias;
 };
 
 struct NonLoggedData

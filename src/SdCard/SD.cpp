@@ -59,6 +59,14 @@ void writeHeader()
   file.print(F(",zServoCenter"));
   file.print(F(",batteryVoltage"));
   file.print(F(",Loop Time"));
+  file.print(F(",kalYPos"));
+  file.print(F(",kalZPos"));
+  file.print(F(",kalYVel"));
+  file.print(F(",kalZVel"));
+  file.print(F(",kalYAccel"));
+  file.print(F(",kalZAccel"));
+  file.print(F(",kalYBias"));
+  file.print(F(",kalZBias"));
   file.println();
 }
 
@@ -140,6 +148,22 @@ void logData()
   file.print(data.batteryVoltage, numDecimals);
   file.write(',');
   file.print(data.loopTime, numDecimals);
+  file.write(',');
+  file.print(data.kal_Y_pos, numDecimals);
+  file.write(',');
+  file.print(data.kal_Z_pos, numDecimals);
+  file.write(',');
+  file.print(data.kal_Y_vel, numDecimals);
+  file.write(',');
+  file.print(data.kal_Z_vel, numDecimals);
+  file.write(',');
+  file.print(data.kal_Y_accel, numDecimals);
+  file.write(',');
+  file.print(data.kal_Z_accel, numDecimals);
+  file.write(',');
+  file.print(data.kal_Y_bias, numDecimals);
+  file.write(',');
+  file.print(data.kal_Z_bias, numDecimals);
   file.println();
 }
 

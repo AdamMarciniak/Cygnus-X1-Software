@@ -16,9 +16,13 @@
 #include "Config.h"
 #include "Kalman.h"
 #include "./eui/EUIMyLib.h"
+#include "KalmanHorizontal.h"
 
 Chrono navTimer;
 Chrono batteryCheckTimer;
+
+KalmanH yKalman;
+KalmanH zKalman;
 
 float accelMag = 0;
 bool flashWriteStatus = false;
@@ -31,6 +35,8 @@ unsigned long landingDetectTime = 0;
 bool finishedWriting = false;
 unsigned long prevLoopTime;
 unsigned long currentLoopTime;
+
+unsigned long launchAbortTime = 0;
 
 bool firstLaunchLoop = true;
 bool firstAbortLoop = true;
@@ -47,6 +53,8 @@ bool isAnglePassedThreshold()
   }
   return false;
 }
+
+unsigned long testTime = 0;
 
 void setup()
 {
@@ -84,6 +92,11 @@ void setup()
 
   prevLoopTime = micros();
   currentLoopTime = micros();
+  if (IS_TEST_MODE)
+  {
+    goToState(TEST);
+    testTime = millis();
+  }
   goToState(IDLE);
 }
 
@@ -107,6 +120,23 @@ void handleRunPID()
     getAccel();
     getYPR();
     updateAccel(data.worldAx);
+
+    if (ENABLE_HORIZONTAL_KALMAN)
+    {
+      yKalman.update(data.worldAy);
+      zKalman.update(data.worldAz);
+
+      data.kal_Y_pos = yKalman.getPosition();
+      data.kal_Y_vel = yKalman.getVelocity();
+      data.kal_Y_accel = yKalman.getAcceleration();
+
+      data.kal_Z_pos = zKalman.getPosition();
+      data.kal_Z_vel = zKalman.getVelocity();
+      data.kal_Z_accel = zKalman.getAcceleration();
+
+      data.kal_Y_bias = yKalman.getBias();
+      data.kal_Z_bias = zKalman.getBias();
+    }
 
     if (PIDStatus == true)
     {
@@ -174,6 +204,15 @@ void loop()
   switch (data.state)
   {
 
+  case TEST:
+
+    if (millis() - testTime > 5000)
+    {
+      PIDStatus = true;
+    }
+
+    break;
+
   case IDLE:
 
     handleSendTelemetry();
@@ -193,19 +232,27 @@ void loop()
 
     flashWriteStatus = true;
     // Zero Gyros and other sensors as needed
-    if (gyroZeroStatus == false)
+    if (firstLaunchLoop == true)
     {
-      gyroZeroStatus = true;
+      firstLaunchLoop = false;
       zeroGyroscope();
+      yKalman.zeroKalman();
+      zKalman.zeroKalman();
+      zeroKalman();
+      launchAbortTime = millis();
     }
 
     handleFirePyro();
 
     PIDStatus = true;
 
+    if (millis() - launchAbortTime >= MOTOR_FAIL_DELAY)
+    {
+      goToState(ABORT);
+    }
+
     if (data.worldAx > LAUNCH_ACCEL_THRESHOLD || data.ax > LAUNCH_ACCEL_THRESHOLD)
     {
-      analogWrite(PYRO2_PIN, 0);
       goToState(POWERED_ASCENT);
     }
 

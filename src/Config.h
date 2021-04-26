@@ -1,13 +1,17 @@
 #pragma once
 
+#define IS_TEST_MODE true
+
 #define ENABLE_PARACHUTE false
 #define ENABLE_ANGLE_CHECK false
 #define ENGAGE_PYRO false
-#define DO_EUI false
-#define ENABLE_HORIZONTAL_KALMAN false
+#define DO_EUI true
+#define ENABLE_HORIZONTAL_KALMAN true
 
 #define LANDING_DETECT_DELAY 15000  //ms
 #define ABORT_TO_LANDED_DELAY 20000 //ms
+
+#define MOTOR_FAIL_DELAY 10000 // ms
 
 #define Y_SETPOINT 0.0f //deg
 #define Z_SETPOINT 0.0f //deg
