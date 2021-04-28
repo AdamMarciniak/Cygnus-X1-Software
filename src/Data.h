@@ -69,6 +69,16 @@ struct Data
   float kal_Z_accel;
   float kal_Z_bias;
   float kal_Y_bias;
+  float lat;
+  float lng;
+  float sats;
+  float hdop;
+  float hdopVal;
+  float gps_altitude_bias;
+  float gpsAltitude;
+  float gpsSpeed;
+  float gpsCourse;
+  float p_baro;
 };
 
 struct NonLoggedData

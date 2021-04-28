@@ -8,6 +8,9 @@
 #define DO_EUI true
 #define ENABLE_HORIZONTAL_KALMAN true
 
+#define DATA_SAMPLE_RATE 200      // hz
+#define DATA_SAMPLE_TOTAL_TIME 15 // seconds
+
 #define LANDING_DETECT_DELAY 15000  //ms
 #define ABORT_TO_LANDED_DELAY 20000 //ms
 
@@ -32,11 +35,9 @@
 #define Z_KI KIE12
 #define Z_KD KDE12
 
-#define DATA_SAMPLE_RATE 200      // hz
-#define DATA_SAMPLE_TOTAL_TIME 15 // seconds
-
 #define BATTERY_VOLTAGE_MIN 11.0 //volts
 #define NAV_RATE 10              //ms
+#define GPS_RATE 500
 
 #define PARACHUTE_SERVO_DEPLOY 53
 #define PARACHUTE_SERVO_INIT 97

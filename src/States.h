@@ -12,5 +12,6 @@ enum State
   LANDED,
   ERROR,
   ABORT,
-  TEST
+  TEST,
+  GPS_BIAS_GATHER
 };

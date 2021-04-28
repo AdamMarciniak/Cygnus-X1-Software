@@ -1,7 +1,5 @@
 #include "Telemetry.h"
 
-
-
 int telemetryState = 0;
 
 Chrono telemetryTimer;

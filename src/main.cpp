@@ -16,13 +16,14 @@
 #include "Config.h"
 #include "Kalman.h"
 #include "./eui/EUIMyLib.h"
-#include "KalmanHorizontal.h"
+#include "KalmanNew.h"
+#include "GPS.h"
 
 Chrono navTimer;
 Chrono batteryCheckTimer;
+Chrono gpsTimer;
 
-KalmanH yKalman;
-KalmanH zKalman;
+KalmanNew kalman;
 
 float accelMag = 0;
 bool flashWriteStatus = false;
@@ -61,6 +62,7 @@ void setup()
   initBuzzer();
 
   Serial.begin(115200);
+  Serial1.begin(9600);
 
   goToState(INITIALIZING);
   delay(4000);
@@ -98,45 +100,25 @@ void setup()
     testTime = millis();
   }
   goToState(IDLE);
+  kalman.zeroKalman();
 }
-
-Chrono altitudeTimer;
-Chrono kalmanTimer;
 
 void handleRunPID()
 {
 
   handleAltimeter();
 
-  if (kalmanTimer.hasPassed(1))
-  {
-    predict();
-    kalmanTimer.restart();
-  }
-
   if (navTimer.hasPassed(NAV_RATE))
   {
 
     getAccel();
     getYPR();
-    updateAccel(data.worldAx);
+    kalman.predict(data.worldAx);
 
-    if (ENABLE_HORIZONTAL_KALMAN)
-    {
-      yKalman.update(data.worldAy);
-      zKalman.update(data.worldAz);
-
-      data.kal_Y_pos = yKalman.getPosition();
-      data.kal_Y_vel = yKalman.getVelocity();
-      data.kal_Y_accel = yKalman.getAcceleration();
-
-      data.kal_Z_pos = zKalman.getPosition();
-      data.kal_Z_vel = zKalman.getVelocity();
-      data.kal_Z_accel = zKalman.getAcceleration();
-
-      data.kal_Y_bias = yKalman.getBias();
-      data.kal_Z_bias = zKalman.getBias();
-    }
+    data.kal_X_pos = kalman.getPosition();
+    data.kal_X_vel = kalman.getVelocity();
+    data.kal_X_accel = kalman.getGravity();
+    data.kal_Z_bias = kalman.getBias();
 
     if (PIDStatus == true)
     {
@@ -151,7 +133,7 @@ void handleRunPID()
 
   if (isNewAltimeterData())
   {
-    updateBaro(getAltitude());
+    kalman.updateBaro(getAltitude());
   }
 }
 
@@ -180,7 +162,7 @@ void loop()
     batteryCheckTimer.restart();
   }
 
-  checkBTLE();
+  //checkBTLE();
 
   handleRunPID();
 
@@ -204,7 +186,12 @@ void loop()
   switch (data.state)
   {
 
+  case GPS_BIAS_GATHER:
+    getGPSAltitudeBias();
+    break;
+
   case TEST:
+    //handleSendTelemetry();
 
     if (millis() - testTime > 5000)
     {
@@ -214,8 +201,9 @@ void loop()
     break;
 
   case IDLE:
+    //handleGPS();
 
-    handleSendTelemetry();
+    //handleSendTelemetry();
 
     // wait for zero gyros command
     if (nonLoggedData.zeroGyrosStatus == true)
@@ -236,9 +224,6 @@ void loop()
     {
       firstLaunchLoop = false;
       zeroGyroscope();
-      yKalman.zeroKalman();
-      zKalman.zeroKalman();
-      zeroKalman();
       launchAbortTime = millis();
     }
 

@@ -67,6 +67,14 @@ void writeHeader()
   file.print(F(",kalZAccel"));
   file.print(F(",kalYBias"));
   file.print(F(",kalZBias"));
+  file.print(F(",lat"));
+  file.print(F(",lng"));
+  file.print(F(",sats"));
+  file.print(F(",hdop"));
+  file.print(F(",hdopVal"));
+  file.print(F(",gpsAltitude"));
+  file.print(F(",gpsSpeed"));
+  file.print(F(",gpsCourse"));
   file.println();
 }
 
@@ -164,6 +172,21 @@ void logData()
   file.print(data.kal_Y_bias, numDecimals);
   file.write(',');
   file.print(data.kal_Z_bias, numDecimals);
+  file.print(data.lat, numDecimals);
+  file.write(',');
+  file.print(data.lng, 10);
+  file.write(',');
+  file.print(data.sats, 10);
+  file.write(',');
+  file.print(data.hdop, numDecimals);
+  file.write(',');
+  file.print(data.hdopVal, numDecimals);
+  file.write(',');
+  file.print(data.gpsAltitude, numDecimals);
+  file.write(',');
+  file.print(data.gpsSpeed, numDecimals);
+  file.write(',');
+  file.print(data.gpsCourse, numDecimals);
   file.println();
 }
 

@@ -1,6 +1,4 @@
-#ifndef PARACHUTE_H
-#define PARACHUTE_H
+#pragma once
 
 extern void deployParachute();
 extern void initParachute();
-#endif

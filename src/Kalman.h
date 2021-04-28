@@ -4,6 +4,7 @@
 #include "Data.h"
 
 extern void updateBaro(float altitude);
+extern void updateGPS(float altitude);
 extern void updateAccel(float accel);
 extern float getKalmanPosition();
 

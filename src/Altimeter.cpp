@@ -52,7 +52,8 @@ bool isNewAltimeterData()
 float getAltitude()
 {
   data.altitude = rawAltitude - data.biasAltitude;
-  return rawAltitude - altitudeBias;
+  // return rawAltitude - altitudeBias;
+  return rawAltitude;
 }
 
 // Updates altitude bias value. This is blocking. Must wait a bit..
@@ -65,7 +66,7 @@ void getAltitudeBias()
     Altimeter.handleAltimeter();
     if (isNewAltimeterData())
     {
-      
+
       altitudeBias += rawAltitude;
       Serial.print(".");
       count += 1;
