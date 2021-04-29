@@ -324,7 +324,10 @@ void checkBTLE()
               {
                 goToState(TEST);
               }
-              goToState(LAUNCH_COMMANDED);
+              else
+              {
+                goToState(LAUNCH_COMMANDED);
+              }
             }
 
             break;

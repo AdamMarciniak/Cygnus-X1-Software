@@ -43,7 +43,6 @@ struct Data
   float kal_X_posP;
   float kal_X_velP;
   float kal_X_accelP;
-  float baroNoise;
   float servo_z;
   float servo_y;
   float kp_y;
@@ -61,24 +60,6 @@ struct Data
   float yawBias;
   float pitchBias;
   float batteryVoltage;
-  float kal_Y_pos;
-  float kal_Y_vel;
-  float kal_Y_accel;
-  float kal_Z_pos;
-  float kal_Z_vel;
-  float kal_Z_accel;
-  float kal_Z_bias;
-  float kal_Y_bias;
-  float lat;
-  float lng;
-  float sats;
-  float hdop;
-  float hdopVal;
-  float gps_altitude_bias;
-  float gpsAltitude;
-  float gpsSpeed;
-  float gpsCourse;
-  float p_baro;
 };
 
 struct NonLoggedData

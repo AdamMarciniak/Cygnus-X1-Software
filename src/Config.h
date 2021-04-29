@@ -5,8 +5,7 @@
 #define ENABLE_PARACHUTE false
 #define ENABLE_ANGLE_CHECK false
 #define ENGAGE_PYRO false
-#define DO_EUI true
-#define ENABLE_HORIZONTAL_KALMAN true
+#define DO_EUI false
 
 #define DATA_SAMPLE_RATE 200      // hz
 #define DATA_SAMPLE_TOTAL_TIME 15 // seconds
@@ -36,13 +35,12 @@
 #define Z_KD KDE12
 
 #define BATTERY_VOLTAGE_MIN 11.0 //volts
-#define NAV_RATE 10              //ms
-#define GPS_RATE 500
+#define NAV_RATE 5               //ms
 
 #define PARACHUTE_SERVO_DEPLOY 53
 #define PARACHUTE_SERVO_INIT 97
 
-#define TELEMETRY_RATE 10 // ms
+#define TELEMETRY_RATE 20 // ms
 
 #define SERVO_RANGE 26
 #define Y_CENTER 91

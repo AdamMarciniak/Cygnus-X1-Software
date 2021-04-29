@@ -154,7 +154,7 @@ float worldAzBiasTemp = 0.0f;
 void getWorldABiases()
 {
     int i = 0;
-    const int count = 100;
+    const int count = 500;
     while (i < count)
     {
         i += 1;
@@ -164,9 +164,9 @@ void getWorldABiases()
         worldAyBiasTemp += data.worldAy;
         worldAzBiasTemp += data.worldAz;
     }
-    worldAxBias = worldAxBiasTemp / 100.0;
-    worldAyBias = worldAyBiasTemp / 100.0;
-    worldAzBias = worldAzBiasTemp / 100.0;
+    worldAxBias = worldAxBiasTemp / float(count);
+    worldAyBias = worldAyBiasTemp / float(count);
+    worldAzBias = worldAzBiasTemp / float(count);
 }
 
 float axAve = 0;

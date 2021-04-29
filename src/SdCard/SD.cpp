@@ -59,22 +59,6 @@ void writeHeader()
   file.print(F(",zServoCenter"));
   file.print(F(",batteryVoltage"));
   file.print(F(",Loop Time"));
-  file.print(F(",kalYPos"));
-  file.print(F(",kalZPos"));
-  file.print(F(",kalYVel"));
-  file.print(F(",kalZVel"));
-  file.print(F(",kalYAccel"));
-  file.print(F(",kalZAccel"));
-  file.print(F(",kalYBias"));
-  file.print(F(",kalZBias"));
-  file.print(F(",lat"));
-  file.print(F(",lng"));
-  file.print(F(",sats"));
-  file.print(F(",hdop"));
-  file.print(F(",hdopVal"));
-  file.print(F(",gpsAltitude"));
-  file.print(F(",gpsSpeed"));
-  file.print(F(",gpsCourse"));
   file.println();
 }
 
@@ -156,37 +140,6 @@ void logData()
   file.print(data.batteryVoltage, numDecimals);
   file.write(',');
   file.print(data.loopTime, numDecimals);
-  file.write(',');
-  file.print(data.kal_Y_pos, numDecimals);
-  file.write(',');
-  file.print(data.kal_Z_pos, numDecimals);
-  file.write(',');
-  file.print(data.kal_Y_vel, numDecimals);
-  file.write(',');
-  file.print(data.kal_Z_vel, numDecimals);
-  file.write(',');
-  file.print(data.kal_Y_accel, numDecimals);
-  file.write(',');
-  file.print(data.kal_Z_accel, numDecimals);
-  file.write(',');
-  file.print(data.kal_Y_bias, numDecimals);
-  file.write(',');
-  file.print(data.kal_Z_bias, numDecimals);
-  file.print(data.lat, numDecimals);
-  file.write(',');
-  file.print(data.lng, 10);
-  file.write(',');
-  file.print(data.sats, 10);
-  file.write(',');
-  file.print(data.hdop, numDecimals);
-  file.write(',');
-  file.print(data.hdopVal, numDecimals);
-  file.write(',');
-  file.print(data.gpsAltitude, numDecimals);
-  file.write(',');
-  file.print(data.gpsSpeed, numDecimals);
-  file.write(',');
-  file.print(data.gpsCourse, numDecimals);
   file.println();
 }
 

@@ -52,8 +52,7 @@ bool isNewAltimeterData()
 float getAltitude()
 {
   data.altitude = rawAltitude - data.biasAltitude;
-  // return rawAltitude - altitudeBias;
-  return rawAltitude;
+  return rawAltitude - altitudeBias;
 }
 
 // Updates altitude bias value. This is blocking. Must wait a bit..

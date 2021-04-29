@@ -16,14 +16,9 @@
 #include "Config.h"
 #include "Kalman.h"
 #include "./eui/EUIMyLib.h"
-#include "KalmanNew.h"
-#include "GPS.h"
 
 Chrono navTimer;
 Chrono batteryCheckTimer;
-Chrono gpsTimer;
-
-KalmanNew kalman;
 
 float accelMag = 0;
 bool flashWriteStatus = false;
@@ -100,25 +95,17 @@ void setup()
     testTime = millis();
   }
   goToState(IDLE);
-  kalman.zeroKalman();
 }
 
-void handleRunPID()
+void handleRunNav()
 {
-
   handleAltimeter();
 
   if (navTimer.hasPassed(NAV_RATE))
   {
-
     getAccel();
     getYPR();
-    kalman.predict(data.worldAx);
-
-    data.kal_X_pos = kalman.getPosition();
-    data.kal_X_vel = kalman.getVelocity();
-    data.kal_X_accel = kalman.getGravity();
-    data.kal_Z_bias = kalman.getBias();
+    updateAccel(data.worldAx);
 
     if (PIDStatus == true)
     {
@@ -133,7 +120,8 @@ void handleRunPID()
 
   if (isNewAltimeterData())
   {
-    kalman.updateBaro(getAltitude());
+    getAltitude();
+    updateBaro(data.altitude);
   }
 }
 
@@ -152,6 +140,7 @@ void handleWritingToFlash()
 
 void loop()
 {
+  PIDStatus = true;
   currentLoopTime = micros();
   data.loopTime = float(currentLoopTime - prevLoopTime) / 1000000.0f;
   prevLoopTime = currentLoopTime;
@@ -162,9 +151,9 @@ void loop()
     batteryCheckTimer.restart();
   }
 
-  //checkBTLE();
+  checkBTLE();
 
-  handleRunPID();
+  handleRunNav();
 
   handleWritingToFlash();
 
@@ -186,12 +175,8 @@ void loop()
   switch (data.state)
   {
 
-  case GPS_BIAS_GATHER:
-    getGPSAltitudeBias();
-    break;
-
   case TEST:
-    //handleSendTelemetry();
+    handleSendTelemetry();
 
     if (millis() - testTime > 5000)
     {
@@ -201,9 +186,8 @@ void loop()
     break;
 
   case IDLE:
-    //handleGPS();
 
-    //handleSendTelemetry();
+    handleSendTelemetry();
 
     // wait for zero gyros command
     if (nonLoggedData.zeroGyrosStatus == true)
@@ -224,6 +208,7 @@ void loop()
     {
       firstLaunchLoop = false;
       zeroGyroscope();
+      zeroKalman();
       launchAbortTime = millis();
     }
 

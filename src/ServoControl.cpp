@@ -1,6 +1,5 @@
 #include "ServoControl.h"
 
-
 Servo yServo;
 Servo zServo;
 
@@ -34,10 +33,12 @@ void initServos()
   zServo.write(data.Z_Servo_Center);
 }
 
-void moveYServo(int val){
+void moveYServo(int val)
+{
   yServo.write(val);
 }
 
-void moveZServo(int val){
+void moveZServo(int val)
+{
   zServo.write(val);
 }

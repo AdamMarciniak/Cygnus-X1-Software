@@ -98,20 +98,20 @@ void handleGPS()
       data.gpsSpeed = gps.speed.kmph();
       data.gpsCourse = gps.course.deg();
 
-      xDistance = getEastWestDistance(data.lng);
-      yDistance = getNorthSouthDistance(data.lat);
-      Serial.print(initialLatitude);
-      Serial.print(" ");
-      Serial.print(initialLongitude);
-      Serial.print(" ");
-      Serial.print("LAT: ");
-      Serial.print(data.lat, 12);
-      Serial.print(" LNG: ");
-      Serial.print(data.lng, 12);
-      Serial.print("  X GPS:  ");
-      Serial.print(xDistance);
-      Serial.print(" Y GPS: ");
-      Serial.println(yDistance);
+      // xDistance = getEastWestDistance(data.lng);
+      // yDistance = getNorthSouthDistance(data.lat);
+      // Serial.print(initialLatitude);
+      // Serial.print(" ");
+      // Serial.print(initialLongitude);
+      // Serial.print(" ");
+      // Serial.print("LAT: ");
+      // Serial.print(data.lat, 12);
+      // Serial.print(" LNG: ");
+      // Serial.print(data.lng, 12);
+      // Serial.print("  X GPS:  ");
+      // Serial.print(xDistance);
+      // Serial.print(" Y GPS: ");
+      // Serial.println(yDistance);
     }
   }
 }

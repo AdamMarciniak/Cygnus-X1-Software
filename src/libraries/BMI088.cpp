@@ -660,7 +660,10 @@ int Bmi088Accel::begin()
     return -7;
   }
   /* set default ODR */
-  if (!setOdr(ODR_1600HZ_BW_280HZ))
+
+  //ODR_100HZ_BW_10HZ
+  //ODR_1600HZ_BW_280HZ
+  if (!setOdr(ODR_400HZ_BW_145HZ))
   {
     return -8;
   }
