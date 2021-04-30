@@ -1,5 +1,12 @@
 #pragma once
 
+// Options or flight
+// test mode false
+// enable parachute true
+// Enable angle check true
+// Engage pyro true
+// Do EUI false
+
 #define IS_TEST_MODE true
 
 #define ENABLE_PARACHUTE false
@@ -37,7 +44,7 @@
 #define BATTERY_VOLTAGE_MIN 11.0 //volts
 #define NAV_RATE 5               //ms
 
-#define PARACHUTE_SERVO_DEPLOY 53
+#define PARACHUTE_SERVO_DEPLOY 50
 #define PARACHUTE_SERVO_INIT 97
 
 #define TELEMETRY_RATE 20 // ms

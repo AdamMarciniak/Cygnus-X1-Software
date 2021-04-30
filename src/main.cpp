@@ -138,9 +138,10 @@ void handleWritingToFlash()
   }
 }
 
+unsigned long PID_DelayTimer = 0;
+
 void loop()
 {
-  PIDStatus = true;
   currentLoopTime = micros();
   data.loopTime = float(currentLoopTime - prevLoopTime) / 1000000.0f;
   prevLoopTime = currentLoopTime;
@@ -202,33 +203,37 @@ void loop()
 
   case LAUNCH_COMMANDED:
 
-    flashWriteStatus = true;
     // Zero Gyros and other sensors as needed
     if (firstLaunchLoop == true)
     {
+      flashWriteStatus = true;
       firstLaunchLoop = false;
       zeroGyroscope();
       zeroKalman();
       launchAbortTime = millis();
+      PID_DelayTimer = millis();
     }
 
     handleFirePyro();
 
-    PIDStatus = true;
+    if (millis() - PID_DelayTimer >= FIRE_TO_PID_DELAY)
+    {
+      PIDStatus = true;
+    }
 
     if (millis() - launchAbortTime >= MOTOR_FAIL_DELAY)
     {
       goToState(ABORT);
     }
 
-    if (data.worldAx > LAUNCH_ACCEL_THRESHOLD || data.ax > LAUNCH_ACCEL_THRESHOLD)
+    if (data.worldAx > LAUNCH_ACCEL_THRESHOLD)
     {
       goToState(POWERED_ASCENT);
     }
 
     break;
   case POWERED_ASCENT:
-
+    PIDStatus = true;
     // Check if accel magnitude is less than thresh
     accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
     if (accelMag < ACCEL_UNPOWERED_THRESHOLD)
