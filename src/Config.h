@@ -13,6 +13,11 @@
 #define ENABLE_ANGLE_CHECK false
 #define ENGAGE_PYRO false
 #define DO_EUI true
+#define DO_GPS true
+
+#define YAW_PITCH_BIAS_COUNT 50
+#define WORLD_ACCEL_BIAS_COUNT 500
+#define GYRO_BIAS_COUNT 100
 
 #define DATA_SAMPLE_RATE 200      // hz
 #define DATA_SAMPLE_TOTAL_TIME 15 // seconds

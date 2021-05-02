@@ -71,7 +71,7 @@ void quatToEuler(float *qBody, float *ypr);
 void getGyroBiases()
 {
     int count = 0;
-    const int averageAmount = 500;
+    const int averageAmount = GYRO_BIAS_COUNT;
     while (count < averageAmount)
     {
         gyro.readSensor();
@@ -109,10 +109,10 @@ bool initNav()
     }
     Serial.println("Getting Gyro Biases...");
     zeroGyroscope();
-    //getGyroBiases();
-    g_bias[0] = 0.004;
-    g_bias[1] = -0.0009;
-    g_bias[2] = 0.00001;
+    getGyroBiases();
+    // g_bias[0] = 0.004;
+    // g_bias[1] = -0.0009;
+    // g_bias[2] = 0.00001;
     zeroGyroscope();
     getInitYawAndPitchBiases();
     getWorldABiases();
@@ -131,18 +131,6 @@ void getAccel()
     data.az = accel_raw[2];
 }
 
-void measureNav()
-{
-    //getAccel();
-    handleAltimeter();
-
-    if (isNewAltimeterData())
-    {
-        getAltitude();
-    }
-    // updateAccel(data.worldAx);
-}
-
 float worldAxBias = 0.0f;
 float worldAyBias = 0.0f;
 float worldAzBias = 0.0f;
@@ -154,7 +142,7 @@ float worldAzBiasTemp = 0.0f;
 void getWorldABiases()
 {
     int i = 0;
-    const int count = 500;
+    const int count = WORLD_ACCEL_BIAS_COUNT;
     while (i < count)
     {
         i += 1;
@@ -172,12 +160,12 @@ void getWorldABiases()
 float axAve = 0;
 float ayAve = 0;
 float azAve = 0;
-const int accelAveCount = 50;
+
 int i = 0;
 
 void getInitYawAndPitchBiases()
 {
-
+    const int accelAveCount = YAW_PITCH_BIAS_COUNT;
     while (i < accelAveCount)
     {
         getAccel();
@@ -226,9 +214,9 @@ void getYPR()
 
         theta = q_body_mag * gyro_dt;
         q_gyro[0] = cos(theta / 2);
-        q_gyro[1] = -(omega[0] / q_body_mag * sin(theta / 2));
-        q_gyro[2] = -(omega[1] / q_body_mag * sin(theta / 2));
-        q_gyro[3] = -(omega[2] / q_body_mag * sin(theta / 2));
+        q_gyro[1] = -(omega[0] / q_body_mag * sin(theta / 2.0));
+        q_gyro[2] = -(omega[1] / q_body_mag * sin(theta / 2.0));
+        q_gyro[3] = -(omega[2] / q_body_mag * sin(theta / 2.0));
 
         q[0] = q_body[0];
         q[1] = q_body[1];
@@ -247,7 +235,7 @@ void getYPR()
         // Leave these out still figuring out world accel based on biases
         // orientation = pitchBiasQuaternion.rotate(orientation);
         // orientation = yawBiasQuaternion.rotate(orientation);
-        localAccelQuat = Quaternion(0, data.ax, data.ay, data.az);
+        localAccelQuat = Quaternion(0.0, data.ax, data.ay, data.az);
         worldAccelQuat = orientation.rotate(localAccelQuat);
         //data.worldAx = worldAccelQuat.b - worldAxBias;
         data.worldAx = worldAccelQuat.b;
@@ -266,18 +254,18 @@ void getYPR()
 
 void quatToEuler(float *qBody, float *ypr)
 {
-    double sinr_cosp = 2 * (q_body[0] * q_body[1] + q_body[2] * q_body[3]);
-    double cosr_cosp = 1 - 2 * (q_body[1] * q_body[1] + q_body[2] * q_body[2]);
+    double sinr_cosp = 2.0 * (q_body[0] * q_body[1] + q_body[2] * q_body[3]);
+    double cosr_cosp = 1.0 - 2.0 * (q_body[1] * q_body[1] + q_body[2] * q_body[2]);
     ypr[2] = atan2(sinr_cosp, cosr_cosp) * RAD_TO_DEG;
-    double sinp = 2 * (q_body[0] * q_body[2] - q_body[1] * q_body[3]);
+    double sinp = 2.0 * (q_body[0] * q_body[2] - q_body[1] * q_body[3]);
     if (sinp >= 1)
-        ypr[1] = 90;
-    else if (sinp <= -1)
-        ypr[1] = -90;
+        ypr[1] = 90.0;
+    else if (sinp <= -1.0)
+        ypr[1] = -90.0;
     else
         ypr[1] = asin(sinp) * RAD_TO_DEG;
 
-    double siny_cosp = 2 * (q_body[0] * q_body[3] + q_body[1] * q_body[2]);
-    double cosy_cosp = 1 - 2 * (q_body[2] * q_body[2] + q_body[3] * q_body[3]);
+    double siny_cosp = 2.0 * (q_body[0] * q_body[3] + q_body[1] * q_body[2]);
+    double cosy_cosp = 1.0 - 2.0 * (q_body[2] * q_body[2] + q_body[3] * q_body[3]);
     ypr[0] = atan2(siny_cosp, cosy_cosp) * RAD_TO_DEG;
 }

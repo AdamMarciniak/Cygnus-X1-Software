@@ -5,6 +5,7 @@
 #include "Altimeter.h"
 #include "Arduino.h"
 #include "libraries/BMI088.h"
+#include "Config.h"
 
 extern float ypr[3];
 extern float accel_raw[3];

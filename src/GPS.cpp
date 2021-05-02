@@ -1,5 +1,6 @@
 #include "GPS.h"
 #include "Data.h"
+#include "Config.h"
 
 TinyGPSPlus gps;
 
@@ -70,33 +71,36 @@ void getGPSAltitudeBias()
 
 void handleGPS()
 {
-
-  if (Serial1.available() > 0)
+  if (DO_GPS)
   {
 
-    gps.encode(Serial1.read());
-
-    if (gps.location.isUpdated())
+    if (Serial1.available() > 0)
     {
 
-      data.gpsAltitude = gps.altitude.meters();
-      data.hdop = gps.hdop.hdop();
-      data.sats = gps.satellites.value();
+      gps.encode(Serial1.read());
 
-      // xDistance = getEastWestDistance(data.lng);
-      // yDistance = getNorthSouthDistance(data.lat);
-      // Serial.print(initialLatitude);
-      // Serial.print(" ");
-      // Serial.print(initialLongitude);
-      // Serial.print(" ");
-      // Serial.print("LAT: ");
-      // Serial.print(data.lat, 12);
-      // Serial.print(" LNG: ");
-      // Serial.print(data.lng, 12);
-      // Serial.print("  X GPS:  ");
-      // Serial.print(xDistance);
-      // Serial.print(" Y GPS: ");
-      // Serial.println(yDistance);
+      if (gps.location.isUpdated())
+      {
+
+        data.gpsAltitude = gps.altitude.meters();
+        data.hdop = gps.hdop.hdop();
+        data.sats = gps.satellites.value();
+
+        // xDistance = getEastWestDistance(data.lng);
+        // yDistance = getNorthSouthDistance(data.lat);
+        // Serial.print(initialLatitude);
+        // Serial.print(" ");
+        // Serial.print(initialLongitude);
+        // Serial.print(" ");
+        // Serial.print("LAT: ");
+        // Serial.print(data.lat, 12);
+        // Serial.print(" LNG: ");
+        // Serial.print(data.lng, 12);
+        // Serial.print("  X GPS:  ");
+        // Serial.print(xDistance);
+        // Serial.print(" Y GPS: ");
+        // Serial.println(yDistance);
+      }
     }
   }
 }
