@@ -12,7 +12,7 @@
 #define ENABLE_PARACHUTE false
 #define ENABLE_ANGLE_CHECK false
 #define ENGAGE_PYRO false
-#define DO_EUI false
+#define DO_EUI true
 
 #define DATA_SAMPLE_RATE 200      // hz
 #define DATA_SAMPLE_TOTAL_TIME 15 // seconds

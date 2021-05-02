@@ -4,15 +4,14 @@ class KalmanNew
 {
 public:
   KalmanNew();
-  float getPosition();
-  float getVelocity();
-  float getGravity();
+
   float getBias();
 
   void updateBaro(float val);
   void updateGPS(float val);
   void zeroKalman();
   void predict(float accel);
+  void setBias(float bias);
 
 private:
   BLA::Matrix<4, 4> Q;
@@ -28,7 +27,9 @@ private:
   BLA::Matrix<4, 4> I;
   BLA::Matrix<4, 4> F;
   BLA::Matrix<4, 1> A;
+  void updateVariables();
   bool isFirstStep = true;
   unsigned long currentTime = 0;
   unsigned long prevTime = 0;
   float delT = 0.0f;
+};

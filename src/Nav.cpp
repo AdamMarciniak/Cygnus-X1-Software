@@ -249,7 +249,9 @@ void getYPR()
         // orientation = yawBiasQuaternion.rotate(orientation);
         localAccelQuat = Quaternion(0, data.ax, data.ay, data.az);
         worldAccelQuat = orientation.rotate(localAccelQuat);
-        data.worldAx = worldAccelQuat.b - worldAxBias;
+        //data.worldAx = worldAccelQuat.b - worldAxBias;
+        data.worldAx = worldAccelQuat.b;
+
         data.worldAy = worldAccelQuat.c - worldAyBias;
         data.worldAz = worldAccelQuat.d - worldAzBias;
 

@@ -60,6 +60,15 @@ struct Data
   float yawBias;
   float pitchBias;
   float batteryVoltage;
+  float gpsAltitude;
+  float gps_altitude_bias;
+  float sats;
+  float hdop;
+  float kal_Z_bias;
+  float kal_X_p;
+  float kal_V_p;
+  float kal_G_p;
+  float kal_B_p;
 };
 
 struct NonLoggedData

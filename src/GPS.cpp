@@ -36,18 +36,12 @@ void getGPSAltitudeBias()
 
     if (gps.location.isUpdated())
     {
-      data.lat = gps.location.lat();
-      data.lng = gps.location.lng();
       data.sats = gps.satellites.value();
       data.hdop = gps.hdop.hdop();
-      data.hdopVal = gps.hdop.value();
       data.gpsAltitude = gps.altitude.meters();
-      data.gpsSpeed = gps.speed.kmph();
-      data.gpsCourse = gps.course.deg();
       Serial.print("Got GPS. HDOP = ");
       Serial.print(data.hdop);
       Serial.print(" ");
-      Serial.print(data.hdopVal);
       Serial.print("  Sats: ");
       Serial.println(data.sats);
       if (data.hdop < 1.8 && data.sats > 5)
@@ -55,16 +49,16 @@ void getGPSAltitudeBias()
         if (gpsBiasCount < 10)
         {
           data.gps_altitude_bias += data.gpsAltitude;
-          latitudeAve += data.lat;
-          longitudeAve += data.lng;
+          // latitudeAve += data.lat;
+          // longitudeAve += data.lng;
           gpsBiasCount += 1;
         }
 
         if (gpsBiasCount == 10)
         {
           data.gps_altitude_bias /= 10.0;
-          initialLatitude = latitudeAve / 10.0;
-          initialLongitude = longitudeAve / 10.0;
+          // initialLatitude = latitudeAve / 10.0;
+          // initialLongitude = longitudeAve / 10.0;
 
           Serial.println("Finishing BIAS MEasurement");
           goToState(IDLE);
@@ -77,26 +71,17 @@ void getGPSAltitudeBias()
 void handleGPS()
 {
 
-  if (data.state == GPS_BIAS_GATHER)
-  {
-    return;
-  }
-
-  while (Serial1.available() > 0)
+  if (Serial1.available() > 0)
   {
 
     gps.encode(Serial1.read());
 
     if (gps.location.isUpdated())
     {
-      data.lat = gps.location.lat();
-      data.lng = gps.location.lng();
-      data.sats = gps.satellites.value();
-      data.hdop = gps.hdop.hdop();
-      data.hdopVal = gps.hdop.value();
+
       data.gpsAltitude = gps.altitude.meters();
-      data.gpsSpeed = gps.speed.kmph();
-      data.gpsCourse = gps.course.deg();
+      data.hdop = gps.hdop.hdop();
+      data.sats = gps.satellites.value();
 
       // xDistance = getEastWestDistance(data.lng);
       // yDistance = getNorthSouthDistance(data.lat);

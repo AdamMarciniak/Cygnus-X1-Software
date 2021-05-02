@@ -15,10 +15,14 @@
 #include "Pyro.h"
 #include "Config.h"
 #include "Kalman.h"
+#include "KalmanNew.h"
 #include "./eui/EUIMyLib.h"
+#include "GPS.h"
 
 Chrono navTimer;
 Chrono batteryCheckTimer;
+
+KalmanNew kalman;
 
 float accelMag = 0;
 bool flashWriteStatus = false;
@@ -95,17 +99,28 @@ void setup()
     testTime = millis();
   }
   goToState(IDLE);
+  kalman.setBias(data.biasAltitude);
 }
+
+Chrono gpsTimer;
 
 void handleRunNav()
 {
   handleAltimeter();
+  handleGPS();
+
+  if (gpsTimer.hasPassed(1000))
+  {
+    kalman.updateGPS(data.gpsAltitude);
+    gpsTimer.restart();
+  }
 
   if (navTimer.hasPassed(NAV_RATE))
   {
     getAccel();
     getYPR();
-    updateAccel(data.worldAx);
+    kalman.predict(data.worldAx);
+    //updateAccel(data.worldAx);
 
     if (PIDStatus == true)
     {
@@ -121,7 +136,8 @@ void handleRunNav()
   if (isNewAltimeterData())
   {
     getAltitude();
-    updateBaro(data.altitude);
+    kalman.updateBaro(getAltitude());
+    //updateBaro(data.altitude);
   }
 }
 
@@ -177,12 +193,12 @@ void loop()
   {
 
   case TEST:
-    handleSendTelemetry();
+    //handleSendTelemetry();
 
-    if (millis() - testTime > 5000)
-    {
-      PIDStatus = true;
-    }
+    // if (millis() - testTime > 5000)
+    // {
+    //   PIDStatus = true;
+    // }
 
     break;
 
