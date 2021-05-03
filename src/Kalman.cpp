@@ -2,40 +2,31 @@
 
 using namespace BLA;
 
-BLA::Matrix<3, 3> Q = {0.001, 0, 0,
-                       0, 0.1, 0,
-                       0, 0, 100};
-
-BLA::Matrix<1, 1> R_Accel = {0.1};
+BLA::Matrix<2, 2> Q = {0.00000003125, 0,
+                       0, 0.0000125};
 
 // Measured baro variance was 0.03251531
-BLA::Matrix<1, 1> R_Baro = {10000};
+BLA::Matrix<1, 1> R_Baro = {0.09};
 
-BLA::Matrix<3, 1> X = {
+BLA::Matrix<2, 1> X = {
     0,
     0,
-    0,
+
 };
 
-BLA::Matrix<3, 3> P = {1, 0, 0,
-                       0, 1, 0,
-                       0, 0, 1};
+BLA::Matrix<2, 2> P = {1, 0,
+                       0, 1};
 
-BLA::Matrix<3, 3> I = {1, 0, 0,
-                       0, 1, 0,
-                       0, 0, 1};
+BLA::Matrix<2, 2> I = {1, 0,
+                       0, 1};
 
-BLA::Matrix<1, 3> H_Baro = {1, 0, 0};
+BLA::Matrix<1, 2> H_Baro = {1, 0};
 
-BLA::Matrix<1, 3> H_Accel = {0, 0, 1};
-
-BLA::Matrix<3, 3> F;
-BLA::Matrix<1, 1> Z_Accel;
+BLA::Matrix<2, 2> F;
+BLA::Matrix<2, 1> B;
+BLA::Matrix<1, 1> U;
 BLA::Matrix<1, 1> Z_Baro;
-BLA::Matrix<1, 1> Z_GPS;
-BLA::Matrix<3, 1> K_Accel;
-BLA::Matrix<3, 1> K_Baro;
-BLA::Matrix<3, 1> K_GPS;
+BLA::Matrix<2, 1> K_Baro;
 
 void initKalman()
 {
@@ -47,12 +38,10 @@ void zeroKalman()
   X = {
       0,
       0,
-      0,
   };
 
-  P = {0.001, 0, 0,
-       0, 0.001, 0,
-       0, 0, 0.001};
+  P = {0.01, 0,
+       0, 0.000000001};
 }
 
 unsigned long currentTime = 0;
@@ -61,7 +50,7 @@ float delT = 0.0f;
 
 bool isFirstStep = true;
 
-void predict()
+void predict(float accel)
 {
   currentTime = micros();
   delT = (currentTime - prevTime) / 1000000.0f;
@@ -71,29 +60,22 @@ void predict()
   if (!isFirstStep)
   {
     F = {
-        1, delT, 0.5 * delT * delT,
-        0, 1, delT,
-        0, 0, 1};
+        1, delT,
+        0, 1};
 
-    X = F * X;
+    B = {0.5 * delT * delT,
+         delT};
+
+    U = {accel};
+
+    X = F * X + B * U;
     P = F * P * ~F + Q;
   }
   isFirstStep = false;
 }
 
-void updateAccel(float accel)
-{
-  predict();
-  Z_Accel = {accel};
-  K_Accel = P * ~H_Accel * (H_Accel * P * ~H_Accel + R_Accel).Inverse();
-  X = X + K_Accel * (Z_Accel - H_Accel * X);
-  P = (I - K_Accel * H_Accel) * P * (~(I - K_Accel * H_Accel)) + K_Accel * R_Accel * ~K_Accel;
-  setDataVariables();
-}
-
 void updateBaro(float altitude)
 {
-  predict();
   Z_Baro = {altitude};
   K_Baro = P * ~H_Baro * (H_Baro * P * ~H_Baro + R_Baro).Inverse();
 
@@ -106,9 +88,7 @@ void setDataVariables()
 {
   data.kal_X_pos = X(0, 0);
   data.kal_X_vel = X(1, 0);
-  data.kal_X_accel = X(2, 0);
 
   data.kal_X_posP = P(0, 0);
   data.kal_X_velP = P(1, 1);
-  data.kal_X_accelP = P(2, 2);
 }

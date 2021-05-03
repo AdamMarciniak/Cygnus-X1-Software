@@ -105,7 +105,7 @@ void handleRunNav()
   {
     getAccel();
     getYPR();
-    updateAccel(data.worldAx);
+    predict(data.worldAx);
 
     if (PIDStatus == true)
     {
