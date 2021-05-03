@@ -112,4 +112,3 @@ void setDataVariables()
   data.kal_X_velP = P(1, 1);
   data.kal_X_accelP = P(2, 2);
 }
-

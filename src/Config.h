@@ -15,6 +15,8 @@
 #define DO_EUI true
 #define DO_GPS true
 
+#define SELF_FIRE true
+
 #define YAW_PITCH_BIAS_COUNT 50
 #define WORLD_ACCEL_BIAS_COUNT 500
 #define GYRO_BIAS_COUNT 100
@@ -65,7 +67,7 @@
 
 #define PARACHUTE_ALTITUDE_THRESHOLD 40.0f // meters
 #define ABORT_ANGLE_THRESHOLD 35.0f        // degrees
-#define ACCEL_UNPOWERED_THRESHOLD 2.0f     //m/s^2
+#define ACCEL_UNPOWERED_THRESHOLD 1.5f     //m/s^2
 #define FIRE_ON_TIME 1000                  // ms
 
 // Unused now

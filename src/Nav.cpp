@@ -4,8 +4,6 @@ Bmi088Accel accel(Wire, 0x18);
 Bmi088Gyro gyro(Wire, 0x68);
 
 float accel_raw[3] = {0, 0, 0};
-float accel_raw_prev[3] = {0, 0, 0};
-float gyro_raw[3] = {0, 0, 0}; // rad/sec
 float g_bias[3] = {0, 0, 0};
 
 // Quaternion Stuff
@@ -17,19 +15,12 @@ float q_grad[4] = {0, 0, 0, 0};
 float omega[3] = {0, 0, 0};
 float theta;
 
+float ypr[3] = {0, 0, 0};
+
 bool first_gyro_reading = true;
 unsigned long gyro_current_time = 0;
 unsigned long gyro_past_time = 0;
 float gyro_dt = 0;
-
-// Yaw pitch roll of rocket
-float ypr[3] = {0, 0, 0};
-
-float vel_local[3] = {0, 0, 0};
-bool firstAccelReading = true;
-float accel_dt = 0;
-unsigned long accel_current_time = 0;
-unsigned long accel_past_time = 0;
 
 Quaternion localAccelQuat;
 Quaternion worldAccelQuat;
@@ -37,8 +28,6 @@ Quaternion orientation(1, 0, 0, 0);
 
 Quaternion yawBiasQuaternion;
 Quaternion pitchBiasQuaternion;
-float worldAccelArray[4] = {0, 0, 0, 0};
-float worldAccelAngles[3] = {0, 0, 0};
 
 void zeroGyroscope()
 {
@@ -65,8 +54,6 @@ void zeroGyroscope()
     ypr[1] = 0;
     ypr[2] = 0;
 }
-
-void quatToEuler(float *qBody, float *ypr);
 
 void getGyroBiases()
 {
@@ -237,9 +224,7 @@ void getYPR()
         // orientation = yawBiasQuaternion.rotate(orientation);
         localAccelQuat = Quaternion(0.0, data.ax, data.ay, data.az);
         worldAccelQuat = orientation.rotate(localAccelQuat);
-        //data.worldAx = worldAccelQuat.b - worldAxBias;
-        data.worldAx = worldAccelQuat.b;
-
+        data.worldAx = worldAccelQuat.b - worldAxBias;
         data.worldAy = worldAccelQuat.c - worldAyBias;
         data.worldAz = worldAccelQuat.d - worldAzBias;
 

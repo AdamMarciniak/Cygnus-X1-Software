@@ -25,8 +25,6 @@ float accelMag = 0;
 bool flashWriteStatus = false;
 bool PIDStatus = false;
 bool gyroZeroStatus = false;
-unsigned long landingTimer = 0;
-bool landingWait = false;
 unsigned long landingDetectTime = 0;
 
 bool finishedWriting = false;
@@ -97,8 +95,6 @@ void setup()
   }
   goToState(IDLE);
 }
-
-Chrono gpsTimer;
 
 void handleRunNav()
 {
@@ -203,6 +199,19 @@ void loop()
 
     handleServoCentering();
 
+    if (!SELF_FIRE)
+    {
+      // Trigger powered flight if launch happens without BTLE
+      if (data.worldAx > LAUNCH_ACCEL_THRESHOLD)
+      {
+        flashWriteStatus = true;
+        zeroGyroscope();
+        zeroKalman();
+        goToState(POWERED_ASCENT);
+        PIDStatus = true;
+      }
+    }
+
     break;
 
   case LAUNCH_COMMANDED:
@@ -252,7 +261,7 @@ void loop()
     moveZServo(data.Z_Servo_Center);
     moveYServo(data.Y_Servo_Center);
 
-    if (data.kal_X_vel <= -1.0f)
+    if (data.kal_X_vel <= -0.5f)
     {
       goToState(FREE_DESCENT);
     }
