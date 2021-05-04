@@ -20,3 +20,4 @@ extern void getCurrentYawAndPitchFromAccel();
 extern void getInitYawAndPitchBiases();
 extern void measureNav();
 extern void getWorldABiases();
+float getMovingAverageWorldXAccel(float worldXAccel);

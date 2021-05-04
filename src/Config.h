@@ -7,15 +7,15 @@
 // Engage pyro true
 // Do EUI false
 
-#define IS_TEST_MODE true
+#define IS_TEST_MODE false
 
-#define ENABLE_PARACHUTE false
+#define ENABLE_PARACHUTE true
 #define ENABLE_ANGLE_CHECK false
 #define ENGAGE_PYRO false
-#define DO_EUI true
-#define DO_GPS true
+#define DO_EUI false
+#define DO_GPS false
 
-#define SELF_FIRE true
+#define SELF_FIRE false
 
 #define YAW_PITCH_BIAS_COUNT 50
 #define WORLD_ACCEL_BIAS_COUNT 500

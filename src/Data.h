@@ -69,6 +69,7 @@ struct Data
   float kal_V_p;
   float kal_G_p;
   float kal_B_p;
+  float worldAxBias;
 };
 
 struct NonLoggedData

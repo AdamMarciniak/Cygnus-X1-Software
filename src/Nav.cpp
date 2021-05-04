@@ -26,6 +26,8 @@ Quaternion localAccelQuat;
 Quaternion worldAccelQuat;
 Quaternion orientation(1, 0, 0, 0);
 
+float oriBiases[4] = {0, 0, 0, 0};
+
 Quaternion yawBiasQuaternion;
 Quaternion pitchBiasQuaternion;
 
@@ -142,6 +144,7 @@ void getWorldABiases()
     worldAxBias = worldAxBiasTemp / float(count);
     worldAyBias = worldAyBiasTemp / float(count);
     worldAzBias = worldAzBiasTemp / float(count);
+    data.worldAxBias = worldAxBias;
 }
 
 float axAve = 0;
@@ -174,11 +177,10 @@ void getInitYawAndPitchBiases()
     // pitchBiasQuaternion = from_axis_angle(data.pitchBias * DEG_TO_RAD, 0, 1, 0);
 }
 
-void getCurrentYawAndPitchFromAccel()
-{
-    data.pitchBias = atan2(-data.az, (sqrt(sq(data.ax) + sq(data.ay)))) * RAD_TO_DEG;
-    data.yawBias = atan2(data.ay, (sqrt(sq(data.ax) + sq(data.az)))) * RAD_TO_DEG;
-}
+unsigned long ori_bias_current_time = 0;
+bool ori_bias_first_gyro_reading = true;
+unsigned long ori_bias_gyro_past_time = 0;
+float ori_bias_gyro_dt = 0.0;
 
 void getYPR()
 {
@@ -219,12 +221,13 @@ void getYPR()
         float norm = sqrtf(sq(omega[0]) + sq(omega[1]) + sq(omega[2]));
         norm = copysignf(max(abs(norm), 1e-9), norm); // NO DIVIDE BY 0
         orientation *= from_axis_angle(gyro_dt * norm, omega[0] / norm, omega[1] / norm, omega[2] / norm);
+        orientation.rotate(Quaternion(0.0, 0.0, data.yawBias, data.pitchBias));
         // Leave these out still figuring out world accel based on biases
         // orientation = pitchBiasQuaternion.rotate(orientation);
         // orientation = yawBiasQuaternion.rotate(orientation);
         localAccelQuat = Quaternion(0.0, data.ax, data.ay, data.az);
         worldAccelQuat = orientation.rotate(localAccelQuat);
-        data.worldAx = worldAccelQuat.b - worldAxBias;
+        data.worldAx = worldAccelQuat.b - data.worldAxBias;
         data.worldAy = worldAccelQuat.c - worldAyBias;
         data.worldAz = worldAccelQuat.d - worldAzBias;
 
@@ -253,4 +256,25 @@ void quatToEuler(float *qBody, float *ypr)
     double siny_cosp = 2.0 * (q_body[0] * q_body[3] + q_body[1] * q_body[2]);
     double cosy_cosp = 1.0 - 2.0 * (q_body[2] * q_body[2] + q_body[3] * q_body[3]);
     ypr[0] = atan2(siny_cosp, cosy_cosp) * RAD_TO_DEG;
+}
+
+float getMovingAverageWorldXAccel(float worldXAccel)
+{
+    const static int WINDOW_SIZE = 20;
+    static int INDEX = 0;
+    static float SUM = 0;
+    static float READINGS[WINDOW_SIZE];
+    float AVERAGED = 0;
+    SUM -= READINGS[INDEX];
+    READINGS[INDEX] = worldXAccel;
+    SUM += worldXAccel;
+    INDEX = (INDEX + 1) % WINDOW_SIZE;
+    if (INDEX < 19)
+    {
+        return 0.0;
+    }
+
+    AVERAGED = SUM / WINDOW_SIZE;
+
+    return AVERAGED;
 }

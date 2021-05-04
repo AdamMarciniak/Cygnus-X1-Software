@@ -105,6 +105,12 @@ void handleRunNav()
   {
     getAccel();
     getYPR();
+
+    if (data.state == IDLE || data.state == TEST)
+    {
+      data.worldAxBias += getMovingAverageWorldXAccel(data.worldAx);
+    }
+
     predict(data.worldAx);
 
     if (PIDStatus == true)
