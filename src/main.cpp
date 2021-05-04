@@ -121,6 +121,11 @@ void handleRunNav()
   if (isNewAltimeterData())
   {
     getAltitude();
+    if (data.state == IDLE || data.state == TEST)
+    {
+      // Do this so that while idle, bias doesn't rise.
+      data.biasAltitude += getMovingAverage(data.altitude);
+    }
     updateBaro(data.altitude);
   }
 }

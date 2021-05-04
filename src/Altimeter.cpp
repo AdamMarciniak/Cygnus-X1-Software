@@ -75,3 +75,24 @@ void getAltitudeBias()
   data.biasAltitude = altitudeBias;
   return;
 }
+
+float getMovingAverage(float altitude)
+{
+  const static int WINDOW_SIZE = 20;
+  static int INDEX = 0;
+  static float SUM = 0;
+  static float READINGS[WINDOW_SIZE];
+  static float AVERAGED = 0;
+  SUM -= READINGS[INDEX];
+  READINGS[INDEX] = altitude;
+  SUM += altitude;
+  INDEX = (INDEX + 1) % WINDOW_SIZE;
+  if (INDEX < 19)
+  {
+    return 0.0;
+  }
+
+  AVERAGED = SUM / WINDOW_SIZE;
+
+  return AVERAGED;
+}
