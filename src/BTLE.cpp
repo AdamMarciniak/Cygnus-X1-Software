@@ -326,7 +326,14 @@ void checkBTLE()
               }
               else
               {
-                goToState(LAUNCH_COMMANDED);
+                if (data.pyro1Continuity == 1.0)
+                {
+                  goToState(LAUNCH_COMMANDED);
+                }
+                else
+                {
+                  goToState(ABORT);
+                }
               }
             }
 

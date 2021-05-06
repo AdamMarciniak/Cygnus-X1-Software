@@ -70,6 +70,8 @@ struct Data
   float worldAxBias;
   float worldAyBias;
   float worldAzBias;
+  float accelMag;
+  float pyro1Continuity;
 };
 
 struct NonLoggedData

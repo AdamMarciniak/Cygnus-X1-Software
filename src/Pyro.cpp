@@ -1,9 +1,10 @@
 #include "Pyro.h"
-#include "Config.h"
 
 unsigned long fireTime = 0; // millis
 bool firingStatus = false;
 float analogVal;
+
+Chrono continuityTimer;
 
 void initPyro()
 {
@@ -12,13 +13,31 @@ void initPyro()
     pinMode(PYRO2_PIN, OUTPUT);
     if (analogRead(PYRO2_DETECT_PIN) < 200)
     {
-      while (1)
-      {
-        buzzerError();
-        delay(200);
-      }
+      data.pyro1Continuity = 0.0;
     }
-    Serial.println("Pyro Continuity Good");
+    else
+    {
+      data.pyro1Continuity = 1.0;
+    }
+  }
+}
+
+void handleGetContinuity()
+{
+  if (ENGAGE_PYRO == true)
+  {
+    if (continuityTimer.hasPassed(500))
+    {
+      if (analogRead(PYRO2_DETECT_PIN) < 200)
+      {
+        data.pyro1Continuity = 0.0;
+      }
+      else
+      {
+        data.pyro1Continuity = 1.0;
+      }
+      continuityTimer.restart();
+    }
   }
 }
 

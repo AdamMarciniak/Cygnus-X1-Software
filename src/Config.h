@@ -11,7 +11,7 @@
 
 #define ENABLE_PARACHUTE true
 #define ENABLE_ANGLE_CHECK false
-#define ENGAGE_PYRO false
+#define ENGAGE_PYRO true
 #define DO_EUI false
 #define DO_GPS false
 
@@ -48,7 +48,7 @@
 #define Z_KI KIE12
 #define Z_KD KDE12
 
-#define BATTERY_VOLTAGE_MIN 11.0 //volts
+#define BATTERY_VOLTAGE_MIN 11.3 //volts
 #define NAV_RATE 5               //ms
 
 #define PARACHUTE_SERVO_DEPLOY 50

@@ -3,6 +3,8 @@
 #include <Arduino.h>
 #include "Buzzer.h"
 #include "Config.h"
+#include "Data.h"
 
-extern void initPyro();
-extern void handleFirePyro();
+void initPyro();
+void handleFirePyro();
+void handleGetContinuity();

@@ -171,8 +171,6 @@ void loop()
 
   handleEUI();
 
-  handleSendTelemetry();
-
   if (data.state != LAUNCH_COMMANDED)
   {
     analogWrite(PYRO1_PIN, 0);
@@ -201,6 +199,10 @@ void loop()
 
   case IDLE:
 
+    handleSendTelemetry();
+
+    handleGetContinuity();
+
     // wait for zero gyros command
     if (nonLoggedData.zeroGyrosStatus == true)
     {
@@ -208,20 +210,23 @@ void loop()
       zeroGyroscope();
     }
 
-    handleServoCentering();
-
-    if (!SELF_FIRE)
+    if (data.pyro1Continuity == 1.0)
     {
-      // Trigger powered flight if launch happens without BTLE
-      if (data.worldAx > LAUNCH_ACCEL_THRESHOLD)
+      if (!SELF_FIRE)
       {
-        flashWriteStatus = true;
-        zeroGyroscope();
-        zeroKalman();
-        goToState(POWERED_ASCENT);
-        PIDStatus = true;
+        // Trigger powered flight if launch happens without BTLE
+        if (data.worldAx > LAUNCH_ACCEL_THRESHOLD)
+        {
+          flashWriteStatus = true;
+          zeroGyroscope();
+          zeroKalman();
+          goToState(POWERED_ASCENT);
+          PIDStatus = true;
+        }
       }
     }
+
+    handleServoCentering();
 
     break;
 
