@@ -50,11 +50,11 @@ Initialize the radio_ack. This is the ack received for every transmitted packet.
 /* Define how assert should function in the BLE library */
 void __ble_assert(const char *file, uint16_t line)
 {
-  Serial.print("ERROR ");
-  Serial.print(file);
-  Serial.print(": ");
-  Serial.print(line);
-  Serial.print("\n");
+  // Serial.print("ERROR ");
+  // Serial.print(file);
+  // Serial.print(": ");
+  // Serial.print(line);
+  // Serial.print("\n");
   while (1)
     ;
 }
@@ -114,7 +114,7 @@ void initBluetooth()
   //then we initialize the data structures required to setup the nRF8001
   //The second parameter is for turning debug printing on for the ACI Commands and Events so they be printed on the Serial
   lib_aci_init(&aci_state, false);
-  Serial.println(F("Set up done"));
+  //Serial.println(F("Set up done"));
 }
 
 void uart_over_ble_init(void)
@@ -146,7 +146,7 @@ bool uart_process_control_point_rx(uint8_t *byte, uint8_t length)
 
   if (lib_aci_is_pipe_available(&aci_state, PIPE_UART_OVER_BTLE_UART_CONTROL_POINT_TX))
   {
-    Serial.println(*byte, HEX);
+    //Serial.println(*byte, HEX);
     switch (*byte)
     {
     /*
@@ -235,12 +235,12 @@ void checkBTLE()
         /**
             When the device is in the setup mode
             */
-        Serial.println(F("Evt Device Started: Setup"));
+        //Serial.println(F("Evt Device Started: Setup"));
         setup_required = true;
         break;
 
       case ACI_DEVICE_STANDBY:
-        Serial.println(F("Evt Device Started: Standby"));
+        //Serial.println(F("Evt Device Started: Standby"));
         //Looking for an iPhone by sending radio advertisements
         //When an iPhone connects to us we will get an ACI_EVT_CONNECTED event from the nRF8001
         if (aci_evt->params.device_started.hw_error)
@@ -281,7 +281,7 @@ void checkBTLE()
       break;
 
     case ACI_EVT_PIPE_STATUS:
-      Serial.println(F("Evt Pipe Status"));
+      //Serial.println(F("Evt Pipe Status"));
       if (lib_aci_is_pipe_available(&aci_state, PIPE_UART_OVER_BTLE_UART_TX_TX) && (false == timing_change_done))
       {
         lib_aci_change_timing_GAP_PPCP(); // change the timing on the link as specified in the nRFgo studio -> nRF8001 conf. -> GAP.
@@ -291,7 +291,7 @@ void checkBTLE()
       break;
 
     case ACI_EVT_TIMING:
-      Serial.println(F("Evt link connection interval changed"));
+      //Serial.println(F("Evt link connection interval changed"));
       lib_aci_set_local_data(&aci_state,
                              PIPE_UART_OVER_BTLE_UART_LINK_TIMING_CURRENT_SET,
                              (uint8_t *)&(aci_evt->params.timing.conn_rf_interval), /* Byte aligned */
@@ -304,8 +304,8 @@ void checkBTLE()
 
     case ACI_EVT_DATA_RECEIVED:
       data.btleCmd = 1;
-      Serial.print(F("Pipe Number: "));
-      Serial.println(aci_evt->params.data_received.rx_data.pipe_number, DEC);
+      //Serial.print(F("Pipe Number: "));
+      //Serial.println(aci_evt->params.data_received.rx_data.pipe_number, DEC);
 
       if (PIPE_UART_OVER_BTLE_UART_RX_RX == aci_evt->params.data_received.rx_data.pipe_number)
       {
@@ -391,10 +391,10 @@ void checkBTLE()
 
     case ACI_EVT_PIPE_ERROR:
       //See the appendix in the nRF8001 Product Specication for details on the error codes
-      Serial.print(F("ACI Evt Pipe Error: Pipe #:"));
-      Serial.print(aci_evt->params.pipe_error.pipe_number, DEC);
-      Serial.print(F("  Pipe Error Code: 0x"));
-      Serial.println(aci_evt->params.pipe_error.error_code, HEX);
+      //Serial.print(F("ACI Evt Pipe Error: Pipe #:"));
+      //Serial.print(aci_evt->params.pipe_error.pipe_number, DEC);
+      //Serial.print(F("  Pipe Error Code: 0x"));
+      //Serial.println(aci_evt->params.pipe_error.error_code, HEX);
 
       //Increment the credit available as the data packet was not sent.
       //The pipe error also represents the Attribute protocol Error Response sent from the peer and that should not be counted
@@ -406,16 +406,16 @@ void checkBTLE()
       break;
 
     case ACI_EVT_HW_ERROR:
-      Serial.print(F("HW error: "));
-      Serial.println(aci_evt->params.hw_error.line_num, DEC);
+      //Serial.print(F("HW error: "));
+      //Serial.println(aci_evt->params.hw_error.line_num, DEC);
 
       for (uint8_t counter = 0; counter <= (aci_evt->len - 3); counter++)
       {
-        Serial.write(aci_evt->params.hw_error.file_name[counter]); //uint8_t file_name[20];
+        //Serial.write(aci_evt->params.hw_error.file_name[counter]); //uint8_t file_name[20];
       }
-      Serial.println();
+      //Serial.println();
       lib_aci_connect(0 /* in seconds, 0 means forever */, 0x0050 /* advertising interval 50ms*/);
-      Serial.println(F("Advertising started. Tap Connect on the nRF UART app"));
+      //Serial.println(F("Advertising started. Tap Connect on the nRF UART app"));
       break;
     }
   }
@@ -442,14 +442,14 @@ void checkBTLE()
   // print the string when a newline arrives:
   if (stringComplete)
   {
-    Serial.print(F("Sending: "));
-    Serial.println((char *)&uart_buffer[0]);
+    //Serial.print(F("Sending: "));
+    //Serial.println((char *)&uart_buffer[0]);
 
     uart_buffer_len = stringIndex + 1;
 
     if (!lib_aci_send_data(PIPE_UART_OVER_BTLE_UART_TX_TX, uart_buffer, uart_buffer_len))
     {
-      Serial.println(F("Serial input dropped"));
+      //Serial.println(F("Serial input dropped"));
     }
 
     // clear the uart_buffer:
@@ -480,7 +480,7 @@ void sendTelemetry(char message[])
 
   if (!lib_aci_send_data(PIPE_UART_OVER_BTLE_UART_TX_TX, uart_buffer, uart_buffer_len))
   {
-    Serial.println(F("Serial input dropped"));
+    //Serial.println(F("Serial input dropped"));
   }
 
   // clear the uart_buffer:
@@ -521,7 +521,7 @@ void serialEvent()
       {
         if (stringIndex > 19)
         {
-          Serial.println("Serial input truncated");
+          //Serial.println("Serial input truncated");
           stringIndex--;
           stringComplete = true;
         }

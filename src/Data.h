@@ -43,6 +43,9 @@ struct Data
   float kal_X_posP;
   float kal_X_velP;
   float kal_X_accelP;
+  float kal_K_1;
+  float kal_K_2;
+  float kal_inno;
   float servo_z;
   float servo_y;
   float kp_y;
@@ -64,12 +67,9 @@ struct Data
   float gps_altitude_bias;
   float sats;
   float hdop;
-  float kal_Z_bias;
-  float kal_X_p;
-  float kal_V_p;
-  float kal_G_p;
-  float kal_B_p;
   float worldAxBias;
+  float worldAyBias;
+  float worldAzBias;
 };
 
 struct NonLoggedData

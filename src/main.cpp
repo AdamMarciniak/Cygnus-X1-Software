@@ -171,6 +171,8 @@ void loop()
 
   handleEUI();
 
+  handleSendTelemetry();
+
   if (data.state != LAUNCH_COMMANDED)
   {
     analogWrite(PYRO1_PIN, 0);
@@ -198,8 +200,6 @@ void loop()
     break;
 
   case IDLE:
-
-    handleSendTelemetry();
 
     // wait for zero gyros command
     if (nonLoggedData.zeroGyrosStatus == true)
@@ -259,10 +259,15 @@ void loop()
   case POWERED_ASCENT:
     PIDStatus = true;
     // Check if accel magnitude is less than thresh
-    accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
-    if (accelMag < ACCEL_UNPOWERED_THRESHOLD)
+    data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
+    if (data.accelMag < ACCEL_UNPOWERED_THRESHOLD)
     {
       goToState(UNPOWERED_ASCENT);
+    }
+
+    if (data.kal_X_vel <= -0.5f)
+    {
+      goToState(FREE_DESCENT);
     }
 
     break;
@@ -292,7 +297,6 @@ void loop()
   case PARACHUTE_DESCENT:
 
     deployParachute();
-    handleBuzzer();
 
     if (millis() - landingDetectTime > LANDING_DETECT_DELAY)
     {
@@ -304,7 +308,6 @@ void loop()
   case ABORT:
 
     deployParachute();
-    handleBuzzer();
 
     if (firstAbortLoop)
     {

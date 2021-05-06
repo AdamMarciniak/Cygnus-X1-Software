@@ -74,12 +74,15 @@ void predict(float accel)
   isFirstStep = false;
 }
 
+BLA::Matrix<1, 1> Innovation;
+
 void updateBaro(float altitude)
 {
   Z_Baro = {altitude};
   K_Baro = P * ~H_Baro * (H_Baro * P * ~H_Baro + R_Baro).Inverse();
 
-  X = X + K_Baro * (Z_Baro - H_Baro * X);
+  Innovation = (Z_Baro - H_Baro * X);
+  X = X + K_Baro * Innovation;
   P = (I - K_Baro * H_Baro) * P * (~(I - K_Baro * H_Baro)) + K_Baro * R_Baro * ~K_Baro;
   setDataVariables();
 }
@@ -88,7 +91,9 @@ void setDataVariables()
 {
   data.kal_X_pos = X(0, 0);
   data.kal_X_vel = X(1, 0);
-
   data.kal_X_posP = P(0, 0);
   data.kal_X_velP = P(1, 1);
+  data.kal_inno = Innovation(0, 0);
+  data.kal_K_1 = K_Baro(0, 0);
+  data.kal_K_2 = K_Baro(1, 0);
 }

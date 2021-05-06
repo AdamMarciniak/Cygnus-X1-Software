@@ -59,6 +59,22 @@ void writeHeader()
   file.print(F(",zServoCenter"));
   file.print(F(",batteryVoltage"));
   file.print(F(",Loop Time"));
+  file.print(F(",kalXposP"));
+  file.print(F(",kalXvelP"));
+  file.print(F(",kalXaccelP"));
+  file.print(F(",kalK1"));
+  file.print(F(",kalK2"));
+  file.print(F(",kalInno"));
+  file.print(F(",yawBias"));
+  file.print(F(",pitchBias"));
+  file.print(F(",gpsAltitude"));
+  file.print(F(",gpsAltBias"));
+  file.print(F(",numSats"));
+  file.print(F(",worldAxBias"));
+  file.print(F(",worldAyBias"));
+  file.print(F(",worldAzBias"));
+  file.print(F(",accelMagnitude"));
+
   file.println();
 }
 
@@ -140,6 +156,36 @@ void logData()
   file.print(data.batteryVoltage, numDecimals);
   file.write(',');
   file.print(data.loopTime, numDecimals);
+  file.write(',');
+  file.print(data.kal_X_posP, numDecimals);
+  file.write(',');
+  file.print(data.kal_X_velP, numDecimals);
+  file.write(',');
+  file.print(data.kal_X_accelP, numDecimals);
+  file.write(',');
+  file.print(data.kal_K_1, numDecimals);
+  file.write(',');
+  file.print(data.kal_K_2, numDecimals);
+  file.write(',');
+  file.print(data.kal_inno, numDecimals);
+  file.write(',');
+  file.print(data.yawBias, numDecimals);
+  file.write(',');
+  file.print(data.pitchBias, numDecimals);
+  file.write(',');
+  file.print(data.gpsAltitude, numDecimals);
+  file.write(',');
+  file.print(data.gps_altitude_bias, numDecimals);
+  file.write(',');
+  file.print(data.sats, numDecimals);
+  file.write(',');
+  file.print(data.worldAxBias, numDecimals);
+  file.write(',');
+  file.print(data.worldAyBias, numDecimals);
+  file.write(',');
+  file.print(data.worldAzBias, numDecimals);
+  file.write(',');
+  file.print(data.accelMag, numDecimals);
   file.println();
 }
 

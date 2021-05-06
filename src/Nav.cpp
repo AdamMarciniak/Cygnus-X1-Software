@@ -131,8 +131,7 @@ float worldAzBiasTemp = 0.0f;
 void getWorldABiases()
 {
     int i = 0;
-    const int count = WORLD_ACCEL_BIAS_COUNT;
-    while (i < count)
+    while (i < WORLD_ACCEL_BIAS_COUNT)
     {
         i += 1;
         delay(10);
@@ -141,10 +140,12 @@ void getWorldABiases()
         worldAyBiasTemp += data.worldAy;
         worldAzBiasTemp += data.worldAz;
     }
-    worldAxBias = worldAxBiasTemp / float(count);
-    worldAyBias = worldAyBiasTemp / float(count);
-    worldAzBias = worldAzBiasTemp / float(count);
+    worldAxBias = worldAxBiasTemp / float(WORLD_ACCEL_BIAS_COUNT);
+    worldAyBias = worldAyBiasTemp / float(WORLD_ACCEL_BIAS_COUNT);
+    worldAzBias = worldAzBiasTemp / float(WORLD_ACCEL_BIAS_COUNT);
     data.worldAxBias = worldAxBias;
+    data.worldAyBias = worldAyBias;
+    data.worldAzBias = worldAzBias;
 }
 
 float axAve = 0;
