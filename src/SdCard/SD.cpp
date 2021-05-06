@@ -6,7 +6,7 @@
 #include "Buzzer.h"
 
 // Base name must be 6 or less chars
-#define FILE_BASE_NAME "throw"
+#define FILE_BASE_NAME "thr"
 const uint8_t chipSelect = SS_SD;
 const int numDecimals = 8;
 
@@ -22,58 +22,58 @@ SdFile file;
 // Write data header.
 void writeHeader()
 {
-  file.print(F("ms"));
-  file.print(F(",ax"));
-  file.print(F(",ay"));
-  file.print(F(",az"));
-  file.print(F(",worldAx"));
-  file.print(F(",worldAy"));
-  file.print(F(",worldAz"));
-  file.print(F(",kalX"));
-  file.print(F(",kalV"));
-  file.print(F(",kalA"));
-  file.print(F(",gx"));
-  file.print(F(",gy"));
-  file.print(F(",gz"));
-  file.print(F(",yaw"));
-  file.print(F(",pitch"));
-  file.print(F(",roll"));
-  file.print(F(",altitude"));
-  file.print(F(",altitudeBias"));
-  file.print(F(",state"));
-  file.print(F(",zServo"));
-  file.print(F(",yServo"));
+  file.print(F("Time_Ms"));
+  file.print(F(",Raw-Acceleration-X"));
+  file.print(F(",Raw-Acceleration-Y"));
+  file.print(F(",Raw-Acceleration-Z"));
+  file.print(F(",World-Ax"));
+  file.print(F(",World-Ay"));
+  file.print(F(",World-Az"));
+  file.print(F(",Kalman-Altitude"));
+  file.print(F(",Kalman-Velocity"));
+  file.print(F(",Kalman-Acceleration"));
+  file.print(F(",Raw-Gyro-X"));
+  file.print(F(",Raw-Gyro-Y"));
+  file.print(F(",Raw-Gyro-Z"));
+  file.print(F(",Yaw"));
+  file.print(F(",Pitch"));
+  file.print(F(",Roll"));
+  file.print(F(",Barometer-Altitude"));
+  file.print(F(",Barometer-Altitude-Bias"));
+  file.print(F(",State"));
+  file.print(F(",Servo-Z"));
+  file.print(F(",Servo-Y"));
   file.print(F(",KP_Y"));
   file.print(F(",KI_Y"));
   file.print(F(",KD_Y"));
   file.print(F(",KP_Z"));
   file.print(F(",KI_Z"));
   file.print(F(",KD_Z"));
-  file.print(F(",p_err_y"));
-  file.print(F(",i_err_y"));
-  file.print(F(",d_err_y"));
-  file.print(F(",p_err_z"));
-  file.print(F(",i_err_z"));
-  file.print(F(",d_err_z"));
-  file.print(F(",yServoCenter"));
-  file.print(F(",zServoCenter"));
-  file.print(F(",batteryVoltage"));
-  file.print(F(",Loop Time"));
-  file.print(F(",kalXposP"));
-  file.print(F(",kalXvelP"));
-  file.print(F(",kalXaccelP"));
-  file.print(F(",kalK1"));
-  file.print(F(",kalK2"));
-  file.print(F(",kalInno"));
-  file.print(F(",yawBias"));
-  file.print(F(",pitchBias"));
-  file.print(F(",gpsAltitude"));
-  file.print(F(",gpsAltBias"));
-  file.print(F(",numSats"));
-  file.print(F(",worldAxBias"));
-  file.print(F(",worldAyBias"));
-  file.print(F(",worldAzBias"));
-  file.print(F(",accelMagnitude"));
+  file.print(F(",P_err_y"));
+  file.print(F(",I_err_y"));
+  file.print(F(",D_err_y"));
+  file.print(F(",P_err_z"));
+  file.print(F(",I_err_z"));
+  file.print(F(",D_err_z"));
+  file.print(F(",Y-Servo-Center"));
+  file.print(F(",Z-Servo-Center"));
+  file.print(F(",Battery-Voltage"));
+  file.print(F(",PID-Loop-Time-Sec"));
+  file.print(F(",Kalman-Altitude-Covariance"));
+  file.print(F(",Kalman-Velocity-Covariance"));
+  file.print(F(",Kalman-Acceleration-Covariance"));
+  file.print(F(",Kalman-Gain-1"));
+  file.print(F(",Kalman-Gain-2"));
+  file.print(F(",Kalman-Innovation"));
+  file.print(F(",Yaw-Bias"));
+  file.print(F(",Pitch-Bias"));
+  file.print(F(",GPS-Altitude"));
+  file.print(F(",GPS-Altitude-Bias"));
+  file.print(F(",Num-Sats"));
+  file.print(F(",World-Ax-Bias"));
+  file.print(F(",World-Ay-Bias"));
+  file.print(F(",World-Az-Bias"));
+  file.print(F(",Raw-Accel-Magnitude"));
 
   file.println();
 }
