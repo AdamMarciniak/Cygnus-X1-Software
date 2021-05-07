@@ -188,6 +188,8 @@ void loop()
 
     handleGetContinuity();
 
+    handleTestServos();
+
     // wait for zero gyros command
     if (nonLoggedData.zeroGyrosStatus == true)
     {
