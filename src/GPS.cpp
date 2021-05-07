@@ -85,6 +85,8 @@ void handleGPS()
         data.gpsAltitude = gps.altitude.meters();
         data.hdop = gps.hdop.hdop();
         data.sats = gps.satellites.value();
+        data.lat = gps.location.lat();
+        data.lng = gps.location.lng();
 
         // xDistance = getEastWestDistance(data.lng);
         // yDistance = getNorthSouthDistance(data.lat);

@@ -19,7 +19,6 @@
 #include "GPS.h"
 
 Chrono navTimer;
-Chrono batteryCheckTimer;
 
 float accelMag = 0;
 bool flashWriteStatus = false;
@@ -32,6 +31,7 @@ unsigned long prevLoopTime;
 unsigned long currentLoopTime;
 
 unsigned long launchAbortTime = 0;
+unsigned long PID_DelayTime = 0;
 
 bool firstLaunchLoop = true;
 bool firstAbortLoop = true;
@@ -99,7 +99,6 @@ void setup()
 void handleRunNav()
 {
   handleAltimeter();
-  handleGPS();
 
   if (navTimer.hasPassed(NAV_RATE))
   {
@@ -149,27 +148,19 @@ void handleWritingToFlash()
   }
 }
 
-unsigned long PID_DelayTimer = 0;
-
 void loop()
 {
   currentLoopTime = micros();
   data.loopTime = float(currentLoopTime - prevLoopTime) / 1000000.0f;
   prevLoopTime = currentLoopTime;
 
-  if (batteryCheckTimer.hasPassed(50))
-  {
-    data.batteryVoltage = getBattVoltage();
-    batteryCheckTimer.restart();
-  }
-
-  checkBTLE();
-
   handleRunNav();
-
+  checkBTLE();
   handleWritingToFlash();
-
   handleEUI();
+  handleGPS();
+
+  handleBatteryCheck();
 
   if (data.state != LAUNCH_COMMANDED)
   {
@@ -188,12 +179,6 @@ void loop()
   {
 
   case TEST:
-    //handleSendTelemetry();
-
-    // if (millis() - testTime > 5000)
-    // {
-    //   PIDStatus = true;
-    // }
 
     break;
 
@@ -210,19 +195,16 @@ void loop()
       zeroGyroscope();
     }
 
-    if (data.pyro1Continuity == 1.0)
+    if (!SELF_FIRE)
     {
-      if (!SELF_FIRE)
+      // Trigger powered flight if launch happens without BTLE
+      if (data.worldAx > LAUNCH_ACCEL_THRESHOLD)
       {
-        // Trigger powered flight if launch happens without BTLE
-        if (data.worldAx > LAUNCH_ACCEL_THRESHOLD)
-        {
-          flashWriteStatus = true;
-          zeroGyroscope();
-          zeroKalman();
-          goToState(POWERED_ASCENT);
-          PIDStatus = true;
-        }
+        flashWriteStatus = true;
+        zeroGyroscope();
+        zeroKalman();
+        goToState(POWERED_ASCENT);
+        PIDStatus = true;
       }
     }
 
@@ -240,12 +222,12 @@ void loop()
       zeroGyroscope();
       zeroKalman();
       launchAbortTime = millis();
-      PID_DelayTimer = millis();
+      PID_DelayTime = millis();
     }
 
     handleFirePyro();
 
-    if (millis() - PID_DelayTimer >= FIRE_TO_PID_DELAY)
+    if (millis() - PID_DelayTime >= FIRE_TO_PID_DELAY)
     {
       PIDStatus = true;
     }

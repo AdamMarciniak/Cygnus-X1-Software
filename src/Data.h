@@ -63,6 +63,8 @@ struct Data
   float yawBias;
   float pitchBias;
   float batteryVoltage;
+  float lat;
+  float lng;
   float gpsAltitude;
   float gps_altitude_bias;
   float sats;

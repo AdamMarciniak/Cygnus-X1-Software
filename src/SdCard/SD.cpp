@@ -6,7 +6,7 @@
 #include "Buzzer.h"
 
 // Base name must be 6 or less chars
-#define FILE_BASE_NAME "thr"
+#define FILE_BASE_NAME "THROW"
 const uint8_t chipSelect = SS_SD;
 const int numDecimals = 8;
 

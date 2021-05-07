@@ -120,6 +120,22 @@ void handleSendTelemetry()
     case 15:
       dtostrf(data.kal_X_vel, 6, 2, buff); // Leave room for too large numbers!
       strcpy(message, "KV");
+      telemetryState += 1;
+      break;
+    case 16:
+      dtostrf(data.hdop, 6, 2, buff); // Leave room for too large numbers!
+      strcpy(message, "HD");
+      telemetryState += 1;
+      break;
+
+    case 17:
+      dtostrf(data.sats, 6, 2, buff); // Leave room for too large numbers!
+      strcpy(message, "ST");
+      telemetryState += 1;
+      break;
+    case 18:
+      dtostrf(data.gpsAltitude, 6, 2, buff); // Leave room for too large numbers!
+      strcpy(message, "GA");
       telemetryState = 0;
       break;
     }
