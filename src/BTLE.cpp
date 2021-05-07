@@ -6,6 +6,7 @@
 #include "./bluetooth/services.h"
 #include "BTLE.h"
 #include "Config.h"
+#include "ServoControl.h"
 
 #ifdef SERVICES_PIPE_TYPE_MAPPING_CONTENT
 static services_pipe_type_mapping_t
@@ -363,6 +364,14 @@ void checkBTLE()
           case 'R':
             readTVCCenters();
             nonLoggedData.servoCentersAvailable = true;
+            break;
+             case 'S':
+             if(data.state == IDLE){
+               servoTestOn = true;
+             } else {
+               servoTestOn = false;
+             }
+            
             break;
 
           default:

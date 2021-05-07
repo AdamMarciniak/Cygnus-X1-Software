@@ -3,6 +3,8 @@
 Servo yServo;
 Servo zServo;
 
+Chrono servoTimer;
+
 void handleServoCentering()
 {
   if (nonLoggedData.servoCentersAvailable == true)
@@ -32,6 +34,35 @@ void initServos()
   yServo.write(data.Y_Servo_Center);
   zServo.write(data.Z_Servo_Center);
 }
+
+unsigned int servoStep = 0;
+bool servoTestOn = false;
+
+void handleTestServos() {
+  
+
+  if(servoTestOn == true){
+
+  
+  if(servoTimer.hasPassed(16)){
+
+    moveYServo(Y_CENTER + SERVO_RANGE * sin(0.1 * servoStep));
+    moveZServo(Z_CENTER - SERVO_RANGE * sin(0.1 * servoStep - PI/2.0));
+
+    servoStep += 1;
+
+    if(servoStep == 63){
+      servoTestOn = false;
+      servoStep = 0;
+    }
+
+   servoTimer.restart();
+    }
+    }
+
+  }
+  
+
 
 void moveYServo(int val)
 {

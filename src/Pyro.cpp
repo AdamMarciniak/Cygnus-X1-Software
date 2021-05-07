@@ -26,7 +26,7 @@ void handleGetContinuity()
 {
   if (ENGAGE_PYRO == true)
   {
-    if (continuityTimer.hasPassed(500))
+    if (continuityTimer.hasPassed(1000))
     {
       if (analogRead(PYRO2_DETECT_PIN) < 200)
       {
