@@ -48,6 +48,9 @@ void computeBothPIDs()
 
   data.servo_z = z_PID.getOutput();
   data.servo_y = y_PID.getOutput();
+
+  data.pid_delT_y = y_PID.getDelT();
+  data.pid_delT_z = z_PID.getDelT();
 }
 
 PID::PID()
@@ -88,20 +91,36 @@ float PID::getOutput()
 
 void PID::compute()
 {
-
+  unsigned long now = micros();
   if (firstCompute)
   {
     firstCompute = false;
     lastTime = micros();
-    lastError = 0.0;
+    error = Setpoint - Input;
+    lastError = error;
   }
   else
   {
-    unsigned long now = micros();
+
     deltaT = float((now - lastTime)) / 1000000.0f;
     error = Setpoint - Input;
 
     ITerm += (ki * error) * deltaT;
+
+    if (lastError < 0.0 && error > 0.0)
+    {
+      ITerm = 0.0;
+    }
+
+    if (lastError > 0.0 && error < 0.0)
+    {
+      ITerm = 0.0;
+    }
+
+    if (error == 0.0)
+    {
+      ITerm = 0.0;
+    }
 
     if (ITerm > outMax)
       ITerm = outMax;
@@ -118,11 +137,15 @@ void PID::compute()
     {
       Output = outMin;
     }
-
-    lastError = error;
-    lastTime = now;
   }
+  lastError = error;
+  lastTime = now;
   return;
+}
+
+float PID::getDelT()
+{
+  return deltaT;
 }
 
 void PID::setTunings(float Kp, float Ki, float Kd)

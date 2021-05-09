@@ -74,6 +74,8 @@ struct Data
   float worldAzBias;
   float accelMag;
   float pyro1Continuity;
+  float pid_delT_y;
+  float pid_delT_z;
 };
 
 struct NonLoggedData

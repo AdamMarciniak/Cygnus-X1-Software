@@ -54,7 +54,6 @@ void predict(float accel)
 {
   currentTime = micros();
   delT = (currentTime - prevTime) / 1000000.0f;
-  data.loopTime = delT;
   prevTime = currentTime;
 
   if (!isFirstStep)

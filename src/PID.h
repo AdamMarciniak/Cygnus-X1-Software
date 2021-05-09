@@ -29,6 +29,7 @@ public:
   float getOutput();
   float Output;
   float kp, ki, kd;
+  float getDelT();
 
 private:
   unsigned long lastTime;
@@ -38,4 +39,3 @@ private:
   int outMin, outMax;
   bool firstCompute;
 };
-

@@ -58,7 +58,7 @@ void writeHeader()
   file.print(F(",Y-Servo-Center"));
   file.print(F(",Z-Servo-Center"));
   file.print(F(",Battery-Voltage"));
-  file.print(F(",PID-Loop-Time-Sec"));
+  file.print(F(",Main-Loop_Time"));
   file.print(F(",Kalman-Altitude-Covariance"));
   file.print(F(",Kalman-Velocity-Covariance"));
   file.print(F(",Kalman-Acceleration-Covariance"));
@@ -74,6 +74,8 @@ void writeHeader()
   file.print(F(",World-Ay-Bias"));
   file.print(F(",World-Az-Bias"));
   file.print(F(",Raw-Accel-Magnitude"));
+  file.print(F(",PID_DelT_y"));
+  file.print(F(",PID_DelT_z"));
 
   file.println();
 }
@@ -186,6 +188,10 @@ void logData()
   file.print(data.worldAzBias, numDecimals);
   file.write(',');
   file.print(data.accelMag, numDecimals);
+  file.write(',');
+  file.print(data.pid_delT_y, numDecimals);
+  file.write(',');
+  file.print(data.pid_delT_z, numDecimals);
   file.println();
 }
 
