@@ -4,7 +4,6 @@ Chrono PIDTimer;
 PID z_PID;
 PID y_PID;
 
-
 void initPIDs()
 {
 
@@ -23,15 +22,18 @@ void initPIDs()
   y_PID.setSetpoint(Y_SETPOINT);
 }
 
-void setZPIDInput(float val) {
+void setZPIDInput(float val)
+{
   z_PID.setInput(val);
 }
 
-void setYPIDInput(float val) {
+void setYPIDInput(float val)
+{
   y_PID.setInput(val);
 }
 
-void computeBothPIDs(){
+void computeBothPIDs()
+{
   z_PID.compute();
   y_PID.compute();
 
@@ -100,21 +102,6 @@ void PID::compute()
     error = Setpoint - Input;
 
     ITerm += (ki * error) * deltaT;
-
-    if (lastError < 0.0 && error > 0.0)
-    {
-      ITerm = 0.0;
-    }
-
-    if (lastError > 0.0 && error < 0.0)
-    {
-      ITerm = 0.0;
-    }
-
-    if (error == 0.0)
-    {
-      ITerm = 0.0;
-    }
 
     if (ITerm > outMax)
       ITerm = outMax;

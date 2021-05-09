@@ -139,9 +139,9 @@ bool readFromFlash()
 {
   if (read_addr < write_addr)
   {
-    Serial.print("Reading From Flash Addr: ");
-    Serial.print(" ");
-    Serial.println(read_addr);
+    // Serial.print("Reading From Flash Addr: ");
+    // Serial.print(" ");
+    // Serial.println(read_addr);
     flash.readAnything(read_addr, data);
 
     read_addr += addrStep;

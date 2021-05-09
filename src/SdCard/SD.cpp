@@ -6,7 +6,7 @@
 #include "Buzzer.h"
 
 // Base name must be 6 or less chars
-#define FILE_BASE_NAME "THROW"
+#define FILE_BASE_NAME "throw"
 const uint8_t chipSelect = SS_SD;
 const int numDecimals = 8;
 
@@ -232,7 +232,7 @@ int transferToSD()
   }
   while (readFromFlash())
   {
-    Serial.println("Logging data");
+
     logData();
   }
   file.close();

@@ -10,9 +10,6 @@
 #define Z_MAX Z_CENTER + SERVO_RANGE
 #define Z_MIN Z_CENTER - SERVO_RANGE
 
-bool servoTestOn;
-
-
 extern void handleServoCentering();
 
 extern void initServos();
@@ -22,3 +19,5 @@ extern void moveYServo(int val);
 extern void moveZServo(int val);
 
 void handleTestServos();
+
+void startServoTest();

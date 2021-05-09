@@ -365,13 +365,12 @@ void checkBTLE()
             readTVCCenters();
             nonLoggedData.servoCentersAvailable = true;
             break;
-             case 'S':
-             if(data.state == IDLE){
-               servoTestOn = true;
-             } else {
-               servoTestOn = false;
-             }
-            
+          case 'S':
+            if (data.state == IDLE)
+            {
+              startServoTest();
+            }
+
             break;
 
           default:

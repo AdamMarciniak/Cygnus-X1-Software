@@ -4,6 +4,7 @@ Servo yServo;
 Servo zServo;
 
 Chrono servoTimer;
+bool servoTestOn = false;
 
 void handleServoCentering()
 {
@@ -33,36 +34,43 @@ void initServos()
   Serial.println("Centering Servos. Wait 2 seconds..");
   yServo.write(data.Y_Servo_Center);
   zServo.write(data.Z_Servo_Center);
+  data.servo_y = 0;
+  data.servo_z = 0;
 }
 
 unsigned int servoStep = 0;
-bool servoTestOn = false;
 
-void handleTestServos() {
-  
+void startServoTest()
+{
+  servoTestOn = true;
+}
 
-  if(servoTestOn == true){
+void handleTestServos()
+{
 
-  
-  if(servoTimer.hasPassed(16)){
+  if (servoTestOn == true)
+  {
 
-    moveYServo(Y_CENTER + SERVO_RANGE * sin(0.1 * servoStep));
-    moveZServo(Z_CENTER - SERVO_RANGE * sin(0.1 * servoStep - PI/2.0));
+    if (servoTimer.hasPassed(16))
+    {
 
-    servoStep += 1;
+      moveYServo(Y_CENTER + SERVO_RANGE * sin(0.1 * servoStep));
+      moveZServo(Z_CENTER - SERVO_RANGE * sin(0.1 * servoStep - PI / 2.0));
 
-    if(servoStep == 63){
-      servoTestOn = false;
-      servoStep = 0;
+      servoStep += 1;
+
+      if (servoStep == 63)
+      {
+        servoTestOn = false;
+        servoStep = 0;
+        moveYServo(Y_CENTER);
+        moveZServo(Z_CENTER);
+      }
+
+      servoTimer.restart();
     }
-
-   servoTimer.restart();
-    }
-    }
-
   }
-  
-
+}
 
 void moveYServo(int val)
 {
