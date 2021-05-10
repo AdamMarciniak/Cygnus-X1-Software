@@ -59,7 +59,7 @@ void setup()
   Serial1.begin(9600);
 
   goToState(INITIALIZING);
-  delay(4000);
+  delay(10000);
 
   buzzStartup();
 
@@ -93,7 +93,10 @@ void setup()
     goToState(TEST);
     testTime = millis();
   }
-  goToState(IDLE);
+  else
+  {
+    goToState(IDLE);
+  }
 }
 
 void handleRunNav()
@@ -179,6 +182,9 @@ void loop()
   {
 
   case TEST:
+    handleTestServos();
+    PIDStatus = true;
+    flashWriteStatus = true;
 
     break;
 

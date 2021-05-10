@@ -96,6 +96,7 @@ void PID::compute()
   {
     firstCompute = false;
     lastTime = micros();
+    deltaT = float((now - lastTime)) / 1000000.0f;
     error = Setpoint - Input;
     lastError = error;
   }

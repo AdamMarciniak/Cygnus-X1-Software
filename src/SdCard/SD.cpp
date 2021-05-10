@@ -76,6 +76,8 @@ void writeHeader()
   file.print(F(",Raw-Accel-Magnitude"));
   file.print(F(",PID_DelT_y"));
   file.print(F(",PID_DelT_z"));
+  file.print(F(",Latitude"));
+  file.print(F(",Longitude"));
 
   file.println();
 }
@@ -192,6 +194,10 @@ void logData()
   file.print(data.pid_delT_y, numDecimals);
   file.write(',');
   file.print(data.pid_delT_z, numDecimals);
+  file.write(',');
+  file.print(data.lat, numDecimals);
+  file.write(',');
+  file.print(data.lng, numDecimals);
   file.println();
 }
 
