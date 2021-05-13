@@ -2,3 +2,4 @@
 
 int initSD();
 int transferToSD();
+int transferToSDDump();

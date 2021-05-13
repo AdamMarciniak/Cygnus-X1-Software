@@ -10,16 +10,24 @@
 // DO_GPS true (can be always true)
 
 #define IS_TEST_MODE false
+#define IS_DUMP_MODE false
 
 #define ENABLE_PARACHUTE true
 #define ENABLE_ANGLE_CHECK true
 #define ABORT_ANGLE_THRESHOLD 40.0f // degrees
 
-#define ENGAGE_PYRO true
+#define ENGAGE_PYRO false
 #define DO_EUI false
-#define DO_GPS false
+#define DO_GPS true
 
-#define SELF_FIRE true
+#define SELF_FIRE false
+
+#define ENABLE_PITCH_OVER_Y true
+#define ENABLE_PITCH_OVER_Z false
+
+#define PITCH_OVER_ANGLE 25 //deg
+#define PITCH_OVER_TIME 1000 //ms
+#define PITCH_OVER_
 
 #define YAW_PITCH_BIAS_COUNT 50
 #define WORLD_ACCEL_BIAS_COUNT 500

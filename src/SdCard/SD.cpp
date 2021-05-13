@@ -239,12 +239,28 @@ int transferToSD()
 
   while (!initSD())
   {
-    buzzerError();
+    //buzzerError();
+    Serial.print("NO SD");
     delay(1000);
   }
   while (readFromFlash())
   {
+    logData();
+  }
+  file.close();
+  return 1;
+};
 
+int transferToSDDump()
+{
+
+  while (!initSD())
+  {
+    buzzerError();
+    delay(1000);
+  }
+  while (readFromFlashDump())
+  {
     logData();
   }
   file.close();

@@ -94,8 +94,10 @@ extern unsigned long addrStep;
 extern unsigned long maxAddr;
 
 extern void initFlash();
+extern void initFlashNoErase();
 extern bool writeToFlash();
 extern bool readFromFlash();
+extern bool readFromFlashDump();
 extern bool handleWriteFlash();
 
 extern void readTVCCenters();

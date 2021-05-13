@@ -17,6 +17,7 @@
 #include "Kalman.h"
 #include "./eui/EUIMyLib.h"
 #include "GPS.h"
+#include "dumpData.h"
 
 Chrono navTimer;
 
@@ -51,19 +52,39 @@ bool isAnglePassedThreshold()
 
 unsigned long testTime = 0;
 
+void handleDumpData(){
+  if (IS_DUMP_MODE)
+  {
+    while (!Serial)
+      ;
+    dumpData();
+    while (1)
+    {
+      delay(500);
+      buzzComplete();
+    };
+      ;
+  }
+}
+
 void setup()
 {
   initBuzzer();
-
   Serial.begin(115200);
   Serial1.begin(9600);
+
+  handleDumpData();
 
   goToState(INITIALIZING);
   delay(10000);
 
   buzzStartup();
 
-  initFlash();
+  if (!IS_DUMP_MODE)
+  {
+    initFlash();
+  }
+
   initBluetooth();
   initPIDs();
   initServos();
@@ -150,6 +171,9 @@ void handleWritingToFlash()
     }
   }
 }
+
+unsigned long powStart = 0;
+bool firstPow = true;
 
 void loop()
 {
@@ -243,17 +267,30 @@ void loop()
     if (millis() - launchAbortTime >= MOTOR_FAIL_DELAY)
     {
       goToState(ABORT);
+      analogWrite(PYRO1_PIN,0);
     }
 
     if (data.worldAx > LAUNCH_ACCEL_THRESHOLD)
     {
       goToState(POWERED_ASCENT);
+      analogWrite(PYRO1_PIN,0);
+
     }
 
     break;
   case POWERED_ASCENT:
     PIDStatus = true;
     // Check if accel magnitude is less than thresh
+    if (firstPow == true)
+    {
+      firstPow = false;
+      powStart = millis();
+    }
+
+    if ((millis() - powStart) > 1000)
+    {
+    }
+
     data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
     if (data.accelMag < ACCEL_UNPOWERED_THRESHOLD)
     {
@@ -263,14 +300,14 @@ void loop()
     if (data.kal_X_vel <= -0.5f)
     {
       goToState(FREE_DESCENT);
+
     }
 
     break;
   case UNPOWERED_ASCENT:
     // Center and turn off TVC
     PIDStatus = false;
-    moveZServo(data.Z_Servo_Center);
-    moveYServo(data.Y_Servo_Center);
+    
 
     if (data.kal_X_vel <= -0.5f)
     {

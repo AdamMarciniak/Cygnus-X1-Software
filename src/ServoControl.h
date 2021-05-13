@@ -21,3 +21,5 @@ extern void moveZServo(int val);
 void handleTestServos();
 
 void startServoTest();
+
+void detachServos();

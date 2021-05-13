@@ -59,6 +59,16 @@ PID::PID()
   setSetpoint(0.0f);
 }
 
+void setYPIDSetpoint()
+{
+  y_PID.setSetpoint(10);
+}
+
+void setZPIDSetpoint()
+{
+  z_PID.setSetpoint(10);
+}
+
 void PID::setSetpoint(float setPt)
 {
   Setpoint = setPt;
