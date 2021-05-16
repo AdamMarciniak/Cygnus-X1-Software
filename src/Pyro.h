@@ -8,3 +8,4 @@
 void initPyro();
 void handleFirePyro();
 void handleGetContinuity();
+void stopPyros();

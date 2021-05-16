@@ -14,27 +14,27 @@
 
 #define ENABLE_PARACHUTE true
 #define ENABLE_ANGLE_CHECK true
-#define ABORT_ANGLE_THRESHOLD 40.0f // degrees
+#define ABORT_ANGLE_THRESHOLD 30.0f // degrees
 
-#define ENGAGE_PYRO false
+#define SELF_FIRE true
+
+#define ENGAGE_PYRO true
 #define DO_EUI false
 #define DO_GPS true
 
-#define SELF_FIRE false
+#define PARACHUTE_ALTITUDE_THRESHOLD 70.0f // meters
 
-#define ENABLE_PITCH_OVER_Y true
+#define ENABLE_PITCH_OVER_Y false
 #define ENABLE_PITCH_OVER_Z false
 
 #define PITCH_OVER_ANGLE 25 //deg
 #define PITCH_OVER_TIME 1000 //ms
-#define PITCH_OVER_
+#define PITCH_OVER_LENGTH 1000
 
-#define YAW_PITCH_BIAS_COUNT 50
-#define WORLD_ACCEL_BIAS_COUNT 500
-#define GYRO_BIAS_COUNT 100
+
 
 #define DATA_SAMPLE_RATE 200      // hz
-#define DATA_SAMPLE_TOTAL_TIME 30 // seconds
+#define DATA_SAMPLE_TOTAL_TIME 45 // seconds
 
 #define LANDING_DETECT_DELAY 15000  //ms
 #define ABORT_TO_LANDED_DELAY 20000 //ms
@@ -44,23 +44,27 @@
 #define Y_SETPOINT 0.0f //deg
 #define Z_SETPOINT 0.0f //deg
 
-#define KPF15 0.3f
-#define KIF15 0.1f
-#define KDF15 0.15f
+#define KPF15 0.5f
+#define KIF15 0.01f
+#define KDF15 0.17f
 
-#define KPE12 0.5f
-#define KIE12 0.06f
-#define KDE12 0.14f
+#define KPE12 0.6f
+#define KIE12 0.02f
+#define KDE12 0.2f
 
-#define Y_KP KPE12
-#define Y_KI KIE12
-#define Y_KD KDE12
+#define Y_KP KPF15
+#define Y_KI KIF15
+#define Y_KD KDF15
 
-#define Z_KP KPE12
-#define Z_KI KIE12
-#define Z_KD KDE12
+#define Z_KP Y_KP
+#define Z_KI Y_KI
+#define Z_KD Y_KD
 
-#define BATTERY_VOLTAGE_MIN 11.3f //volts
+#define YAW_PITCH_BIAS_COUNT 50
+#define WORLD_ACCEL_BIAS_COUNT 500
+#define GYRO_BIAS_COUNT 100
+
+#define BATTERY_VOLTAGE_MIN 11.2f //volts
 #define NAV_RATE 5                //ms
 
 #define PARACHUTE_SERVO_DEPLOY 50
@@ -77,11 +81,10 @@
 
 #define LAUNCH_ACCEL_THRESHOLD 2.0f // m/s^2
 
-#define PARACHUTE_ALTITUDE_THRESHOLD 40.0f // meters
-#define ACCEL_UNPOWERED_THRESHOLD 1.5f     //m/s^2
-#define FIRE_ON_TIME 1000                  // ms
 
-#define FIRE_TO_PID_DELAY 500 //ms
+#define ACCEL_UNPOWERED_THRESHOLD 1.5f     //m/s^2
+
+#define FIRE_TO_PID_DELAY 400 //ms
 
 // This gets counted when launch commanded.
 // Parachute will eject if this takes too long

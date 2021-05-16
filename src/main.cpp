@@ -80,14 +80,12 @@ void setup()
 
   buzzStartup();
 
-  if (!IS_DUMP_MODE)
-  {
-    initFlash();
-  }
+  
+  initFlash();
+  
 
   initBluetooth();
   initPIDs();
-  initServos();
   initParachute();
 
   delay(2000);
@@ -103,6 +101,7 @@ void setup()
   buzzStartup();
 
   initEUI();
+  initServos();
 
   // Put state into IDLE when finished if all good.
   initPyro();
@@ -191,7 +190,7 @@ void loop()
 
   if (data.state != LAUNCH_COMMANDED)
   {
-    analogWrite(PYRO1_PIN, 0);
+    stopPyros();
   }
 
   if (data.state == LAUNCH_COMMANDED || data.state == POWERED_ASCENT)
@@ -267,13 +266,13 @@ void loop()
     if (millis() - launchAbortTime >= MOTOR_FAIL_DELAY)
     {
       goToState(ABORT);
-      analogWrite(PYRO1_PIN,0);
+      stopPyros();
     }
 
     if (data.worldAx > LAUNCH_ACCEL_THRESHOLD)
     {
       goToState(POWERED_ASCENT);
-      analogWrite(PYRO1_PIN,0);
+      stopPyros();
 
     }
 

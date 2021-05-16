@@ -10,8 +10,8 @@ void initPyro()
 {
   if (ENGAGE_PYRO == true)
   {
-    pinMode(PYRO2_PIN, OUTPUT);
-    if (analogRead(PYRO2_DETECT_PIN) < 200)
+    pinMode(PYRO1_PIN, OUTPUT);
+    if (analogRead(PYRO1_DETECT_PIN) < 200)
     {
       data.pyro1Continuity = 0.0;
     }
@@ -28,7 +28,7 @@ void handleGetContinuity()
   {
     if (continuityTimer.hasPassed(1000))
     {
-      if (analogRead(PYRO2_DETECT_PIN) < 200)
+      if (analogRead(PYRO1_DETECT_PIN) < 200)
       {
         data.pyro1Continuity = 0.0;
       }
@@ -50,16 +50,22 @@ void handleFirePyro()
       //Fire pyro charge
       fireTime = millis();
       firingStatus = true;
-      Serial.println("FIRE");
-      analogWrite(PYRO2_PIN, 255);
+      analogWrite(PYRO1_PIN, 255);
     }
 
     if (firingStatus == true && millis() - fireTime >= FIRE_ON_TIME)
     {
       //Stop pyro charge
-      Serial.println("FIRE OFF");
-      analogWrite(PYRO2_PIN, 0);
+      analogWrite(PYRO1_PIN, 0);
       firingStatus = false;
     }
   }
+}
+
+void stopPyros()
+{
+  
+  analogWrite(PYRO1_PIN, 0);
+  analogWrite(PYRO2_PIN, 0);
+ 
 }

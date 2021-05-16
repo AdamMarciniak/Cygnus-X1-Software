@@ -164,12 +164,7 @@ bool readFromFlashDump()
 {
   if (read_addr < maxAddr)
   {
-    Serial.print("Reading From Flash Addr: ");
-    Serial.print(" ");
-    Serial.print(read_addr);
-    flash.readAnything(read_addr, data);
-    Serial.print("  data:");
-    Serial.println(data.pitch);
+    
 
     read_addr += addrStep;
     return true;
