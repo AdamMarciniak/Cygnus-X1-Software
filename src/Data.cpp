@@ -165,7 +165,7 @@ bool readFromFlashDump()
   if (read_addr < maxAddr)
   {
     
-    flash.readAnything(read_addr, data);
+
     read_addr += addrStep;
     return true;
   }

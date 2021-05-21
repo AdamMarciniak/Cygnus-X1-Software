@@ -29,10 +29,8 @@ void handleServoCentering()
 void initServos()
 {
   Serial.println("Attaching servos to pins");
-  //Bottom Servo on PIN1
-  //Top Servo on Pin 2
-  yServo.attach(SERVO2_PIN);
-  zServo.attach(SERVO1_PIN);
+  yServo.attach(SERVO1_PIN);
+  zServo.attach(SERVO2_PIN);
 
   readTVCCenters();
   Serial.println("Centering Servos. Wait 2 seconds..");
@@ -41,8 +39,6 @@ void initServos()
   data.servo_y = 0;
   data.servo_z = 0;
 }
-
-
 
 unsigned int servoStep = 0;
 
@@ -60,8 +56,8 @@ void handleTestServos()
     if (servoTimer.hasPassed(16))
     {
 
-      moveYServo(data.Y_Servo_Center + SERVO_RANGE * sin(0.1 * servoStep));
-      moveZServo(data.Z_Servo_Center + SERVO_RANGE * sin(0.1 * servoStep - PI / 2.0));
+      moveYServo(Y_CENTER + SERVO_RANGE * sin(0.1 * servoStep));
+      moveZServo(Z_CENTER - SERVO_RANGE * sin(0.1 * servoStep - PI / 2.0));
 
       servoStep += 1;
 
@@ -69,8 +65,8 @@ void handleTestServos()
       {
         servoTestOn = false;
         servoStep = 0;
-        moveYServo(data.Y_Servo_Center);
-        moveZServo(data.Z_Servo_Center);
+        moveYServo(Y_CENTER);
+        moveZServo(Z_CENTER);
       }
 
       servoTimer.restart();

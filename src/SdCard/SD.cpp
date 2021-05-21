@@ -4,7 +4,6 @@
 #include "SdFat.h"
 #include "Data.h"
 #include "Buzzer.h"
-#include "LED.h"
 
 // Base name must be 6 or less chars
 #define FILE_BASE_NAME "throw"
@@ -257,7 +256,6 @@ int transferToSDDump()
   while (!initSD())
   {
     buzzerError();
-    handleLEDBlink(0,0,255);
     delay(1000);
   }
   while (readFromFlashDump())

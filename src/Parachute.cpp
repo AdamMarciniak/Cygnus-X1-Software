@@ -7,10 +7,8 @@ Servo parachuteServo;
 
 void initParachute()
 {
-  if(ENABLE_PARACHUTE == true){
   parachuteServo.attach(SERVO3_PIN);
   parachuteServo.write(PARACHUTE_SERVO_INIT);
-  }
 }
 
 void deployParachute()

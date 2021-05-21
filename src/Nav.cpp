@@ -3,8 +3,6 @@
 Bmi088Accel accel(Wire, 0x18);
 Bmi088Gyro gyro(Wire, 0x68);
 
-LSM9DS1 TVC_IMU;
-
 float accel_raw[3] = {0, 0, 0};
 float g_bias[3] = {0, 0, 0};
 
@@ -86,52 +84,10 @@ void getGyroBiases()
     Serial.println(" ");
 }
 
-void initTVCIMU()
-{
-    if (TVC_IMU.begin() == false) // with no arguments, this uses default addresses (AG:0x6B, M:0x1E) and i2c port (Wire).
-    {
-        while (1)
-        {
-            Serial.println("Failed to communicate with LSM9DS1.");
-            Serial.println("Double-check wiring.");
-            Serial.println("Default settings in this sketch will "
-                           "work for an out of the box LSM9DS1 "
-                           "Breakout, but may need to be modified "
-                           "if the board jumpers are.");
-        };
-    }
-}
-
-void getTVCIMUAccel()
-{
-
-    if (TVC_IMU.accelAvailable())
-    {
-        // To read from the accelerometer, first call the
-        // readAccel() function. When it exits, it'll update the
-        // ax, ay, and az variables with the most current data.
-        TVC_IMU.readAccel();
-        data.tvc_ax = TVC_IMU.calcAccel(TVC_IMU.ax) * 9.81;
-        data.tvc_ay = TVC_IMU.calcAccel(TVC_IMU.ay) * 9.81;
-        data.tvc_az = TVC_IMU.calcAccel(TVC_IMU.az) * 9.81;
-    }
-}
-
-void getTVCAttitude()
-{
-    data.tvc_yaw = atan2(TVC_IMU.ay, TVC_IMU.az) * RAD_TO_DEG + 90.0;
-    data.tvc_pitch = atan2(-TVC_IMU.ax, sqrt(TVC_IMU.ay * TVC_IMU.ay + TVC_IMU.az * TVC_IMU.az)) * RAD_TO_DEG;
-}
-
 bool initNav()
 {
+
     initAltimeter();
-
-    if (ENABLE_TVC_IMU)
-    {
-        initTVCIMU();
-    };
-
     if (accel.begin() < 0)
     {
         return 0;

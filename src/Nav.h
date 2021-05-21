@@ -6,7 +6,6 @@
 #include "Arduino.h"
 #include "libraries/BMI088.h"
 #include "Config.h"
-#include "./libraries/SparkFunLSM9DS1.h"
 
 extern float ypr[3];
 extern float accel_raw[3];
@@ -22,6 +21,3 @@ extern void getInitYawAndPitchBiases();
 extern void measureNav();
 extern void getWorldABiases();
 float getMovingAverageWorldXAccel(float worldXAccel);
-
-void getTVCIMUAccel();
-void getTVCAttitude();
