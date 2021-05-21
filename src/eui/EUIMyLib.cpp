@@ -20,14 +20,15 @@ void serial_rx_handler()
 
 eui_message_t tracked_vars[] =
     {
-        EUI_FLOAT("baro", data.altitude),
-        EUI_FLOAT("worldAx", data.worldAx),
-        EUI_FLOAT("worldAy", data.worldAy),
-        EUI_FLOAT("worldAz", data.worldAz),
-        EUI_FLOAT("kal_X_pos", data.kal_X_pos),
-        EUI_FLOAT("kal_X_vel", data.kal_X_vel),
-        EUI_FLOAT("gpsAltitude", data.gpsAltitude),
-
+        EUI_FLOAT("ax", data.bno_ax),
+        EUI_FLOAT("ay", data.bno_ay),
+        EUI_FLOAT("az", data.bno_az),
+        EUI_FLOAT("world_ax", data.bno_worldAx),
+        EUI_FLOAT("world_ay", data.bno_worldAy),
+        EUI_FLOAT("world_az", data.bno_worldAz),
+        EUI_FLOAT("yaw", data.bno_yaw),
+        EUI_FLOAT("pitch", data.bno_pitch),
+        EUI_FLOAT("roll", data.bno_roll),
 };
 
 void initEUI()
@@ -45,13 +46,16 @@ void initEUI()
 
 void sendEUIVars()
 {
-  eui_send_tracked("baro");
-  eui_send_tracked("worldAx");
-  eui_send_tracked("worldAy");
-  eui_send_tracked("worldAz");
-  eui_send_tracked("kal_X_pos");
-  eui_send_tracked("kal_X_vel");
-  eui_send_tracked("gpsAltitude");
+
+  eui_send_tracked("ax");
+  eui_send_tracked("ay");
+  eui_send_tracked("az");
+  eui_send_tracked("world_ax");
+  eui_send_tracked("world_ay");
+  eui_send_tracked("world_az");
+  eui_send_tracked("yaw");
+  eui_send_tracked("pitch");
+  eui_send_tracked("roll");
 }
 
 void handleEUI()
