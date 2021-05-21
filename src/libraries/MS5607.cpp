@@ -24,6 +24,7 @@ MS5607::MS5607(short address)
 char MS5607::begin()
 {
   Wire1.begin();
+  //Wire1.setClock(10000);
   return (readCalibration());
 }
 

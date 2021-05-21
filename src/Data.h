@@ -76,6 +76,29 @@ struct Data
   float pyro1Continuity;
   float pid_delT_y;
   float pid_delT_z;
+  float tvc_ax;
+  float tvc_ay;
+  float tvc_az;
+  float tvc_pitch;
+  float tvc_yaw;
+  float bno_ax;
+  float bno_ay;
+  float bno_az;
+  float bno_gx;
+  float bno_gy;
+  float bno_gz;
+  float bno_lax;
+  float bno_lay;
+  float bno_laz;
+  float bno_magx;
+  float bno_magy;
+  float bno_magz;
+  float bno_worldAx;
+  float bno_worldAy;
+  float bno_worldAz;
+  float bno_yaw;
+  float bno_pitch;
+  float bno_roll;
 };
 
 struct NonLoggedData

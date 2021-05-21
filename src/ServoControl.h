@@ -5,6 +5,8 @@
 #include "Config.h"
 #include "Chrono.h"
 
+// Bottom Servo on bottom connection (PIN 1)
+
 #define Y_MAX Y_CENTER + SERVO_RANGE
 #define Y_MIN Y_CENTER - SERVO_RANGE
 #define Z_MAX Z_CENTER + SERVO_RANGE
@@ -23,3 +25,4 @@ void handleTestServos();
 void startServoTest();
 
 void detachServos();
+

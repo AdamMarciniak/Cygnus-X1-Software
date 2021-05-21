@@ -12,26 +12,26 @@
 #define IS_TEST_MODE false
 #define IS_DUMP_MODE false
 
-#define ENABLE_PARACHUTE true
-#define ENABLE_ANGLE_CHECK true
+#define ENABLE_PARACHUTE false
+#define ENABLE_ANGLE_CHECK false
 #define ABORT_ANGLE_THRESHOLD 30.0f // degrees
 
 #define SELF_FIRE true
 
-#define ENGAGE_PYRO true
+#define ENGAGE_PYRO false
 #define DO_EUI false
 #define DO_GPS true
 
 #define PARACHUTE_ALTITUDE_THRESHOLD 70.0f // meters
 
+#define ENABLE_TVC_IMU false
+
 #define ENABLE_PITCH_OVER_Y false
 #define ENABLE_PITCH_OVER_Z false
 
-#define PITCH_OVER_ANGLE 25 //deg
+#define PITCH_OVER_ANGLE 25  //deg
 #define PITCH_OVER_TIME 1000 //ms
 #define PITCH_OVER_LENGTH 1000
-
-
 
 #define DATA_SAMPLE_RATE 200      // hz
 #define DATA_SAMPLE_TOTAL_TIME 45 // seconds
@@ -44,9 +44,9 @@
 #define Y_SETPOINT 0.0f //deg
 #define Z_SETPOINT 0.0f //deg
 
-#define KPF15 0.5f
+#define KPF15 0.2f
 #define KIF15 0.01f
-#define KDF15 0.17f
+#define KDF15 0.5f
 
 #define KPE12 0.6f
 #define KIE12 0.02f
@@ -81,8 +81,7 @@
 
 #define LAUNCH_ACCEL_THRESHOLD 2.0f // m/s^2
 
-
-#define ACCEL_UNPOWERED_THRESHOLD 1.5f     //m/s^2
+#define ACCEL_UNPOWERED_THRESHOLD 1.5f //m/s^2
 
 #define FIRE_TO_PID_DELAY 400 //ms
 

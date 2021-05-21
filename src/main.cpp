@@ -18,6 +18,8 @@
 #include "./eui/EUIMyLib.h"
 #include "GPS.h"
 #include "dumpData.h"
+#include "LED.h"
+#include "BNO.h"
 
 Chrono navTimer;
 
@@ -52,24 +54,27 @@ bool isAnglePassedThreshold()
 
 unsigned long testTime = 0;
 
-void handleDumpData(){
+void handleDumpData()
+{
   if (IS_DUMP_MODE)
   {
-    while (!Serial)
-      ;
+    // while (!Serial)
+    //   ;
     dumpData();
     while (1)
     {
       delay(500);
       buzzComplete();
+      handleLEDBlink(255, 0, 0);
     };
-      ;
+    ;
   }
 }
 
 void setup()
 {
   initBuzzer();
+
   Serial.begin(115200);
   Serial1.begin(9600);
 
@@ -80,9 +85,7 @@ void setup()
 
   buzzStartup();
 
-  
   initFlash();
-  
 
   initBluetooth();
   initPIDs();
@@ -91,6 +94,7 @@ void setup()
   delay(2000);
 
   initNav();
+  initBNO();
 
   buzzFast();
 
@@ -127,6 +131,9 @@ void handleRunNav()
   {
     getAccel();
     getYPR();
+    getBNOData();
+
+    Serial.println(data.bno_gx);
 
     if (data.state == IDLE || data.state == TEST)
     {
@@ -141,7 +148,8 @@ void handleRunNav()
       setYPIDInput(data.yaw);
       computeBothPIDs();
       moveZServo(int(round(data.Z_Servo_Center + data.servo_z)));
-      moveYServo(int(round(data.Y_Servo_Center + data.servo_y)));
+      // Negative since new airframe, axes are reversed
+      moveYServo(int(round(data.Y_Servo_Center - data.servo_y)));
     }
     navTimer.restart();
   };
@@ -173,6 +181,8 @@ void handleWritingToFlash()
 
 unsigned long powStart = 0;
 bool firstPow = true;
+
+Chrono tvcPrintLoop;
 
 void loop()
 {
@@ -207,7 +217,7 @@ void loop()
   case TEST:
     handleTestServos();
     PIDStatus = true;
-    flashWriteStatus = true;
+    handleServoCentering();
 
     break;
 
@@ -218,6 +228,23 @@ void loop()
     handleGetContinuity();
 
     handleTestServos();
+
+        // if (tvcPrintLoop.hasPassed(100))
+    // {
+    //   getTVCIMUAccel();
+    //   getTVCAttitude();
+    //   Serial.print("TVC_AX: ");
+    //   Serial.print(data.tvc_ax);
+    //   Serial.print("  TVC_AY: ");
+    //   Serial.print(data.tvc_ay);
+    //   Serial.print("  TVC_AZ: ");
+    //   Serial.print(data.tvc_az);
+    //   Serial.print("  TVC_YAW: ");
+    //   Serial.print(data.tvc_yaw);
+    //   Serial.print("  TVC_PITCH: ");
+    //   Serial.println(data.tvc_pitch);
+    //   tvcPrintLoop.restart();
+    // }
 
     // wait for zero gyros command
     if (nonLoggedData.zeroGyrosStatus == true)
@@ -273,7 +300,6 @@ void loop()
     {
       goToState(POWERED_ASCENT);
       stopPyros();
-
     }
 
     break;
@@ -299,14 +325,12 @@ void loop()
     if (data.kal_X_vel <= -0.5f)
     {
       goToState(FREE_DESCENT);
-
     }
 
     break;
   case UNPOWERED_ASCENT:
     // Center and turn off TVC
     PIDStatus = false;
-    
 
     if (data.kal_X_vel <= -0.5f)
     {

@@ -2,5 +2,6 @@
   "files.associations": {
     "cmath": "cpp",
     "*.temp": "cpp"
-  }
+  },
+  "editor.defaultFormatter": "ms-vscode.cpptools"
 }
