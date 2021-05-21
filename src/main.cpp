@@ -19,7 +19,9 @@
 #include "GPS.h"
 #include "dumpData.h"
 #include "LED.h"
-#include "BNO.h"
+#include "BNOIMU.h"
+
+BNOIMU bno;
 
 Chrono navTimer;
 
@@ -94,7 +96,7 @@ void setup()
   delay(2000);
 
   initNav();
-  initBNO();
+  bno.initBNO();
 
   buzzFast();
 
@@ -131,7 +133,7 @@ void handleRunNav()
   {
     getAccel();
     getYPR();
-    getBNOData();
+    bno.getBNOData();
 
     Serial.println(data.bno_gx);
 
@@ -229,7 +231,7 @@ void loop()
 
     handleTestServos();
 
-        // if (tvcPrintLoop.hasPassed(100))
+    // if (tvcPrintLoop.hasPassed(100))
     // {
     //   getTVCIMUAccel();
     //   getTVCAttitude();

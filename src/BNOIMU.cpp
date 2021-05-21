@@ -1,44 +1,13 @@
-#include "BNO.h"
+#include "BNOIMU.h"
 
-float ypr[3];
-void quatToEuler(float *qBody, float *ypr);
-void initNav();
-void getYPR();
-void zeroGyroscope();
-void getCurrentYawAndPitchFromAccel();
-void getInitYawAndPitchBiases();
-void getWorldABiases();
+BNOIMU::BNOIMU()
+{
+  Quaternion orientation(1, 0, 0, 0);
+}
 
 // Quaternion Stuff
-float q_body_mag = 0;
-float q_gyro[4] = {0, 0, 0, 0};
-float q[4] = {1, 0, 0, 0};
-float q_body[4] = {1, 0, 0, 0};
-float q_grad[4] = {0, 0, 0, 0};
-float omega[3] = {0, 0, 0};
-float theta;
 
-float ypr[3] = {0, 0, 0};
-
-bool first_gyro_reading = true;
-unsigned long gyro_current_time = 0;
-unsigned long gyro_past_time = 0;
-float gyro_dt = 0;
-
-Quaternion localAccelQuat;
-Quaternion worldAccelQuat;
-Quaternion orientation(1, 0, 0, 0);
-
-float oriBiases[4] = {0, 0, 0, 0};
-
-Quaternion yawBiasQuaternion;
-Quaternion pitchBiasQuaternion;
-
-Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
-
-sensors_event_t orientationData, angVelocityData, linearAccelData, magnetometerData, accelerometerData, gravityData;
-
-void zeroGyroscope()
+void BNOIMU::zeroGyroscope()
 {
   q_gyro[0] = 0;
   q_gyro[1] = 0;
@@ -64,21 +33,9 @@ void zeroGyroscope()
   ypr[2] = 0;
 }
 
-float worldAxBias = 0.0f;
-float worldAyBias = 0.0f;
-float worldAzBias = 0.0f;
 
-float worldAxBiasTemp = 0.0f;
-float worldAyBiasTemp = 0.0f;
-float worldAzBiasTemp = 0.0f;
 
-float axAve = 0;
-float ayAve = 0;
-float azAve = 0;
-
-int i = 0;
-
-void initBNO()
+void BNOIMU::initBNO()
 {
   if (!bno.begin())
   {
@@ -94,7 +51,7 @@ void initBNO()
   getWorldABiases();
 }
 
-void getBNOData()
+void BNOIMU::getBNOData()
 {
 
   bno.getEvent(&angVelocityData, Adafruit_BNO055::VECTOR_GYROSCOPE);
@@ -114,9 +71,7 @@ void getBNOData()
   data.bno_magz = magnetometerData.magnetic.z;
 }
 
-float g_bias[3] = {0, 0, 0};
-
-void getGyroBiases()
+void BNOIMU::getGyroBiases()
 {
   int count = 0;
   const int averageAmount = GYRO_BIAS_COUNT;
@@ -144,7 +99,7 @@ void getGyroBiases()
   Serial.println(" ");
 }
 
-void getWorldABiases()
+void BNOIMU::getWorldABiases()
 {
   int i = 0;
   while (i < WORLD_ACCEL_BIAS_COUNT)
@@ -161,10 +116,7 @@ void getWorldABiases()
   worldAzBias = worldAzBiasTemp / float(WORLD_ACCEL_BIAS_COUNT);
 }
 
-float pitchBias;
-float yawBias;
-
-void getInitYawAndPitchBiases()
+void BNOIMU::getInitYawAndPitchBiases()
 {
   const int accelAveCount = YAW_PITCH_BIAS_COUNT;
   while (i < accelAveCount)
@@ -186,12 +138,7 @@ void getInitYawAndPitchBiases()
   yawBias = atan2(ayAve, (sqrt(sq(axAve) + sq(azAve)))) * RAD_TO_DEG;
 }
 
-unsigned long ori_bias_current_time = 0;
-bool ori_bias_first_gyro_reading = true;
-unsigned long ori_bias_gyro_past_time = 0;
-float ori_bias_gyro_dt = 0.0;
-
-void getYPR()
+void BNOIMU::getYPR()
 {
   gyro_current_time = micros();
 
@@ -250,7 +197,7 @@ void getYPR()
   gyro_past_time = gyro_current_time;
 }
 
-void quatToEuler(float *qBody, float *ypr)
+void BNOIMU::quatToEuler(float *qBody, float *ypr)
 {
   double sinr_cosp = 2.0 * (q_body[0] * q_body[1] + q_body[2] * q_body[3]);
   double cosr_cosp = 1.0 - 2.0 * (q_body[1] * q_body[1] + q_body[2] * q_body[2]);
