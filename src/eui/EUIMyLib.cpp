@@ -29,6 +29,9 @@ eui_message_t tracked_vars[] =
         EUI_FLOAT("yaw", data.bno_yaw),
         EUI_FLOAT("pitch", data.bno_pitch),
         EUI_FLOAT("roll", data.bno_roll),
+        EUI_FLOAT("gx", data.bno_gx),
+        EUI_FLOAT("gy", data.bno_gy),
+        EUI_FLOAT("gz", data.bno_gz),
 };
 
 void initEUI()
@@ -56,6 +59,9 @@ void sendEUIVars()
   eui_send_tracked("yaw");
   eui_send_tracked("pitch");
   eui_send_tracked("roll");
+  eui_send_tracked("gx");
+  eui_send_tracked("gy");
+  eui_send_tracked("gz");
 }
 
 void handleEUI()

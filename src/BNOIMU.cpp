@@ -3,6 +3,7 @@
 BNOIMU::BNOIMU()
 {
   Quaternion orientation(1, 0, 0, 0);
+  zeroGyroscope();
 }
 
 // Quaternion Stuff
@@ -33,8 +34,6 @@ void BNOIMU::zeroGyroscope()
   ypr[2] = 0;
 }
 
-
-
 void BNOIMU::initBNO()
 {
   if (!bno.begin())
@@ -49,6 +48,7 @@ void BNOIMU::initBNO()
   zeroGyroscope();
   getInitYawAndPitchBiases();
   getWorldABiases();
+  zeroGyroscope();
 }
 
 void BNOIMU::getBNOData()
@@ -69,6 +69,8 @@ void BNOIMU::getBNOData()
   data.bno_magx = magnetometerData.magnetic.x;
   data.bno_magy = magnetometerData.magnetic.y;
   data.bno_magz = magnetometerData.magnetic.z;
+
+  getYPR();
 }
 
 void BNOIMU::getGyroBiases()
@@ -147,22 +149,26 @@ void BNOIMU::getYPR()
   if (!first_gyro_reading)
   {
 
-    omega[0] = angVelocityData.gyro.x - g_bias[0];
-    omega[1] = angVelocityData.gyro.y - g_bias[1];
-    omega[2] = angVelocityData.gyro.z - g_bias[2];
+    omega[2] = (angVelocityData.gyro.x - g_bias[0]);
+    omega[1] = -(angVelocityData.gyro.y - g_bias[1]);
+    omega[0] = (angVelocityData.gyro.z - g_bias[2]);
 
-    data.bno_gx = omega[0];
+    data.bno_gx = omega[2];
     data.bno_gy = omega[1];
-    data.bno_gz = omega[2];
+    data.bno_gz = omega[0];
 
     q_body_mag = sqrt(sq(omega[0]) + sq(omega[1]) + sq(omega[2]));
+
     gyro_dt = ((gyro_current_time - gyro_past_time) / 1000000.0);
 
     theta = q_body_mag * gyro_dt;
+    float mag = q_body_mag * sin(theta / 2.0);
     q_gyro[0] = cos(theta / 2);
-    q_gyro[1] = -(omega[0] / q_body_mag * sin(theta / 2.0));
-    q_gyro[2] = -(omega[1] / q_body_mag * sin(theta / 2.0));
-    q_gyro[3] = -(omega[2] / q_body_mag * sin(theta / 2.0));
+    q_gyro[1] = -(omega[0] / mag);
+    q_gyro[2] = -(omega[1] / mag);
+    q_gyro[3] = -(omega[2] / mag);
+
+    
 
     q[0] = q_body[0];
     q[1] = q_body[1];
@@ -174,30 +180,31 @@ void BNOIMU::getYPR()
     q_body[2] = q_gyro[0] * q[2] - q_gyro[1] * q[3] + q_gyro[2] * q[0] + q_gyro[3] * q[1];
     q_body[3] = q_gyro[0] * q[3] + q_gyro[1] * q[2] - q_gyro[2] * q[1] + q_gyro[3] * q[0];
 
-    // For getting world frame acceleration
-    float norm = sqrtf(sq(omega[0]) + sq(omega[1]) + sq(omega[2]));
-    norm = copysignf(max(abs(norm), 1e-9), norm); // NO DIVIDE BY 0
-    orientation *= from_axis_angle(gyro_dt * norm, omega[0] / norm, omega[1] / norm, omega[2] / norm);
-    orientation.rotate(Quaternion(0.0, 0.0, yawBias, pitchBias));
-    // Leave these out still figuring out world accel based on biases
-    // orientation = pitchBiasQuaternion.rotate(orientation);
-    // orientation = yawBiasQuaternion.rotate(orientation);
-    localAccelQuat = Quaternion(0.0, data.bno_ax, data.bno_ay, data.bno_az);
-    worldAccelQuat = orientation.rotate(localAccelQuat);
-    data.bno_worldAx = worldAccelQuat.b - worldAxBias;
-    data.bno_worldAy = worldAccelQuat.c - worldAyBias;
-    data.bno_worldAz = worldAccelQuat.d - worldAzBias;
+    // // For getting world frame acceleration
+    // float norm = sqrtf(sq(omega[0]) + sq(omega[1]) + sq(omega[2]));
+    // norm = copysignf(max(abs(norm), 1e-9), norm); // NO DIVIDE BY 0
+    // orientation *= from_axis_angle(gyro_dt * norm, omega[0] / norm, omega[1] / norm, omega[2] / norm);
+    // orientation.rotate(Quaternion(0.0, 0.0, yawBias, pitchBias));
+    // // Leave these out still figuring out world accel based on biases
+    // // orientation = pitchBiasQuaternion.rotate(orientation);
+    // // orientation = yawBiasQuaternion.rotate(orientation);
+    // localAccelQuat = Quaternion(0.0, data.bno_ax, data.bno_ay, data.bno_az);
+    // worldAccelQuat = orientation.rotate(localAccelQuat);
+    // data.bno_worldAx = worldAccelQuat.b - worldAxBias;
+    // data.bno_worldAy = worldAccelQuat.c - worldAyBias;
+    // data.bno_worldAz = worldAccelQuat.d - worldAzBias;
 
-    quatToEuler(q_body, ypr);
-    data.bno_yaw = ypr[0] + yawBias;
-    data.bno_pitch = ypr[1] + pitchBias;
-    data.bno_roll = ypr[2];
+    // quatToEuler();
+
+    // data.bno_yaw = ypr[0] + yawBias;
+    // data.bno_pitch = ypr[1] + pitchBias;
+    // data.bno_roll = ypr[2];
   }
   first_gyro_reading = false;
   gyro_past_time = gyro_current_time;
 }
 
-void BNOIMU::quatToEuler(float *qBody, float *ypr)
+void BNOIMU::quatToEuler()
 {
   double sinr_cosp = 2.0 * (q_body[0] * q_body[1] + q_body[2] * q_body[3]);
   double cosr_cosp = 1.0 - 2.0 * (q_body[1] * q_body[1] + q_body[2] * q_body[2]);

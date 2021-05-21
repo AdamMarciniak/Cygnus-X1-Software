@@ -135,8 +135,6 @@ void handleRunNav()
     getYPR();
     bno.getBNOData();
 
-    Serial.println(data.bno_gx);
-
     if (data.state == IDLE || data.state == TEST)
     {
       data.worldAxBias += getMovingAverageWorldXAccel(data.worldAx);

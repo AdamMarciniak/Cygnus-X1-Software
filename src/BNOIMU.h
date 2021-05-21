@@ -30,7 +30,7 @@ private:
   float q_body[4] = {1, 0, 0, 0};
   float q_grad[4] = {0, 0, 0, 0};
   float omega[3] = {0, 0, 0};
-  float theta;
+  float theta = 0;
   int i = 0;
 
   bool first_gyro_reading = true;
@@ -51,7 +51,7 @@ private:
 
   sensors_event_t orientationData, angVelocityData, linearAccelData, magnetometerData, accelerometerData, gravityData;
 
-  void quatToEuler(float *qBody, float *ypr);
+  void quatToEuler();
 
   float worldAxBias = 0.0f;
   float worldAyBias = 0.0f;

@@ -9,7 +9,7 @@
 // SELF_FIRE true if firing with BTLE
 // DO_GPS true (can be always true)
 
-#define IS_TEST_MODE false
+#define IS_TEST_MODE true
 #define IS_DUMP_MODE false
 
 #define ENABLE_PARACHUTE false
@@ -19,7 +19,7 @@
 #define SELF_FIRE true
 
 #define ENGAGE_PYRO false
-#define DO_EUI true
+#define DO_EUI false
 #define DO_GPS true
 
 #define PARACHUTE_ALTITUDE_THRESHOLD 70.0f // meters
