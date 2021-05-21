@@ -1,5 +1,14 @@
 #include "BNO.h"
 
+float ypr[3];
+void quatToEuler(float *qBody, float *ypr);
+void initNav();
+void getYPR();
+void zeroGyroscope();
+void getCurrentYawAndPitchFromAccel();
+void getInitYawAndPitchBiases();
+void getWorldABiases();
+
 // Quaternion Stuff
 float q_body_mag = 0;
 float q_gyro[4] = {0, 0, 0, 0};
@@ -78,6 +87,11 @@ void initBNO()
     while (1)
       ;
   }
+  zeroGyroscope();
+  getGyroBiases();
+  zeroGyroscope();
+  getInitYawAndPitchBiases();
+  getWorldABiases();
 }
 
 void getBNOData()
