@@ -43,6 +43,8 @@ void BNOIMU::initBNO()
     while (1)
       ;
   }
+  bno.set4GRange();
+  bno.setGyroRange();
   zeroGyroscope();
   getGyroBiases();
   zeroGyroscope();
@@ -57,6 +59,7 @@ void BNOIMU::getBNOData()
   bno.getEvent(&angVelocityData, Adafruit_BNO055::VECTOR_GYROSCOPE);
   bno.getEvent(&accelerometerData, Adafruit_BNO055::VECTOR_ACCELEROMETER);
   bno.getEvent(&magnetometerData, Adafruit_BNO055::VECTOR_MAGNETOMETER);
+  bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
 
   data.bno_ax = accelerometerData.acceleration.x;
   data.bno_ay = accelerometerData.acceleration.y;
@@ -70,35 +73,45 @@ void BNOIMU::getBNOData()
   data.bno_magy = magnetometerData.magnetic.y;
   data.bno_magz = magnetometerData.magnetic.z;
 
+  magRoll = 180 * atan2(data.bno_magy, data.bno_magx) / PI;
+
+  uint8_t system, gyro, accel, mag;
+  system = gyro = accel = mag = 0;
+  bno.getCalibration(&system, &gyro, &accel, &mag);
+
+  Serial.print("Sys:");
+  Serial.print(system, DEC);
+  Serial.print(" G:");
+  Serial.print(orientationData.orientation.x, DEC);
+  Serial.print(" A:");
+  Serial.print(orientationData.orientation.y, DEC);
+  Serial.print(" M:");
+  Serial.print(orientationData.orientation.z, DEC);
+  Serial.print(" H:");
+  Serial.println(orientationData.orientation.heading, DEC);
+
   getYPR();
 }
 
 void BNOIMU::getGyroBiases()
 {
   int count = 0;
-  const int averageAmount = GYRO_BIAS_COUNT;
+  const int averageAmount = 300;
   while (count < averageAmount)
   {
     bno.getEvent(&angVelocityData, Adafruit_BNO055::VECTOR_GYROSCOPE);
 
-    g_bias[0] += accelerometerData.acceleration.x;
-    g_bias[1] += accelerometerData.acceleration.y;
-    g_bias[2] += accelerometerData.acceleration.z;
+    g_bias[0] += angVelocityData.gyro.z;
+    g_bias[1] += -angVelocityData.gyro.y;
+    g_bias[2] += angVelocityData.gyro.x;
     count += 1;
     Serial.print(".");
-    delay(10);
+    delay(5);
   }
   Serial.println();
   g_bias[0] /= (float)averageAmount;
   g_bias[1] /= (float)averageAmount;
   g_bias[2] /= (float)averageAmount;
-
-  Serial.print(g_bias[0], 8);
-  Serial.print(" ");
-  Serial.print(g_bias[1], 8);
-  Serial.print(" ");
-  Serial.print(g_bias[2], 8);
-  Serial.println(" ");
 }
 
 void BNOIMU::getWorldABiases()
@@ -127,7 +140,7 @@ void BNOIMU::getInitYawAndPitchBiases()
     bno.getEvent(&accelerometerData, Adafruit_BNO055::VECTOR_ACCELEROMETER);
 
     axAve += accelerometerData.acceleration.x;
-    ayAve += accelerometerData.acceleration.y;
+    ayAve += -accelerometerData.acceleration.y;
     azAve += accelerometerData.acceleration.z;
     delay(10);
     i += 1;
@@ -136,8 +149,8 @@ void BNOIMU::getInitYawAndPitchBiases()
   ayAve /= float(accelAveCount);
   azAve /= float(accelAveCount);
 
-  pitchBias = atan2(-azAve, (sqrt(sq(axAve) + sq(ayAve)))) * RAD_TO_DEG;
-  yawBias = atan2(ayAve, (sqrt(sq(axAve) + sq(azAve)))) * RAD_TO_DEG;
+  pitchBias = -atan2(axAve, (sqrt(sq(azAve) + sq(ayAve)))) * RAD_TO_DEG;
+  yawBias = -atan2(ayAve, (sqrt(sq(azAve) + sq(axAve)))) * RAD_TO_DEG;
 }
 
 void BNOIMU::getYPR()
@@ -149,26 +162,23 @@ void BNOIMU::getYPR()
   if (!first_gyro_reading)
   {
 
-    omega[2] = (angVelocityData.gyro.x - g_bias[0]);
-    omega[1] = -(angVelocityData.gyro.y - g_bias[1]);
-    omega[0] = (angVelocityData.gyro.z - g_bias[2]);
-
-    data.bno_gx = omega[2];
-    data.bno_gy = omega[1];
-    data.bno_gz = omega[0];
+    omega[2] = (angVelocityData.gyro.x - g_bias[2]);
+    omega[1] = (-angVelocityData.gyro.y - g_bias[1]);
+    omega[0] = (angVelocityData.gyro.z - g_bias[0]);
 
     q_body_mag = sqrt(sq(omega[0]) + sq(omega[1]) + sq(omega[2]));
+
+    q_body_mag = max(abs(q_body_mag), 1e-9);
 
     gyro_dt = ((gyro_current_time - gyro_past_time) / 1000000.0);
 
     theta = q_body_mag * gyro_dt;
-    float mag = q_body_mag * sin(theta / 2.0);
-    q_gyro[0] = cos(theta / 2);
-    q_gyro[1] = -(omega[0] / mag);
-    q_gyro[2] = -(omega[1] / mag);
-    q_gyro[3] = -(omega[2] / mag);
+    float mag = sin(theta / 2.0);
 
-    
+    q_gyro[0] = cos(theta / 2);
+    q_gyro[1] = -((omega[0] / q_body_mag) * mag);
+    q_gyro[2] = -((omega[1] / q_body_mag) * mag);
+    q_gyro[3] = -((omega[2] / q_body_mag) * mag);
 
     q[0] = q_body[0];
     q[1] = q_body[1];
@@ -180,25 +190,27 @@ void BNOIMU::getYPR()
     q_body[2] = q_gyro[0] * q[2] - q_gyro[1] * q[3] + q_gyro[2] * q[0] + q_gyro[3] * q[1];
     q_body[3] = q_gyro[0] * q[3] + q_gyro[1] * q[2] - q_gyro[2] * q[1] + q_gyro[3] * q[0];
 
-    // // For getting world frame acceleration
-    // float norm = sqrtf(sq(omega[0]) + sq(omega[1]) + sq(omega[2]));
-    // norm = copysignf(max(abs(norm), 1e-9), norm); // NO DIVIDE BY 0
-    // orientation *= from_axis_angle(gyro_dt * norm, omega[0] / norm, omega[1] / norm, omega[2] / norm);
-    // orientation.rotate(Quaternion(0.0, 0.0, yawBias, pitchBias));
-    // // Leave these out still figuring out world accel based on biases
-    // // orientation = pitchBiasQuaternion.rotate(orientation);
-    // // orientation = yawBiasQuaternion.rotate(orientation);
-    // localAccelQuat = Quaternion(0.0, data.bno_ax, data.bno_ay, data.bno_az);
-    // worldAccelQuat = orientation.rotate(localAccelQuat);
-    // data.bno_worldAx = worldAccelQuat.b - worldAxBias;
-    // data.bno_worldAy = worldAccelQuat.c - worldAyBias;
-    // data.bno_worldAz = worldAccelQuat.d - worldAzBias;
+    // For getting world frame acceleration
+    float norm = sqrtf(sq(omega[0]) + sq(omega[1]) + sq(omega[2]));
+    norm = copysignf(max(abs(norm), 1e-9), norm); // NO DIVIDE BY 0
+    orientation *= from_axis_angle(gyro_dt * norm, omega[0] / norm, omega[1] / norm, omega[2] / norm);
+    orientation.rotate(Quaternion(0.0, 0.0, yawBias, pitchBias));
+    // Leave these out still figuring out world accel based on biases
+    // orientation = pitchBiasQuaternion.rotate(orientation);
+    // orientation = yawBiasQuaternion.rotate(orientation);
+    localAccelQuat = Quaternion(0.0, data.bno_ax, data.bno_ay, data.bno_az);
+    worldAccelQuat = orientation.rotate(localAccelQuat);
+    data.bno_worldAx = worldAccelQuat.b - worldAxBias;
+    data.bno_worldAy = worldAccelQuat.c - worldAyBias;
+    data.bno_worldAz = worldAccelQuat.d - worldAzBias;
 
-    // quatToEuler();
+    quatToEuler();
 
-    // data.bno_yaw = ypr[0] + yawBias;
-    // data.bno_pitch = ypr[1] + pitchBias;
-    // data.bno_roll = ypr[2];
+    //data.bno_yaw = -ypr[0] + pitchBias;
+    data.bno_pitch = -ypr[1] - yawBias;
+    data.bno_roll = ypr[2];
+
+    data.bno_yaw = magRoll;
   }
   first_gyro_reading = false;
   gyro_past_time = gyro_current_time;

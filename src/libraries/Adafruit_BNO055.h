@@ -65,6 +65,9 @@ typedef struct
 class Adafruit_BNO055 : public Adafruit_Sensor
 {
 public:
+  void set4GRange();
+  void setGyroRange();
+
   /** BNO055 Registers **/
   typedef enum
   {
@@ -213,7 +216,10 @@ public:
     ACCEL_RADIUS_LSB_ADDR = 0X67,
     ACCEL_RADIUS_MSB_ADDR = 0X68,
     MAG_RADIUS_LSB_ADDR = 0X69,
-    MAG_RADIUS_MSB_ADDR = 0X6A
+    MAG_RADIUS_MSB_ADDR = 0X6A,
+
+    BNO055_ACC_CONFIG_ADDR = 0x08,
+    BNO055_GYRO_CONFIG_ADDR = 0x38
   } adafruit_bno055_reg_t;
 
   /** BNO055 power settings */

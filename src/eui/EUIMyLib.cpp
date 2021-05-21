@@ -20,12 +20,12 @@ void serial_rx_handler()
 
 eui_message_t tracked_vars[] =
     {
-        EUI_FLOAT("ax", data.bno_ax),
-        EUI_FLOAT("ay", data.bno_ay),
-        EUI_FLOAT("az", data.bno_az),
-        EUI_FLOAT("world_ax", data.bno_worldAx),
-        EUI_FLOAT("world_ay", data.bno_worldAy),
-        EUI_FLOAT("world_az", data.bno_worldAz),
+        EUI_FLOAT("ax", data.bno_yaw),
+        EUI_FLOAT("ay", data.bno_pitch),
+        EUI_FLOAT("az", data.bno_roll),
+        EUI_FLOAT("world_ax", data.yaw),
+        EUI_FLOAT("world_ay", data.pitch),
+        EUI_FLOAT("world_az", data.roll),
         EUI_FLOAT("yaw", data.bno_yaw),
         EUI_FLOAT("pitch", data.bno_pitch),
         EUI_FLOAT("roll", data.bno_roll),

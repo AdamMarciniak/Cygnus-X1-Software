@@ -217,6 +217,12 @@ void getInitYawAndPitchBiases()
     data.pitchBias = atan2(-azAve, (sqrt(sq(axAve) + sq(ayAve)))) * RAD_TO_DEG;
     data.yawBias = atan2(ayAve, (sqrt(sq(axAve) + sq(azAve)))) * RAD_TO_DEG;
 
+    Serial.print(" NAV BIAS ");
+    Serial.print(" PITCH: ");
+    Serial.print(data.pitchBias);
+    Serial.print(" YAW: ");
+    Serial.println(data.yawBias);
+
     // Still figuring out how to get world accel rotated properly based on biases
     // yawBiasQuaternion = from_axis_angle(data.yawBias * DEG_TO_RAD, 0, 0, 1);
     // pitchBiasQuaternion = from_axis_angle(data.pitchBias * DEG_TO_RAD, 0, 1, 0);
@@ -247,29 +253,11 @@ void getYPR()
         gyro_dt = ((gyro_current_time - gyro_past_time) / 1000000.0);
 
         theta = q_body_mag * gyro_dt;
-        float mag = q_body_mag * sin(theta / 2.0);
+        float mag = sin(theta / 2.0);
         q_gyro[0] = cos(theta / 2);
-        q_gyro[1] = -(omega[0] / mag);
-        q_gyro[2] = -(omega[1] / mag);
-        q_gyro[3] = -(omega[2] / mag);
-
-        Serial.print("00: ");
-        Serial.print(q_gyro[0], 8);
-        Serial.print("11: ");
-        Serial.print(gyro_dt, 8);
-        Serial.print("22: ");
-        Serial.print(q_body_mag, 8);
-        Serial.print("33: ");
-        Serial.println(mag, 8);
-
-        Serial.print("0: ");
-        Serial.print(q_body[0], 8);
-        Serial.print("1: ");
-        Serial.print(q_body[1], 8);
-        Serial.print("2: ");
-        Serial.print(q_body[2], 8);
-        Serial.print("3: ");
-        Serial.println(q_body[3], 8);
+        q_gyro[1] = -(omega[0] / q_body_mag * mag);
+        q_gyro[2] = -(omega[1] / q_body_mag * mag);
+        q_gyro[3] = -(omega[2] / q_body_mag * mag);
 
         q[0] = q_body[0];
         q[1] = q_body[1];
@@ -296,9 +284,9 @@ void getYPR()
         data.worldAz = worldAccelQuat.d - worldAzBias;
 
         quatToEuler(q_body, ypr);
-        data.yaw = ypr[0] + data.yawBias;
-        data.pitch = ypr[1] + data.pitchBias;
-        data.roll = ypr[2];
+        // data.yaw = ypr[0] + data.yawBias;
+        // data.pitch = ypr[1] + data.pitchBias;
+        // data.roll = ypr[2];
     }
     first_gyro_reading = false;
     gyro_past_time = gyro_current_time;

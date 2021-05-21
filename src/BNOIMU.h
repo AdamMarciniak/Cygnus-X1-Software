@@ -73,4 +73,5 @@ private:
   bool ori_bias_first_gyro_reading = true;
   unsigned long ori_bias_gyro_past_time = 0;
   float ori_bias_gyro_dt = 0.0;
+  float magRoll = 0.0f;
 };
