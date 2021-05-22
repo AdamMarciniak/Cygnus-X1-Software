@@ -38,6 +38,8 @@ private:
   unsigned long gyro_past_time = 0;
   float gyro_dt = 0;
 
+  void getCalibrationValues();
+
   Quaternion localAccelQuat;
   Quaternion worldAccelQuat;
   Quaternion orientation;
@@ -51,7 +53,15 @@ private:
 
   sensors_event_t orientationData, angVelocityData, linearAccelData, magnetometerData, accelerometerData, gravityData;
 
-  void quatToEuler();
+  adafruit_bno055_offsets_t sensorOffsets;
+  adafruit_bno055_offsets_t setSensorOffsets;
+
+  void setCalibrationValues();
+  void getInitialHeading();
+
+  
+  void
+  quatToEuler();
 
   float worldAxBias = 0.0f;
   float worldAyBias = 0.0f;

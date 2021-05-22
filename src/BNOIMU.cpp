@@ -34,6 +34,73 @@ void BNOIMU::zeroGyroscope()
   ypr[2] = 0;
 }
 
+void BNOIMU::setCalibrationValues()
+{
+
+  setSensorOffsets.accel_offset_x = 9;
+  setSensorOffsets.accel_offset_y = 49;
+  setSensorOffsets.accel_offset_z = -10;
+  setSensorOffsets.accel_radius = 1000;
+  setSensorOffsets.gyro_offset_x = -1;
+  setSensorOffsets.gyro_offset_y = -2;
+  setSensorOffsets.gyro_offset_z = -1;
+  setSensorOffsets.mag_offset_x = -362;
+  setSensorOffsets.mag_offset_y = -140;
+  setSensorOffsets.mag_offset_z = 376;
+  setSensorOffsets.mag_radius = 797;
+
+  bno.setSensorOffsets(setSensorOffsets);
+}
+
+void BNOIMU::getCalibrationValues()
+{
+
+  while (!bno.getSensorOffsets(sensorOffsets))
+  {
+    uint8_t system, gyro, accel, mag;
+    system = gyro = accel = mag = 0;
+    bno.getCalibration(&system, &gyro, &accel, &mag);
+
+    //-9 56 5 1000 -1 -2 -1 -294 -167 384 835
+    //10 50 38 1000 -2 -3 4 -308 -159 404 813
+    //18 14 13 1000 -1 -2 0 -318 -139 361 903
+    //9 49 -10 1000 -1 -2 -1 -362 -140 376 797
+
+    Serial.print("Sys:");
+    Serial.print(system, DEC);
+    Serial.print(" G:");
+    Serial.print(gyro, DEC);
+    Serial.print(" A:");
+    Serial.print(accel, DEC);
+    Serial.print(" M:");
+    Serial.println(mag, DEC);
+
+    delay(10);
+  }
+  Serial.println("CALIBRATION RDY");
+  Serial.print(sensorOffsets.accel_offset_x);
+  Serial.print(" ");
+  Serial.print(sensorOffsets.accel_offset_y);
+  Serial.print(" ");
+  Serial.print(sensorOffsets.accel_offset_z);
+  Serial.print(" ");
+  Serial.print(sensorOffsets.accel_radius);
+  Serial.print(" ");
+  Serial.print(sensorOffsets.gyro_offset_x);
+  Serial.print(" ");
+  Serial.print(sensorOffsets.gyro_offset_y);
+  Serial.print(" ");
+  Serial.print(sensorOffsets.gyro_offset_z);
+  Serial.print(" ");
+  Serial.print(sensorOffsets.mag_offset_x);
+  Serial.print(" ");
+  Serial.print(sensorOffsets.mag_offset_y);
+  Serial.print(" ");
+  Serial.print(sensorOffsets.mag_offset_z);
+  Serial.print(" ");
+  Serial.println(sensorOffsets.mag_radius);
+}
+
 void BNOIMU::initBNO()
 {
   if (!bno.begin())
@@ -43,14 +110,18 @@ void BNOIMU::initBNO()
     while (1)
       ;
   }
-  bno.set4GRange();
-  bno.setGyroRange();
+  // bno.set4GRange();
+  // bno.setGyroRange();
+  //getCalibrationValues();
+  //setCalibrationValues();
+  data.init_heading = 0.0f;
   zeroGyroscope();
   getGyroBiases();
   zeroGyroscope();
   getInitYawAndPitchBiases();
   getWorldABiases();
   zeroGyroscope();
+  getInitialHeading();
 }
 
 void BNOIMU::getBNOData()
@@ -59,7 +130,7 @@ void BNOIMU::getBNOData()
   bno.getEvent(&angVelocityData, Adafruit_BNO055::VECTOR_GYROSCOPE);
   bno.getEvent(&accelerometerData, Adafruit_BNO055::VECTOR_ACCELEROMETER);
   bno.getEvent(&magnetometerData, Adafruit_BNO055::VECTOR_MAGNETOMETER);
-  bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
+  //bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
 
   data.bno_ax = accelerometerData.acceleration.x;
   data.bno_ay = accelerometerData.acceleration.y;
@@ -73,22 +144,22 @@ void BNOIMU::getBNOData()
   data.bno_magy = magnetometerData.magnetic.y;
   data.bno_magz = magnetometerData.magnetic.z;
 
-  magRoll = 180 * atan2(data.bno_magy, data.bno_magx) / PI;
+  //magRoll = 180 * atan2(data.bno_magy, data.bno_magx) / PI;
 
-  uint8_t system, gyro, accel, mag;
-  system = gyro = accel = mag = 0;
-  bno.getCalibration(&system, &gyro, &accel, &mag);
+  // uint8_t system, gyro, accel, mag;
+  // system = gyro = accel = mag = 0;
+  // bno.getCalibration(&system, &gyro, &accel, &mag);
 
-  Serial.print("Sys:");
-  Serial.print(system, DEC);
-  Serial.print(" G:");
-  Serial.print(orientationData.orientation.x, DEC);
-  Serial.print(" A:");
-  Serial.print(orientationData.orientation.y, DEC);
-  Serial.print(" M:");
-  Serial.print(orientationData.orientation.z, DEC);
-  Serial.print(" H:");
-  Serial.println(orientationData.orientation.heading, DEC);
+  // Serial.print("Sys:");
+  // Serial.print(system, DEC);
+  // Serial.print(" G:");
+  // Serial.print(orientationData.orientation.x, DEC);
+  // Serial.print(" A:");
+  // Serial.print(orientationData.orientation.y, DEC);
+  // Serial.print(" M:");
+  // Serial.print(orientationData.orientation.z, DEC);
+  // Serial.print(" H:");
+  // Serial.println(orientationData.orientation.heading, DEC);
 
   getYPR();
 }
@@ -153,6 +224,24 @@ void BNOIMU::getInitYawAndPitchBiases()
   yawBias = -atan2(ayAve, (sqrt(sq(azAve) + sq(axAve)))) * RAD_TO_DEG;
 }
 
+void BNOIMU::getInitialHeading()
+{
+
+  bno.setMode(bno.OPERATION_MODE_NDOF);
+  orientationData.orientation.x = 0.0;
+  setCalibrationValues();
+  while (orientationData.orientation.x == 0.0)
+  {
+    bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
+    data.init_heading = orientationData.orientation.x * 4.0f;
+  }
+
+  bno.setMode(bno.OPERATION_MODE_AMG);
+
+  bno.set4GRange();
+  bno.setGyroRange();
+}
+
 void BNOIMU::getYPR()
 {
   gyro_current_time = micros();
@@ -206,11 +295,9 @@ void BNOIMU::getYPR()
 
     quatToEuler();
 
-    //data.bno_yaw = -ypr[0] + pitchBias;
+    data.bno_yaw = -ypr[0] + pitchBias;
     data.bno_pitch = -ypr[1] - yawBias;
-    data.bno_roll = ypr[2];
-
-    data.bno_yaw = magRoll;
+    data.bno_roll = (ypr[2] + data.init_heading);
   }
   first_gyro_reading = false;
   gyro_past_time = gyro_current_time;

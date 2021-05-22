@@ -99,6 +99,7 @@ struct Data
   float bno_yaw;
   float bno_pitch;
   float bno_roll;
+  float init_heading;
 };
 
 struct NonLoggedData

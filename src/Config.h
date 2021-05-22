@@ -19,7 +19,7 @@
 #define SELF_FIRE true
 
 #define ENGAGE_PYRO false
-#define DO_EUI false
+#define DO_EUI true
 #define DO_GPS true
 
 #define PARACHUTE_ALTITUDE_THRESHOLD 70.0f // meters
