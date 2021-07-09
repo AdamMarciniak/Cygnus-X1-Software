@@ -79,7 +79,23 @@ void writeHeader()
   file.print(F(",PID_DelT_z"));
   file.print(F(",Latitude"));
   file.print(F(",Longitude"));
-
+  file.print(F(",BNO-AX"));
+  file.print(F(",BNO-AY"));
+  file.print(F(",BNO-AZ"));
+  file.print(F(",BNO-GX"));
+  file.print(F(",BNO-GY"));
+  file.print(F(",BNO-GZ"));
+  file.print(F(",BNO_MX"));
+  file.print(F(",BNO_MY"));
+  file.print(F(",BNO_MZ"));
+  file.print(F(",BNO_YAW"));
+  file.print(F(",BNO_PITCH"));
+  file.print(F(",BNO_ROLL"));
+  file.print(F(",BNO_WAX"));
+  file.print(F(",BNO_WAY"));
+  file.print(F(",BNO_WAZ"));
+  file.print(F(",y_setpoint"));
+  file.print(F(",z_setpoint"));
   file.println();
 }
 
@@ -199,6 +215,40 @@ void logData()
   file.print(data.lat, numDecimals);
   file.write(',');
   file.print(data.lng, numDecimals);
+  file.write(',');
+  file.print(data.bno_ax, numDecimals);
+  file.write(',');
+  file.print(data.bno_ay, numDecimals);
+  file.write(',');
+  file.print(data.bno_az, numDecimals);
+  file.write(',');
+  file.print(data.bno_gx, numDecimals);
+  file.write(',');
+  file.print(data.bno_gy, numDecimals);
+  file.write(',');
+  file.print(data.bno_gz, numDecimals);
+  file.write(',');
+  file.print(data.bno_magx, numDecimals);
+  file.write(',');
+  file.print(data.bno_magy, numDecimals);
+  file.write(',');
+  file.print(data.bno_magz, numDecimals);
+  file.write(',');
+  file.print(data.bno_yaw, numDecimals);
+  file.write(',');
+  file.print(data.bno_pitch, numDecimals);
+  file.write(',');
+  file.print(data.bno_roll, numDecimals);
+  file.write(',');
+  file.print(data.bno_worldAx, numDecimals);
+  file.write(',');
+  file.print(data.bno_worldAy, numDecimals);
+  file.write(',');
+  file.print(data.bno_worldAz, numDecimals);
+  file.write(',');
+  file.print(data.ySetpoint, numDecimals);
+  file.write(',');
+  file.print(data.zSetpoint, numDecimals);
   file.println();
 }
 
@@ -257,7 +307,7 @@ int transferToSDDump()
   while (!initSD())
   {
     buzzerError();
-    handleLEDBlink(0,0,255);
+    handleLEDBlink(0, 0, 255);
     delay(1000);
   }
   while (readFromFlashDump())

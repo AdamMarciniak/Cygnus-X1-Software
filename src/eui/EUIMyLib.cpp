@@ -32,6 +32,9 @@ eui_message_t tracked_vars[] =
         EUI_FLOAT("gx", data.bno_gx),
         EUI_FLOAT("gy", data.bno_gy),
         EUI_FLOAT("gz", data.bno_gz),
+        EUI_FLOAT("baro", data.altitude),
+        EUI_FLOAT("kal_alt", data.kal_X_pos),
+        EUI_FLOAT("kal_vel", data.kal_X_vel),
 };
 
 void initEUI()
@@ -62,6 +65,9 @@ void sendEUIVars()
   eui_send_tracked("gx");
   eui_send_tracked("gy");
   eui_send_tracked("gz");
+  eui_send_tracked("baro");
+  eui_send_tracked("kal_alt");
+  eui_send_tracked("kal_vel");
 }
 
 void handleEUI()

@@ -121,7 +121,12 @@ void BNOIMU::initBNO()
   getInitYawAndPitchBiases();
   getWorldABiases();
   zeroGyroscope();
+  bno.setMode(bno.OPERATION_MODE_NDOF);
+  setCalibrationValues();
   getInitialHeading();
+  bno.setMode(bno.OPERATION_MODE_AMG);
+  bno.set4GRange();
+  bno.setGyroRange();
 }
 
 void BNOIMU::getBNOData()
@@ -227,19 +232,13 @@ void BNOIMU::getInitYawAndPitchBiases()
 void BNOIMU::getInitialHeading()
 {
 
-  bno.setMode(bno.OPERATION_MODE_NDOF);
   orientationData.orientation.x = 0.0;
-  setCalibrationValues();
+
   while (orientationData.orientation.x == 0.0)
   {
     bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
     data.init_heading = orientationData.orientation.x * 4.0f;
   }
-
-  bno.setMode(bno.OPERATION_MODE_AMG);
-
-  bno.set4GRange();
-  bno.setGyroRange();
 }
 
 void BNOIMU::getYPR()

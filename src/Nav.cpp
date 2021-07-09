@@ -107,9 +107,7 @@ void getTVCIMUAccel()
 
     if (TVC_IMU.accelAvailable())
     {
-        // To read from the accelerometer, first call the
-        // readAccel() function. When it exits, it'll update the
-        // ax, ay, and az variables with the most current data.
+
         TVC_IMU.readAccel();
         data.tvc_ax = TVC_IMU.calcAccel(TVC_IMU.ax) * 9.81;
         data.tvc_ay = TVC_IMU.calcAccel(TVC_IMU.ay) * 9.81;
@@ -284,9 +282,9 @@ void getYPR()
         data.worldAz = worldAccelQuat.d - worldAzBias;
 
         quatToEuler(q_body, ypr);
-        // data.yaw = ypr[0] + data.yawBias;
-        // data.pitch = ypr[1] + data.pitchBias;
-        // data.roll = ypr[2];
+        data.yaw = ypr[0] + data.yawBias;
+        data.pitch = ypr[1] + data.pitchBias;
+        data.roll = ypr[2];
     }
     first_gyro_reading = false;
     gyro_past_time = gyro_current_time;

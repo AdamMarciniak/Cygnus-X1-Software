@@ -6,8 +6,6 @@ Servo zServo;
 Chrono servoTimer;
 bool servoTestOn = false;
 
-
-
 void handleServoCentering()
 {
   if (nonLoggedData.servoCentersAvailable == true)
@@ -41,8 +39,6 @@ void initServos()
   data.servo_y = 0;
   data.servo_z = 0;
 }
-
-
 
 unsigned int servoStep = 0;
 

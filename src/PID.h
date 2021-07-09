@@ -10,6 +10,8 @@ extern void initPIDs();
 extern void setZPIDInput(float val);
 extern void setYPIDInput(float val);
 extern void computeBothPIDs();
+extern void setYPIDSetpoint(int setpoint);
+extern void setZPIDSetpoint(int setpoint);
 
 class PID
 {

@@ -42,6 +42,8 @@ bool firstLaunchLoop = true;
 bool firstAbortLoop = true;
 unsigned long abortLoopTime = 0;
 
+unsigned long powTime = 0;
+
 bool isAnglePassedThreshold()
 {
   if (ENABLE_ANGLE_CHECK == true)
@@ -75,6 +77,7 @@ void handleDumpData()
 
 void setup()
 {
+
   initBuzzer();
 
   Serial.begin(115200);
@@ -96,7 +99,10 @@ void setup()
   delay(2000);
 
   initNav();
-  bno.initBNO();
+  if (INIT_BNO)
+  {
+    bno.initBNO();
+  }
 
   buzzFast();
 
@@ -133,15 +139,12 @@ void handleRunNav()
   {
     getAccel();
     getYPR();
-    bno.getBNOData();
+    predict(data.worldAx);
 
-    
     if (data.state == IDLE || data.state == TEST)
     {
       data.worldAxBias += getMovingAverageWorldXAccel(data.worldAx);
     }
-
-    predict(data.worldAx);
 
     if (PIDStatus == true)
     {
@@ -182,6 +185,7 @@ void handleWritingToFlash()
 
 unsigned long powStart = 0;
 bool firstPow = true;
+int pitchAngleSetpoint = 0;
 
 Chrono tvcPrintLoop;
 
@@ -230,22 +234,32 @@ void loop()
 
     handleTestServos();
 
-    // if (tvcPrintLoop.hasPassed(100))
-    // {
-    //   getTVCIMUAccel();
-    //   getTVCAttitude();
-    //   Serial.print("TVC_AX: ");
-    //   Serial.print(data.tvc_ax);
-    //   Serial.print("  TVC_AY: ");
-    //   Serial.print(data.tvc_ay);
-    //   Serial.print("  TVC_AZ: ");
-    //   Serial.print(data.tvc_az);
-    //   Serial.print("  TVC_YAW: ");
-    //   Serial.print(data.tvc_yaw);
-    //   Serial.print("  TVC_PITCH: ");
-    //   Serial.println(data.tvc_pitch);
-    //   tvcPrintLoop.restart();
-    // }
+    if (ENABLE_TVC_IMU)
+    {
+
+      if (tvcPrintLoop.hasPassed(NAV_RATE))
+      {
+        getTVCIMUAccel();
+        getTVCAttitude();
+        // Serial.print("TVC_AX: ");
+        // Serial.print(data.tvc_ax);
+        // Serial.print("  TVC_AY: ");
+        // Serial.print(data.tvc_ay);
+        // Serial.print("  TVC_AZ: ");
+        // Serial.print(data.tvc_az);
+        //Serial.print("  TVC_YAW: ");
+        Serial.print(data.tvc_yaw);
+        Serial.print(" ");
+        Serial.print(data.yaw);
+        Serial.print(" ");
+        Serial.print(data.tvc_pitch);
+        Serial.print(" ");
+        Serial.print(data.pitch);
+        Serial.println();
+
+        tvcPrintLoop.restart();
+      }
+    }
 
     // wait for zero gyros command
     if (nonLoggedData.zeroGyrosStatus == true)
@@ -305,19 +319,38 @@ void loop()
 
     break;
   case POWERED_ASCENT:
+
     PIDStatus = true;
-    // Check if accel magnitude is less than thresh
     if (firstPow == true)
     {
       firstPow = false;
       powStart = millis();
     }
 
-    if ((millis() - powStart) > 1000)
+    powTime = millis() - powStart;
+
+    if (powTime > PITCH_OVER_START)
     {
+
+      pitchAngleSetpoint = ((float(powTime) - PITCH_OVER_START) / PITCH_OVER_DURATION) * PITCH_OVER_ANGLE;
+
+      if (abs(pitchAngleSetpoint) > abs(PITCH_OVER_ANGLE))
+      {
+        pitchAngleSetpoint = PITCH_OVER_ANGLE;
+      }
+
+      if (ENABLE_PITCH_OVER_Y == true)
+      {
+        setYPIDSetpoint(pitchAngleSetpoint);
+      }
+
+      if (ENABLE_PITCH_OVER_Z == true)
+      {
+        setZPIDSetpoint(pitchAngleSetpoint);
+      }
     }
 
-    data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
+        data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
     if (data.accelMag < ACCEL_UNPOWERED_THRESHOLD)
     {
       goToState(UNPOWERED_ASCENT);

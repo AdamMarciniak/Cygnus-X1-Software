@@ -15,11 +15,11 @@ void initPIDs()
   data.kd_z = Z_KD;
   z_PID.setTunings(Z_KP, Z_KI, Z_KD);
   z_PID.setOutputLimits(-SERVO_RANGE, SERVO_RANGE);
-  z_PID.setSetpoint(Z_SETPOINT);
+  setZPIDSetpoint(Z_SETPOINT);
 
   y_PID.setTunings(Y_KP, Y_KI, Y_KD);
   y_PID.setOutputLimits(-SERVO_RANGE, SERVO_RANGE);
-  y_PID.setSetpoint(Y_SETPOINT);
+  setYPIDSetpoint(Y_SETPOINT);
 }
 
 void setZPIDInput(float val)
@@ -59,14 +59,16 @@ PID::PID()
   setSetpoint(0.0f);
 }
 
-void setYPIDSetpoint()
+void setYPIDSetpoint(int setpoint)
 {
-  y_PID.setSetpoint(10);
+  data.ySetpoint = setpoint;
+  y_PID.setSetpoint(setpoint);
 }
 
-void setZPIDSetpoint()
+void setZPIDSetpoint(int setpoint)
 {
-  z_PID.setSetpoint(10);
+  data.zSetpoint = setpoint;
+  z_PID.setSetpoint(setpoint);
 }
 
 void PID::setSetpoint(float setPt)

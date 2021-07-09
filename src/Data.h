@@ -100,6 +100,8 @@ struct Data
   float bno_pitch;
   float bno_roll;
   float init_heading;
+  float ySetpoint;
+  float zSetpoint;
 };
 
 struct NonLoggedData
