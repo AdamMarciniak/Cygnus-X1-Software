@@ -291,7 +291,8 @@ void loop()
     }
 
     data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
-    if (data.accelMag < ACCEL_UNPOWERED_THRESHOLD)
+    if (data.ax < ACCEL_UNPOWERED_THRESHOLD)
+      //Where accel unpowered threshold is less than -1.5
     {
       goToState(UNPOWERED_ASCENT);
     }
