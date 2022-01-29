@@ -118,6 +118,8 @@ void setup()
   // Put state into IDLE when finished if all good.
   initPyro();
 
+  data.max_altitude = 0.0f;
+
   prevLoopTime = micros();
   currentLoopTime = micros();
   if (IS_TEST_MODE)
@@ -208,12 +210,17 @@ void loop()
     stopPyros();
   }
 
-  if (data.state == LAUNCH_COMMANDED || data.state == POWERED_ASCENT)
+  if (data.state == LAUNCH_COMMANDED || (data.state == POWERED_ASCENT && data.kal_X_pos < 40.0))
   {
     if (isAnglePassedThreshold())
     {
       goToState(ABORT);
     }
+  }
+
+  if (data.kal_X_pos > data.max_altitude)
+  {
+    data.max_altitude = data.kal_X_pos;
   }
 
   switch (data.state)
@@ -350,8 +357,8 @@ void loop()
       }
     }
 
-        data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
-    if (data.accelMag < ACCEL_UNPOWERED_THRESHOLD)
+    data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
+    if (data.ax < ACCEL_UNPOWERED_THRESHOLD)
     {
       goToState(UNPOWERED_ASCENT);
     }
@@ -373,6 +380,8 @@ void loop()
 
     break;
   case FREE_DESCENT:
+    PIDStatus = false;
+
     // Detect barometer min altitude for parachute
     if (data.altitude <= PARACHUTE_ALTITUDE_THRESHOLD)
     {
@@ -421,11 +430,9 @@ void loop()
     while (1)
     {
       delay(500);
-      buzzComplete();
+      buzzMaxAltitude(data.max_altitude);
+      //buzzComplete();
     };
-
-    while (1)
-      ;
 
     break;
 

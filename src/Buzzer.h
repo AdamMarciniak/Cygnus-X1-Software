@@ -13,4 +13,5 @@ void buzzLongs();
 void handleBuzzer();
 void buzzOff();
 void buzzFast();
+void buzzMaxAltitude(float maxAltitude);
 #endif

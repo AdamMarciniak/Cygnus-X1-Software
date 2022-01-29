@@ -131,3 +131,35 @@ void buzzFast()
   delay(50);
   analogWrite(BUZZER_PIN, 0);
 }
+
+void buzzMaxAltitude(float maxAltitude)
+{
+
+  int tensBeeps = (int)maxAltitude / 10;
+  int onesBeeps = (int)maxAltitude % 10;
+
+  while (1)
+  {
+    for (int i = 0; i < tensBeeps; i += 1)
+    {
+      analogWrite(BUZZER_PIN, 150);
+      delay(200);
+      analogWrite(BUZZER_PIN, 0);
+      delay(400);
+    }
+
+    delay(2000);
+
+    for (int i = 0; i < onesBeeps; i += 1)
+    {
+      analogWrite(BUZZER_PIN, 150);
+      delay(200);
+      analogWrite(BUZZER_PIN, 0);
+      delay(400);
+    }
+
+    delay(2000);
+
+    buzzComplete();
+  }
+}

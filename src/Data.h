@@ -102,6 +102,7 @@ struct Data
   float init_heading;
   float ySetpoint;
   float zSetpoint;
+  float max_altitude;
 };
 
 struct NonLoggedData

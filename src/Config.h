@@ -14,7 +14,7 @@
 
 #define ENABLE_PARACHUTE true
 #define ENABLE_ANGLE_CHECK true
-#define ABORT_ANGLE_THRESHOLD 35.0f // degrees
+#define ABORT_ANGLE_THRESHOLD 45.0f // degrees
 
 #define SELF_FIRE true
 
@@ -35,24 +35,24 @@
 #define ENABLE_PITCH_OVER_Y false
 #define ENABLE_PITCH_OVER_Z false
 
-#define PITCH_OVER_ANGLE -25     //deg
-#define PITCH_OVER_START 2500    //ms
-#define PITCH_OVER_DURATION 1000 //ms
+#define PITCH_OVER_ANGLE -15    //deg
+#define PITCH_OVER_START 1000   //ms
+#define PITCH_OVER_DURATION 500 //ms
 
 #define DATA_SAMPLE_RATE 200      // hz
 #define DATA_SAMPLE_TOTAL_TIME 45 // seconds
 
 #define LANDING_DETECT_DELAY 15000  //ms
-#define ABORT_TO_LANDED_DELAY 20000 //ms
+#define ABORT_TO_LANDED_DELAY 25000 //ms
 
 #define MOTOR_FAIL_DELAY 10000 // ms
 
 #define Y_SETPOINT 0.0f //deg
 #define Z_SETPOINT 0.0f //deg
 
-#define KPF15 0.8f
-#define KIF15 0.2f
-#define KDF15 0.2f
+#define KPF15 0.87f
+#define KIF15 0.22f
+#define KDF15 0.28f
 
 #define KPE12 0.6f
 #define KIE12 0.02f
@@ -87,9 +87,9 @@
 
 #define LAUNCH_ACCEL_THRESHOLD 2.0f // m/s^2
 
-#define ACCEL_UNPOWERED_THRESHOLD 1.5f //m/s^2
+#define ACCEL_UNPOWERED_THRESHOLD 2.0f //m/s^2
 
-#define FIRE_TO_PID_DELAY 400 //ms
+#define FIRE_TO_PID_DELAY 350 //ms
 
 // This gets counted when launch commanded.
 // Parachute will eject if this takes too long
