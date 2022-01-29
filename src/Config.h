@@ -87,7 +87,7 @@
 
 #define LAUNCH_ACCEL_THRESHOLD 2.0f // m/s^2
 
-#define ACCEL_UNPOWERED_THRESHOLD 2.0f //m/s^2
+#define ACCEL_UNPOWERED_THRESHOLD 5.0f //m/s^2
 
 #define FIRE_TO_PID_DELAY 350 //ms
 
