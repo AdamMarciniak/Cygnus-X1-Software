@@ -12,6 +12,8 @@
 #define IS_TEST_MODE false
 #define IS_DUMP_MODE false
 
+#define IS_DUAL_STAGE false
+
 #define ENABLE_PARACHUTE true
 #define ENABLE_ANGLE_CHECK true
 #define ABORT_ANGLE_THRESHOLD 45.0f // degrees
