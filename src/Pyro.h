@@ -6,6 +6,8 @@
 #include "Data.h"
 
 void initPyro();
-void handleFirePyro();
+void handleFirePyro1();
+void handleFirePyro2();
 void handleGetContinuity();
-void stopPyros();
+void stopPyro1();
+void stopPyro2();

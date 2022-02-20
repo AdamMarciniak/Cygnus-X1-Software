@@ -44,6 +44,9 @@ unsigned long abortLoopTime = 0;
 
 unsigned long powTime = 0;
 
+unsigned long timeToSecondStage = 1200;
+float accelAtStage2Start = 0.0f;
+
 bool isAnglePassedThreshold()
 {
   if (ENABLE_ANGLE_CHECK == true)
@@ -207,10 +210,15 @@ void loop()
 
   if (data.state != LAUNCH_COMMANDED)
   {
-    stopPyros();
+    stopPyro1();
   }
 
-  if (data.state == LAUNCH_COMMANDED || (data.state == POWERED_ASCENT && data.kal_X_pos < 40.0))
+  if (data.state != LAUNCH_COMMANDED_2)
+  {
+    stopPyro2();
+  }
+
+  if (data.state == LAUNCH_COMMANDED || (data.state == POWERED_ASCENT && data.kal_X_pos < ANGLE_ABORT_MAX_ALT))
   {
     if (isAnglePassedThreshold())
     {
@@ -305,7 +313,7 @@ void loop()
       PID_DelayTime = millis();
     }
 
-    handleFirePyro();
+    handleFirePyro1();
 
     if (millis() - PID_DelayTime >= FIRE_TO_PID_DELAY)
     {
@@ -315,13 +323,13 @@ void loop()
     if (millis() - launchAbortTime >= MOTOR_FAIL_DELAY)
     {
       goToState(ABORT);
-      stopPyros();
+      stopPyro1();
     }
 
     if (data.worldAx > LAUNCH_ACCEL_THRESHOLD)
     {
       goToState(POWERED_ASCENT);
-      stopPyros();
+      stopPyro1();
     }
 
     break;
@@ -336,26 +344,34 @@ void loop()
 
     powTime = millis() - powStart;
 
-    if (powTime > PITCH_OVER_START)
+    if (powTime >= timeToSecondStage)
     {
-
-      pitchAngleSetpoint = ((float(powTime) - PITCH_OVER_START) / PITCH_OVER_DURATION) * PITCH_OVER_ANGLE;
-
-      if (abs(pitchAngleSetpoint) > abs(PITCH_OVER_ANGLE))
-      {
-        pitchAngleSetpoint = PITCH_OVER_ANGLE;
-      }
-
-      if (ENABLE_PITCH_OVER_Y == true)
-      {
-        setYPIDSetpoint(pitchAngleSetpoint);
-      }
-
-      if (ENABLE_PITCH_OVER_Z == true)
-      {
-        setZPIDSetpoint(pitchAngleSetpoint);
-      }
+      accelAtStage2Start = data.ax;
+      goToState(LAUNCH_COMMANDED_2);
     }
+
+    data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
+
+    if (data.kal_X_vel <= -2.0f)
+    {
+      goToState(FREE_DESCENT);
+    }
+
+    break;
+
+  case LAUNCH_COMMANDED_2:
+
+    handleFirePyro2();
+
+    if (data.ax > accelAtStage2Start + 5.0f)
+    {
+      stopPyro2();
+      goToState(POWERED_ASCENT_2);
+    }
+
+    break;
+
+  case POWERED_ASCENT_2:
 
     data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
     if (data.ax < ACCEL_UNPOWERED_THRESHOLD)

@@ -13,6 +13,8 @@
 #define IS_DUMP_MODE false
 
 #define IS_DUAL_STAGE false
+// Altitude where below this, the angle limit abort gets fired.
+#define ANGLE_ABORT_MAX_ALT 40.0
 
 #define ENABLE_PARACHUTE true
 #define ENABLE_ANGLE_CHECK true
@@ -89,7 +91,7 @@
 
 #define LAUNCH_ACCEL_THRESHOLD 2.0f // m/s^2
 
-#define ACCEL_UNPOWERED_THRESHOLD 5.0f //m/s^2
+#define ACCEL_UNPOWERED_THRESHOLD 4.0f //m/s^2
 
 #define FIRE_TO_PID_DELAY 350 //ms
 
