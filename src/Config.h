@@ -13,8 +13,10 @@
 #define IS_DUMP_MODE false
 
 #define IS_DUAL_STAGE false
+// How many seconds to wait after launch to get to secon stag firing.
+#define TIME_TO_SECOND_STAGE 1200
 // Altitude where below this, the angle limit abort gets fired.
-#define ANGLE_ABORT_MAX_ALT 40.0
+#define ANGLE_ABORT_MAX_ALT 15.0
 
 #define ENABLE_PARACHUTE true
 #define ENABLE_ANGLE_CHECK true
@@ -26,7 +28,7 @@
 #define DO_EUI false
 #define DO_GPS false
 
-#define PARACHUTE_ALTITUDE_THRESHOLD 60.0f // meters
+#define PARACHUTE_ALTITUDE_THRESHOLD 20.0f // meters
 
 #define ENABLE_TVC_IMU false
 #define INIT_BNO false

@@ -44,7 +44,6 @@ unsigned long abortLoopTime = 0;
 
 unsigned long powTime = 0;
 
-unsigned long timeToSecondStage = 1200;
 float accelAtStage2Start = 0.0f;
 
 bool isAnglePassedThreshold()
@@ -208,16 +207,6 @@ void loop()
 
   handleBatteryCheck();
 
-  if (data.state != LAUNCH_COMMANDED)
-  {
-    stopPyro1();
-  }
-
-  if (data.state != LAUNCH_COMMANDED_2)
-  {
-    stopPyro2();
-  }
-
   if (data.state == LAUNCH_COMMANDED || (data.state == POWERED_ASCENT && data.kal_X_pos < ANGLE_ABORT_MAX_ALT))
   {
     if (isAnglePassedThreshold())
@@ -313,7 +302,8 @@ void loop()
       PID_DelayTime = millis();
     }
 
-    handleFirePyro1();
+    // Pyro2 is first pyro to launch based on wiring
+    handleFirePyro2();
 
     if (millis() - PID_DelayTime >= FIRE_TO_PID_DELAY)
     {
@@ -322,14 +312,14 @@ void loop()
 
     if (millis() - launchAbortTime >= MOTOR_FAIL_DELAY)
     {
+      stopPyro2();
       goToState(ABORT);
-      stopPyro1();
     }
 
     if (data.worldAx > LAUNCH_ACCEL_THRESHOLD)
     {
+      stopPyro2();
       goToState(POWERED_ASCENT);
-      stopPyro1();
     }
 
     break;
@@ -344,7 +334,7 @@ void loop()
 
     powTime = millis() - powStart;
 
-    if (powTime >= timeToSecondStage)
+    if (powTime >= TIME_TO_SECOND_STAGE)
     {
       accelAtStage2Start = data.ax;
       goToState(LAUNCH_COMMANDED_2);
@@ -352,7 +342,7 @@ void loop()
 
     data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
 
-    if (data.kal_X_vel <= -2.0f)
+    if (data.kal_X_vel <= -1.0f)
     {
       goToState(FREE_DESCENT);
     }
@@ -361,12 +351,19 @@ void loop()
 
   case LAUNCH_COMMANDED_2:
 
-    handleFirePyro2();
+    handleFirePyro1();
+    data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
 
     if (data.ax > accelAtStage2Start + 5.0f)
     {
-      stopPyro2();
+      stopPyro1();
       goToState(POWERED_ASCENT_2);
+    }
+
+    if (data.kal_X_vel <= -2.0f)
+    {
+      stopPyro1();
+      goToState(FREE_DESCENT);
     }
 
     break;
@@ -379,7 +376,7 @@ void loop()
       goToState(UNPOWERED_ASCENT);
     }
 
-    if (data.kal_X_vel <= -0.5f)
+    if (data.kal_X_vel <= -2.0f)
     {
       goToState(FREE_DESCENT);
     }
@@ -388,6 +385,7 @@ void loop()
   case UNPOWERED_ASCENT:
     // Center and turn off TVC
     PIDStatus = false;
+    data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
 
     if (data.kal_X_vel <= -0.5f)
     {
@@ -397,6 +395,7 @@ void loop()
     break;
   case FREE_DESCENT:
     PIDStatus = false;
+    data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
 
     // Detect barometer min altitude for parachute
     if (data.altitude <= PARACHUTE_ALTITUDE_THRESHOLD)
@@ -409,6 +408,7 @@ void loop()
     break;
 
   case PARACHUTE_DESCENT:
+    data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
 
     deployParachute();
 
@@ -422,6 +422,8 @@ void loop()
   case ABORT:
 
     deployParachute();
+    stopPyro1();
+    stopPyro2();
 
     if (firstAbortLoop)
     {
@@ -436,6 +438,8 @@ void loop()
 
     break;
   case LANDED:
+    stopPyro1();
+    stopPyro2();
     delay(2000);
     // Dump all data to SD
     flashWriteStatus = false;

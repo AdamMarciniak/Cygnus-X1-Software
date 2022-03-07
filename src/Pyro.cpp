@@ -49,27 +49,13 @@ void handleGetContinuity()
     if (continuityTimer.hasPassed(500))
     {
 
-      if (IS_DUAL_STAGE)
+      if (analogRead(PYRO1_DETECT_PIN) < 200 || analogRead(PYRO2_DETECT_PIN) < 200)
       {
-        if (analogRead(PYRO1_DETECT_PIN) < 200 || analogRead(PYRO2_DETECT_PIN) < 200)
-        {
-          data.pyro1Continuity = 0.0;
-        }
-        else
-        {
-          data.pyro1Continuity = 1.0;
-        }
+        data.pyro1Continuity = 0.0;
       }
       else
       {
-        if (analogRead(PYRO1_DETECT_PIN) < 200)
-        {
-          data.pyro1Continuity = 0.0;
-        }
-        else
-        {
-          data.pyro1Continuity = 1.0;
-        }
+        data.pyro1Continuity = 1.0;
       }
 
       continuityTimer.restart();
