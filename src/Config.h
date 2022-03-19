@@ -12,7 +12,7 @@
 #define IS_TEST_MODE false
 #define IS_DUMP_MODE false
 
-#define IS_DUAL_STAGE false
+#define IS_DUAL_STAGE true
 // How many seconds to wait after launch to get to secon stag firing.
 #define TIME_TO_SECOND_STAGE 1200
 // Altitude where below this, the angle limit abort gets fired.
@@ -28,7 +28,7 @@
 #define DO_EUI false
 #define DO_GPS false
 
-#define PARACHUTE_ALTITUDE_THRESHOLD 20.0f // meters
+#define PARACHUTE_ALTITUDE_THRESHOLD 40.0f // meters
 
 #define ENABLE_TVC_IMU false
 #define INIT_BNO false
@@ -64,9 +64,9 @@
 #define KIE12 0.02f
 #define KDE12 0.2f
 
-#define Y_KP KPF15
-#define Y_KI KIF15
-#define Y_KD KDF15
+#define Y_KP KDE12
+#define Y_KI KIE12
+#define Y_KD KDE12
 
 #define Z_KP Y_KP
 #define Z_KI Y_KI

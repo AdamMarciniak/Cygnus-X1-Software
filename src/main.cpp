@@ -384,7 +384,6 @@ void loop()
     break;
   case UNPOWERED_ASCENT:
     // Center and turn off TVC
-    PIDStatus = false;
     data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
 
     if (data.kal_X_vel <= -0.5f)
@@ -394,7 +393,6 @@ void loop()
 
     break;
   case FREE_DESCENT:
-    PIDStatus = false;
     data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
 
     // Detect barometer min altitude for parachute
@@ -408,9 +406,11 @@ void loop()
     break;
 
   case PARACHUTE_DESCENT:
+    deployParachute();
+
     data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
 
-    deployParachute();
+    PIDStatus = false;
 
     if (millis() - landingDetectTime > LANDING_DETECT_DELAY)
     {
