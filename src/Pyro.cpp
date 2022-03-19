@@ -14,30 +14,15 @@ void initPyro()
   if (ENGAGE_PYRO == true)
   {
     pinMode(PYRO1_PIN, OUTPUT);
-    if (IS_DUAL_STAGE == true)
-    {
-      pinMode(PYRO2_PIN, OUTPUT);
+    pinMode(PYRO2_PIN, OUTPUT);
 
-      if (analogRead(PYRO1_DETECT_PIN) < 200 || analogRead(PYRO2_DETECT_PIN) < 200)
-      {
-        data.pyro1Continuity = 0.0;
-      }
-      else
-      {
-        data.pyro1Continuity = 1.0;
-      }
+    if (analogRead(PYRO1_DETECT_PIN) < 200 || analogRead(PYRO2_DETECT_PIN) < 200)
+    {
+      data.pyro1Continuity = 0.0;
     }
     else
     {
-
-      if (analogRead(PYRO1_DETECT_PIN) < 200)
-      {
-        data.pyro1Continuity = 0.0;
-      }
-      else
-      {
-        data.pyro1Continuity = 1.0;
-      }
+      data.pyro1Continuity = 1.0;
     }
   }
 }
