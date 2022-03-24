@@ -60,9 +60,9 @@
 #define KIF15 0.22f
 #define KDF15 0.28f
 
-#define KPE12 0.6f
-#define KIE12 0.02f
-#define KDE12 0.2f
+#define KPE12 0.9f
+#define KIE12 0.2f
+#define KDE12 0.28f
 
 #define Y_KP KDE12
 #define Y_KI KIE12
@@ -95,7 +95,7 @@
 
 #define ACCEL_UNPOWERED_THRESHOLD 4.0f //m/s^2
 
-#define FIRE_TO_PID_DELAY 350 //ms
+#define FIRE_TO_PID_DELAY 300 //ms
 
 // This gets counted when launch commanded.
 // Parachute will eject if this takes too long
