@@ -6,12 +6,8 @@ Servo zServo;
 Chrono servoTimer;
 bool servoTestOn = false;
 
-
-
-void handleServoCentering()
-{
-  if (nonLoggedData.servoCentersAvailable == true)
-  {
+void handleServoCentering() {
+  if (nonLoggedData.servoCentersAvailable == true) {
     nonLoggedData.servoCentersAvailable = false;
     Serial.print("Writing To servos");
     Serial.print("   Y: ");
@@ -26,8 +22,7 @@ void handleServoCentering()
   }
 }
 
-void initServos()
-{
+void initServos() {
   Serial.println("Attaching servos to pins");
   yServo.attach(SERVO1_PIN);
   zServo.attach(SERVO2_PIN);
@@ -42,31 +37,24 @@ void initServos()
 
 unsigned int servoStep = 0;
 
-void startServoTest()
-{
-  servoTestOn = true;
-}
+void startServoTest() { servoTestOn = true; }
 
-void handleTestServos()
-{
+void handleTestServos() {
 
-  if (servoTestOn == true)
-  {
+  if (servoTestOn == true) {
 
-    if (servoTimer.hasPassed(16))
-    {
+    if (servoTimer.hasPassed(16)) {
 
       moveYServo(Y_CENTER + SERVO_RANGE * sin(0.1 * servoStep));
       moveZServo(Z_CENTER - SERVO_RANGE * sin(0.1 * servoStep - PI / 2.0));
 
       servoStep += 1;
 
-      if (servoStep == 63)
-      {
+      if (servoStep == 63) {
         servoTestOn = false;
         servoStep = 0;
-        moveYServo(Y_CENTER);
-        moveZServo(Z_CENTER);
+        moveYServo(data.Y_Servo_Center);
+        moveZServo(data.Z_Servo_Center);
       }
 
       servoTimer.restart();
@@ -74,12 +62,6 @@ void handleTestServos()
   }
 }
 
-void moveYServo(int val)
-{
-  yServo.write(val);
-}
+void moveYServo(int val) { yServo.write(val); }
 
-void moveZServo(int val)
-{
-  zServo.write(val);
-}
+void moveZServo(int val) { zServo.write(val); }
