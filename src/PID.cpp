@@ -4,8 +4,7 @@ Chrono PIDTimer;
 PID z_PID;
 PID y_PID;
 
-void initPIDs()
-{
+void initPIDs() {
 
   data.kp_y = Y_KP;
   data.ki_y = Y_KI;
@@ -22,18 +21,11 @@ void initPIDs()
   setYPIDSetpoint(Y_SETPOINT);
 }
 
-void setZPIDInput(float val)
-{
-  z_PID.setInput(val);
-}
+void setZPIDInput(float val) { z_PID.setInput(val); }
 
-void setYPIDInput(float val)
-{
-  y_PID.setInput(val);
-}
+void setYPIDInput(float val) { y_PID.setInput(val); }
 
-void computeBothPIDs()
-{
+void computeBothPIDs() {
   z_PID.compute();
   y_PID.compute();
 
@@ -53,85 +45,57 @@ void computeBothPIDs()
   data.pid_delT_z = z_PID.getDelT();
 }
 
-PID::PID()
-{
+PID::PID() {
   firstCompute = true;
   setSetpoint(0.0f);
 }
 
-void setYPIDSetpoint(int setpoint)
-{
+void setYPIDSetpoint(int setpoint) {
   data.ySetpoint = setpoint;
   y_PID.setSetpoint(setpoint);
 }
 
-void setZPIDSetpoint(int setpoint)
-{
+void setZPIDSetpoint(int setpoint) {
   data.zSetpoint = setpoint;
   z_PID.setSetpoint(setpoint);
 }
 
-void PID::setSetpoint(float setPt)
-{
-  Setpoint = setPt;
-}
+void PID::setSetpoint(float setPt) { Setpoint = setPt; }
 
-void PID::setInput(float inpt)
-{
-  Input = inpt;
-}
+void PID::setInput(float inpt) { Input = inpt; }
 
-float PID::getPError()
-{
-  return error;
-}
+float PID::getPError() { return error; }
 
-float PID::getDError()
-{
-  return dErr;
-}
+float PID::getDError() { return dErr; }
 
-float PID::getIError()
-{
-  return ITerm;
-}
+float PID::getIError() { return ITerm; }
 
-float PID::getOutput()
-{
-  return Output;
-}
+float PID::getOutput() { return Output; }
 
-void PID::compute()
-{
+void PID::compute() {
   unsigned long now = micros();
-  if (firstCompute)
-  {
+  if (firstCompute) {
     firstCompute = false;
     lastTime = micros();
     deltaT = float((now - lastTime)) / 1000000.0f;
     error = Setpoint - Input;
     lastError = error;
-  }
-  else
-  {
+  } else {
 
     deltaT = float((now - lastTime)) / 1000000.0f;
     error = Setpoint - Input;
 
     ITerm += (ki * error) * deltaT;
 
-    if (lastError < 0.0 && error > 0.0)
-    {
+    if (lastError < 0.0 && error > 0.0) {
       ITerm = 0.0;
     }
 
-    if (lastError > 0.0 && error < 0.0)
-    {
+    if (lastError > 0.0 && error < 0.0) {
       ITerm = 0.0;
     }
 
-    if (error == 0.0)
-    {
+    if (error == 0.0) {
       ITerm = 0.0;
     }
 
@@ -142,12 +106,10 @@ void PID::compute()
     dErr = (error - lastError) / deltaT;
 
     Output = kp * error + ITerm + kd * dErr;
-    if (Output > outMax)
-    {
+    if (Output > outMax) {
       Output = outMax;
     }
-    if (Output < outMin)
-    {
+    if (Output < outMin) {
       Output = outMin;
     }
   }
@@ -156,60 +118,43 @@ void PID::compute()
   return;
 }
 
-float PID::getDelT()
-{
-  return deltaT;
-}
+float PID::getDelT() { return deltaT; }
 
-void PID::setTunings(float Kp, float Ki, float Kd)
-{
+void PID::setTunings(float Kp, float Ki, float Kd) {
   kp = Kp;
   ki = Ki;
   kd = Kd;
 }
 
-void PID::setOutputLimits(int Min, int Max)
-{
+void PID::setOutputLimits(int Min, int Max) {
   if (Min > Max)
     return;
   outMin = Min;
   outMax = Max;
 }
 
-void PID::incrementKP(float num)
-{
+void PID::incrementKP(float num) {
   float val = kp + num;
-  if (val >= 0)
-  {
+  if (val >= 0) {
     kp = val;
-  }
-  else
-  {
+  } else {
     kp = 0.0f;
   }
 }
 
-void PID::incrementKI(float num)
-{
+void PID::incrementKI(float num) {
   float val = ki + num;
-  if (val >= 0)
-  {
+  if (val >= 0) {
     ki = val;
-  }
-  else
-  {
+  } else {
     ki = 0.0f;
   }
 }
-void PID::incrementKD(float num)
-{
+void PID::incrementKD(float num) {
   float val = kd + num;
-  if (val >= 0)
-  {
+  if (val >= 0) {
     kd = val;
-  }
-  else
-  {
+  } else {
     kd = 0.0f;
   }
 }

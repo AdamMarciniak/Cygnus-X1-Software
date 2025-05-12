@@ -24,31 +24,27 @@ unsigned long maxAddr = totalSamples * sizeof(data);
 float YCENTER;
 float ZCENTER;
 
-void goToState(State state)
-{
+void goToState(State state) {
   data.state = state;
   data.fState = float(state);
 }
 
-void writeTVCCenters()
-{
+void writeTVCCenters() {
   flash.eraseSector(0);
   flash.writeAnything(0, data.Y_Servo_Center);
   flash.writeAnything(sizeof(float), data.Z_Servo_Center);
-  Serial.println("Wrote TVC Centers");
+  // Serial.println("Wrote TVC Centers");
 }
 
-void readTVCCenters()
-{
+void readTVCCenters() {
   flash.readAnything(0, YCENTER);
   flash.readAnything(sizeof(float), ZCENTER);
-  Serial.print("Reading TVC Centers: ");
-  Serial.print("Y: ");
-  Serial.print(YCENTER);
-  Serial.print("  Z: ");
-  Serial.println(ZCENTER);
-  if (YCENTER >= -200)
-  {
+  // Serial.print("Reading TVC Centers: ");
+  // Serial.print("Y: ");
+  // Serial.print(YCENTER);
+  // Serial.print("  Z: ");
+  // Serial.println(ZCENTER);
+  if (YCENTER >= -200) {
     data.Y_Servo_Center = YCENTER;
   }
 
@@ -56,21 +52,17 @@ void readTVCCenters()
     data.Z_Servo_Center = ZCENTER;
 }
 
-void getMaxAddr()
-{
+void getMaxAddr() {
   unsigned long capacity = flash.getCapacity();
-  if (maxAddr + sizeof(data) > capacity)
-  {
+  if (maxAddr + sizeof(data) > capacity) {
     maxAddr = capacity;
   }
 }
 
-void eraseFlightData()
-{
+void eraseFlightData() {
   Serial.println("Erasing flight data sectors");
   unsigned long capacity = flash.getCapacity();
-  for (unsigned long i = startAddress; i < capacity; i += sectorSize)
-  {
+  for (unsigned long i = startAddress; i < capacity; i += sectorSize) {
     // Erases 1 4K sector
     Serial.print(i);
     Serial.print(",");
@@ -78,36 +70,31 @@ void eraseFlightData()
   }
 }
 
-void initFlashNoErase()
-{
+void initFlashNoErase() {
   flash.begin();
 
   getMaxAddr();
 }
 
-void initFlash()
-{
+void initFlash() {
   flash.begin();
 
   readTVCCenters();
 
-  if (flash.eraseChip())
-  {
+  if (flash.eraseChip()) {
     Serial.println("Erased Flash");
   };
 
   writeTVCCenters();
 
-  //eraseFlightData();
+  // eraseFlightData();
 
   getMaxAddr();
 }
 
-bool handleWriteFlash()
-{
+bool handleWriteFlash() {
   bool writing = true;
-  if (dataWriteTimer.hasPassed(millisPerSample))
-  {
+  if (dataWriteTimer.hasPassed(millisPerSample)) {
     dataWriteTimer.restart();
     writing = writeToFlash();
   }
@@ -118,34 +105,25 @@ bool handleWriteFlash()
 bool firstWrite = true;
 unsigned long startTime = 0;
 
-bool writeToFlash()
-{
-  if (write_addr < maxAddr)
-  {
-    if (firstWrite == true)
-    {
+bool writeToFlash() {
+  if (write_addr < maxAddr) {
+    if (firstWrite == true) {
       firstWrite = false;
       data.ms = 0.0;
       startTime = millis();
-    }
-    else
-    {
+    } else {
       data.ms = float(millis() - startTime);
     }
     flash.writeAnything(write_addr, data);
     write_addr += addrStep;
     return true;
-  }
-  else
-  {
+  } else {
     return false;
   }
 }
 
-bool readFromFlash()
-{
-  if (read_addr < write_addr)
-  {
+bool readFromFlash() {
+  if (read_addr < write_addr) {
     // Serial.print("Reading From Flash Addr: ");
     // Serial.print(" ");
     // Serial.println(read_addr);
@@ -153,25 +131,18 @@ bool readFromFlash()
 
     read_addr += addrStep;
     return true;
-  }
-  else
-  {
+  } else {
     return false;
   }
 }
 
-bool readFromFlashDump()
-{
-  if (read_addr < maxAddr)
-  {
-    
+bool readFromFlashDump() {
+  if (read_addr < maxAddr) {
+
     flash.readAnything(read_addr, data);
     read_addr += addrStep;
     return true;
-  }
-  else
-  {
+  } else {
     return false;
   }
 }
-

@@ -1,25 +1,24 @@
-#include <Arduino.h>
-#include <Servo.h>
-#include "Data.h"
-#include "Nav.h"
-#include "Battery.h"
-#include "Chrono.h"
-#include "Data.h"
-#include "Buzzer.h"
-#include "PID.h"
 #include "./SdCard/SD.h"
+#include "./eui/EUIMyLib.h"
+#include "BNOIMU.h"
 #include "BTLE.h"
+#include "Battery.h"
+#include "Buzzer.h"
+#include "Chrono.h"
+#include "Config.h"
+#include "Data.h"
+#include "GPS.h"
+#include "Kalman.h"
+#include "LED.h"
+#include "Nav.h"
+#include "PID.h"
 #include "Parachute.h"
+#include "Pyro.h"
 #include "ServoControl.h"
 #include "Telemetry.h"
-#include "Pyro.h"
-#include "Config.h"
-#include "Kalman.h"
-#include "./eui/EUIMyLib.h"
-#include "GPS.h"
 #include "dumpData.h"
-#include "LED.h"
-#include "BNOIMU.h"
+#include <Arduino.h>
+#include <Servo.h>
 
 BNOIMU bno;
 
@@ -46,12 +45,10 @@ unsigned long powTime = 0;
 
 float accelAtStage2Start = 0.0f;
 
-bool isAnglePassedThreshold()
-{
-  if (ENABLE_ANGLE_CHECK == true)
-  {
-    if (abs(data.yaw) >= ABORT_ANGLE_THRESHOLD || abs(data.pitch) >= ABORT_ANGLE_THRESHOLD)
-    {
+bool isAnglePassedThreshold() {
+  if (ENABLE_ANGLE_CHECK == true) {
+    if (abs(data.yaw) >= ABORT_ANGLE_THRESHOLD ||
+        abs(data.pitch) >= ABORT_ANGLE_THRESHOLD) {
       return true;
     }
   }
@@ -60,15 +57,12 @@ bool isAnglePassedThreshold()
 
 unsigned long testTime = 0;
 
-void handleDumpData()
-{
-  if (IS_DUMP_MODE)
-  {
+void handleDumpData() {
+  if (IS_DUMP_MODE) {
     // while (!Serial)
     //   ;
     dumpData();
-    while (1)
-    {
+    while (1) {
       delay(500);
       buzzComplete();
       handleLEDBlink(255, 0, 0);
@@ -77,8 +71,7 @@ void handleDumpData()
   }
 }
 
-void setup()
-{
+void setup() {
 
   initBuzzer();
 
@@ -96,13 +89,14 @@ void setup()
 
   initBluetooth();
   initPIDs();
-  initParachute();
+  if (ENABLE_PARACHUTE) {
+    initParachute();
+  }
 
   delay(2000);
 
   initNav();
-  if (INIT_BNO)
-  {
+  if (INIT_BNO) {
     bno.initBNO();
   }
 
@@ -124,34 +118,27 @@ void setup()
 
   prevLoopTime = micros();
   currentLoopTime = micros();
-  if (IS_TEST_MODE)
-  {
+  if (IS_TEST_MODE) {
     goToState(TEST);
     testTime = millis();
-  }
-  else
-  {
+  } else {
     goToState(IDLE);
   }
 }
 
-void handleRunNav()
-{
+void handleRunNav() {
   handleAltimeter();
 
-  if (navTimer.hasPassed(NAV_RATE))
-  {
+  if (navTimer.hasPassed(NAV_RATE)) {
     getAccel();
     getYPR();
     predict(data.worldAx);
 
-    if (data.state == IDLE || data.state == TEST)
-    {
+    if (data.state == IDLE) {
       data.worldAxBias += getMovingAverageWorldXAccel(data.worldAx);
     }
 
-    if (PIDStatus == true)
-    {
+    if (PIDStatus == true) {
       setZPIDInput(data.pitch);
       setYPIDInput(data.yaw);
       computeBothPIDs();
@@ -162,11 +149,9 @@ void handleRunNav()
     navTimer.restart();
   };
 
-  if (isNewAltimeterData())
-  {
+  if (isNewAltimeterData()) {
     getAltitude();
-    if (data.state == IDLE || data.state == TEST)
-    {
+    if (data.state == IDLE) {
       // Do this so that while idle, bias doesn't rise.
       data.biasAltitude += getMovingAverage(data.altitude);
     }
@@ -174,12 +159,9 @@ void handleRunNav()
   }
 }
 
-void handleWritingToFlash()
-{
-  if (flashWriteStatus == true)
-  {
-    if (!handleWriteFlash())
-    {
+void handleWritingToFlash() {
+  if (flashWriteStatus == true) {
+    if (!handleWriteFlash()) {
       flashWriteStatus = false;
       finishedWriting = true;
       goToState(LANDED);
@@ -191,10 +173,7 @@ unsigned long powStart = 0;
 bool firstPow = true;
 int pitchAngleSetpoint = 0;
 
-Chrono tvcPrintLoop;
-
-void loop()
-{
+void loop() {
   currentLoopTime = micros();
   data.loopTime = float(currentLoopTime - prevLoopTime) / 1000000.0f;
   prevLoopTime = currentLoopTime;
@@ -207,21 +186,18 @@ void loop()
 
   handleBatteryCheck();
 
-  if (data.state == LAUNCH_COMMANDED || (data.state == POWERED_ASCENT && data.kal_X_pos < ANGLE_ABORT_MAX_ALT))
-  {
-    if (isAnglePassedThreshold())
-    {
+  if (data.state == LAUNCH_COMMANDED ||
+      (data.state == POWERED_ASCENT && data.kal_X_pos < ANGLE_ABORT_MAX_ALT)) {
+    if (isAnglePassedThreshold()) {
       goToState(ABORT);
     }
   }
 
-  if (data.kal_X_pos > data.max_altitude)
-  {
+  if (data.kal_X_pos > data.max_altitude) {
     data.max_altitude = data.kal_X_pos;
   }
 
-  switch (data.state)
-  {
+  switch (data.state) {
 
   case TEST:
     handleTestServos();
@@ -233,50 +209,18 @@ void loop()
   case IDLE:
 
     handleSendTelemetry();
-
     handleGetContinuity();
-
     handleTestServos();
 
-    if (ENABLE_TVC_IMU)
-    {
-
-      if (tvcPrintLoop.hasPassed(NAV_RATE))
-      {
-        getTVCIMUAccel();
-        getTVCAttitude();
-        // Serial.print("TVC_AX: ");
-        // Serial.print(data.tvc_ax);
-        // Serial.print("  TVC_AY: ");
-        // Serial.print(data.tvc_ay);
-        // Serial.print("  TVC_AZ: ");
-        // Serial.print(data.tvc_az);
-        //Serial.print("  TVC_YAW: ");
-        Serial.print(data.tvc_yaw);
-        Serial.print(" ");
-        Serial.print(data.yaw);
-        Serial.print(" ");
-        Serial.print(data.tvc_pitch);
-        Serial.print(" ");
-        Serial.print(data.pitch);
-        Serial.println();
-
-        tvcPrintLoop.restart();
-      }
-    }
-
     // wait for zero gyros command
-    if (nonLoggedData.zeroGyrosStatus == true)
-    {
+    if (nonLoggedData.zeroGyrosStatus == true) {
       nonLoggedData.zeroGyrosStatus = false;
       zeroGyroscope();
     }
 
-    if (!SELF_FIRE)
-    {
+    if (!SELF_FIRE) {
       // Trigger powered flight if launch happens without BTLE
-      if (data.worldAx > LAUNCH_ACCEL_THRESHOLD)
-      {
+      if (data.worldAx > LAUNCH_ACCEL_THRESHOLD) {
         flashWriteStatus = true;
         zeroGyroscope();
         zeroKalman();
@@ -292,8 +236,7 @@ void loop()
   case LAUNCH_COMMANDED:
 
     // Zero Gyros and other sensors as needed
-    if (firstLaunchLoop == true)
-    {
+    if (firstLaunchLoop == true) {
       flashWriteStatus = true;
       firstLaunchLoop = false;
       zeroGyroscope();
@@ -305,19 +248,16 @@ void loop()
     // Pyro2 is first pyro to launch based on wiring
     handleFirePyro2();
 
-    if (millis() - PID_DelayTime >= FIRE_TO_PID_DELAY)
-    {
+    if (millis() - PID_DelayTime >= FIRE_TO_PID_DELAY) {
       PIDStatus = true;
     }
 
-    if (millis() - launchAbortTime >= MOTOR_FAIL_DELAY)
-    {
+    if (millis() - launchAbortTime >= MOTOR_FAIL_DELAY) {
       stopPyro2();
       goToState(ABORT);
     }
 
-    if (data.worldAx > LAUNCH_ACCEL_THRESHOLD)
-    {
+    if (data.worldAx > LAUNCH_ACCEL_THRESHOLD) {
       stopPyro2();
       goToState(POWERED_ASCENT);
     }
@@ -326,78 +266,39 @@ void loop()
   case POWERED_ASCENT:
 
     PIDStatus = true;
-    if (firstPow == true)
-    {
+    if (firstPow == true) {
       firstPow = false;
       powStart = millis();
     }
 
     powTime = millis() - powStart;
 
-    if (powTime >= TIME_TO_SECOND_STAGE)
-    {
-      accelAtStage2Start = data.ax;
-      goToState(LAUNCH_COMMANDED_2);
-    }
-
     data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
 
-    if (data.kal_X_vel <= -1.0f)
-    {
-      goToState(FREE_DESCENT);
-    }
-
-    break;
-
-  case LAUNCH_COMMANDED_2:
-
-    handleFirePyro1();
-    data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
-
-    if (data.ax > accelAtStage2Start + 5.0f)
-    {
-      stopPyro1();
-      goToState(POWERED_ASCENT_2);
-    }
-
-    if (data.kal_X_vel <= -2.0f)
-    {
-      stopPyro1();
-      goToState(FREE_DESCENT);
-    }
-
-    break;
-
-  case POWERED_ASCENT_2:
-
-    data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
-    if (data.ax < ACCEL_UNPOWERED_THRESHOLD)
-    {
+    if (data.ax < ACCEL_UNPOWERED_THRESHOLD) {
       goToState(UNPOWERED_ASCENT);
     }
-
-    if (data.kal_X_vel <= -2.0f)
-    {
+    if (data.kal_X_vel <= -2.0f) {
       goToState(FREE_DESCENT);
     }
 
     break;
+
   case UNPOWERED_ASCENT:
     // Center and turn off TVC
     data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
 
-    if (data.kal_X_vel <= -0.5f)
-    {
+    if (data.kal_X_vel <= -0.5f) {
       goToState(FREE_DESCENT);
     }
 
     break;
   case FREE_DESCENT:
     data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
+    PIDStatus = false;
 
     // Detect barometer min altitude for parachute
-    if (data.altitude <= PARACHUTE_ALTITUDE_THRESHOLD)
-    {
+    if (data.altitude <= PARACHUTE_ALTITUDE_THRESHOLD) {
       // Write prachute launch to servo
       goToState(PARACHUTE_DESCENT);
       landingDetectTime = millis();
@@ -410,10 +311,7 @@ void loop()
 
     data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
 
-    PIDStatus = false;
-
-    if (millis() - landingDetectTime > LANDING_DETECT_DELAY)
-    {
+    if (millis() - landingDetectTime > LANDING_DETECT_DELAY) {
       goToState(LANDED);
     }
 
@@ -425,14 +323,12 @@ void loop()
     stopPyro1();
     stopPyro2();
 
-    if (firstAbortLoop)
-    {
+    if (firstAbortLoop) {
       abortLoopTime = millis();
       firstAbortLoop = false;
     }
 
-    if (millis() - abortLoopTime > ABORT_TO_LANDED_DELAY)
-    {
+    if (millis() - abortLoopTime > ABORT_TO_LANDED_DELAY) {
       goToState(LANDED);
     }
 
@@ -447,11 +343,10 @@ void loop()
     transferToSD();
     buzzComplete();
     Serial.println("SD writing complete");
-    while (1)
-    {
+    while (1) {
       delay(500);
       buzzMaxAltitude(data.max_altitude);
-      //buzzComplete();
+      // buzzComplete();
     };
 
     break;

@@ -12,28 +12,29 @@
 #define IS_TEST_MODE false
 #define IS_DUMP_MODE false
 
-#define IS_DUAL_STAGE true
+#define IS_BENCH_PID false
+
+#define IS_DUAL_STAGE false
 // How many seconds to wait after launch to get to secon stag firing.
 #define TIME_TO_SECOND_STAGE 1200
 // Altitude where below this, the angle limit abort gets fired.
 #define ANGLE_ABORT_MAX_ALT 15.0
 
-#define ENABLE_PARACHUTE true
-#define ENABLE_ANGLE_CHECK true
+#define ENABLE_PARACHUTE false
+#define ENABLE_ANGLE_CHECK false
 #define ABORT_ANGLE_THRESHOLD 45.0f // degrees
 
-#define SELF_FIRE true
+#define SELF_FIRE false
 
-#define ENGAGE_PYRO true
+#define ENGAGE_PYRO false
 #define DO_EUI false
 #define DO_GPS false
 
 #define PARACHUTE_ALTITUDE_THRESHOLD 40.0f // meters
 
-#define ENABLE_TVC_IMU false
 #define INIT_BNO false
 
-//PITCH OVR INSTRUCTIONS
+// PITCH OVR INSTRUCTIONS
 // POINT BOARD FRONT IN DIRECTION OF PITCH OVER (AWAY FROM PEOPLE)
 // USE Z AXIS TRUE
 // USE NEGATIVE VALUE FOR PITCH ANGLE
@@ -41,27 +42,27 @@
 #define ENABLE_PITCH_OVER_Y false
 #define ENABLE_PITCH_OVER_Z false
 
-#define PITCH_OVER_ANGLE -15    //deg
-#define PITCH_OVER_START 1000   //ms
-#define PITCH_OVER_DURATION 500 //ms
+#define PITCH_OVER_ANGLE -15    // deg
+#define PITCH_OVER_START 1000   // ms
+#define PITCH_OVER_DURATION 500 // ms
 
 #define DATA_SAMPLE_RATE 200      // hz
 #define DATA_SAMPLE_TOTAL_TIME 45 // seconds
 
-#define LANDING_DETECT_DELAY 15000  //ms
-#define ABORT_TO_LANDED_DELAY 25000 //ms
+#define LANDING_DETECT_DELAY 15000  // ms
+#define ABORT_TO_LANDED_DELAY 25000 // ms
 
 #define MOTOR_FAIL_DELAY 10000 // ms
 
-#define Y_SETPOINT 0.0f //deg
-#define Z_SETPOINT 0.0f //deg
+#define Y_SETPOINT 0.0f // deg
+#define Z_SETPOINT 0.0f // deg
 
 #define KPF15 0.87f
-#define KIF15 0.22f
+#define KIF15 0.0f
 #define KDF15 0.28f
 
 #define KPE12 0.9f
-#define KIE12 0.2f
+#define KIE12 0.0f
 #define KDE12 0.28f
 
 #define Y_KP KDE12
@@ -74,10 +75,10 @@
 
 #define YAW_PITCH_BIAS_COUNT 50
 #define WORLD_ACCEL_BIAS_COUNT 500
-#define GYRO_BIAS_COUNT 100
+#define GYRO_BIAS_COUNT 1000
 
-#define BATTERY_VOLTAGE_MIN 11.2f //volts
-#define NAV_RATE 5                //ms
+#define BATTERY_VOLTAGE_MIN 11.2f // volts
+#define NAV_RATE 5                // ms
 
 #define PARACHUTE_SERVO_DEPLOY 50
 #define PARACHUTE_SERVO_INIT 97
@@ -93,9 +94,9 @@
 
 #define LAUNCH_ACCEL_THRESHOLD 2.0f // m/s^2
 
-#define ACCEL_UNPOWERED_THRESHOLD 4.0f //m/s^2
+#define ACCEL_UNPOWERED_THRESHOLD 4.0f // m/s^2
 
-#define FIRE_TO_PID_DELAY 300 //ms
+#define FIRE_TO_PID_DELAY 300 // ms
 
 // This gets counted when launch commanded.
 // Parachute will eject if this takes too long
