@@ -9,11 +9,11 @@ bool servoTestOn = false;
 void handleServoCentering() {
   if (nonLoggedData.servoCentersAvailable == true) {
     nonLoggedData.servoCentersAvailable = false;
-    // Serial.print("Writing To servos");
-    // Serial.print("   Y: ");
-    // Serial.print(data.Y_Servo_Center);
-    // Serial.print("   Z: ");
-    // Serial.println(data.Z_Servo_Center);
+    Serial.print("Writing To servos");
+    Serial.print("   Y: ");
+    Serial.print(data.Y_Servo_Center);
+    Serial.print("   Z: ");
+    Serial.println(data.Z_Servo_Center);
     yServo.write(data.Y_Servo_Center);
     zServo.write(data.Z_Servo_Center);
     writeTVCCenters();
@@ -29,10 +29,9 @@ void initServos() {
   yServo.attach(SERVO2_PIN);
   zServo.attach(SERVO1_PIN);
 
-  readTVCCenters();
   Serial.println("Centering Servos. Wait 2 seconds..");
-  yServo.write(data.Y_Servo_Center);
-  zServo.write(data.Z_Servo_Center);
+  yServo.write(Y_CENTER);
+  zServo.write(Z_CENTER);
   data.servo_y = 0;
   data.servo_z = 0;
 }
@@ -46,18 +45,18 @@ void handleTestServos() {
   if (servoTestOn == true) {
 
     if (servoTimer.hasPassed(16)) {
-
-      moveYServo(data.Y_Servo_Center + SERVO_RANGE * sin(0.1 * servoStep));
-      moveZServo(data.Z_Servo_Center +
-                 SERVO_RANGE * sin(0.1 * servoStep - PI / 2.0));
+      Serial.println("RUNNING SERVO TEST");
+      Serial.println(Y_CENTER + SERVO_RANGE * sin(0.1 * servoStep));
+      moveYServo(Y_CENTER + SERVO_RANGE * sin(0.1 * servoStep));
+      moveZServo(Z_CENTER + SERVO_RANGE * sin(0.1 * servoStep - PI / 2.0));
 
       servoStep += 1;
 
       if (servoStep == 63) {
         servoTestOn = false;
         servoStep = 0;
-        moveYServo(data.Y_Servo_Center);
-        moveZServo(data.Z_Servo_Center);
+        moveYServo(Y_CENTER);
+        moveZServo(Z_CENTER);
       }
 
       servoTimer.restart();

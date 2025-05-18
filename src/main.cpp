@@ -73,6 +73,11 @@ void handleDumpData() {
 
 void setup() {
 
+  data.Y_Servo_Center = Y_CENTER;
+  data.Z_Servo_Center = Z_CENTER;
+
+  initServos();
+
   initBuzzer();
 
   Serial.begin(115200);
@@ -85,6 +90,7 @@ void setup() {
 
   buzzStartup();
 
+  // Flash might be fucked so dont read TVC from it.
   initFlash();
 
   initBluetooth();
@@ -109,7 +115,6 @@ void setup() {
   buzzStartup();
 
   initEUI();
-  initServos();
 
   // Put state into IDLE when finished if all good.
   initPyro();

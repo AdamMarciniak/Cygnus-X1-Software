@@ -12,7 +12,7 @@
 #define IS_TEST_MODE false
 #define IS_DUMP_MODE false
 
-#define IS_BENCH_PID false
+#define IS_BENCH_PID true
 
 #define IS_DUAL_STAGE false
 // How many seconds to wait after launch to get to secon stag firing.
@@ -86,8 +86,9 @@
 #define TELEMETRY_RATE 20 // ms
 
 #define SERVO_RANGE 21
-#define Y_CENTER 91
-#define Z_CENTER 102
+
+#define Y_CENTER 72
+#define Z_CENTER 94
 
 #define PYRO_CONTINUITY_THRESHOLD 200;
 #define FIRE_ON_TIME 1000 // ms

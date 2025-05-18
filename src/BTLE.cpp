@@ -361,10 +361,7 @@ void checkBTLE()
             data.Z_Servo_Center -= 1;
             nonLoggedData.servoCentersAvailable = true;
             break;
-          case 'R':
-            readTVCCenters();
-            nonLoggedData.servoCentersAvailable = true;
-            break;
+
           case 'S':
             if (data.state == IDLE)
             {

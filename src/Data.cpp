@@ -36,21 +36,21 @@ void writeTVCCenters() {
   // Serial.println("Wrote TVC Centers");
 }
 
-void readTVCCenters() {
-  flash.readAnything(0, YCENTER);
-  flash.readAnything(sizeof(float), ZCENTER);
-  // Serial.print("Reading TVC Centers: ");
-  // Serial.print("Y: ");
-  // Serial.print(YCENTER);
-  // Serial.print("  Z: ");
-  // Serial.println(ZCENTER);
-  if (YCENTER >= -200) {
-    data.Y_Servo_Center = YCENTER;
-  }
+// void readTVCCenters() {
+//   flash.readAnything(0, YCENTER);
+//   flash.readAnything(sizeof(float), ZCENTER);
+//   // Serial.print("Reading TVC Centers: ");
+//   // Serial.print("Y: ");
+//   // Serial.print(YCENTER);
+//   // Serial.print("  Z: ");
+//   // Serial.println(ZCENTER);
+//   if (YCENTER >= -200) {
+//     data.Y_Servo_Center = YCENTER;
+//   }
 
-  if (ZCENTER >= -200)
-    data.Z_Servo_Center = ZCENTER;
-}
+//   if (ZCENTER >= -200)
+//     data.Z_Servo_Center = ZCENTER;
+// }
 
 void getMaxAddr() {
   unsigned long capacity = flash.getCapacity();
@@ -78,8 +78,8 @@ void initFlashNoErase() {
 
 void initFlash() {
   flash.begin();
-
-  readTVCCenters();
+  // writeTVCCenters();
+  // readTVCCenters();
 
   if (flash.eraseChip()) {
     Serial.println("Erased Flash");
