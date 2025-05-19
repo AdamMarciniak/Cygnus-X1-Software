@@ -16,7 +16,7 @@ void handleServoCentering() {
     Serial.println(data.Z_Servo_Center);
     yServo.write(data.Y_Servo_Center);
     zServo.write(data.Z_Servo_Center);
-    writeTVCCenters();
+    // writeTVCCenters();
 
     // Write new center values to servos
   }

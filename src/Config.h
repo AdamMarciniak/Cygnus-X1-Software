@@ -12,7 +12,7 @@
 #define IS_TEST_MODE false
 #define IS_DUMP_MODE false
 
-#define IS_BENCH_PID true
+#define IS_BENCH_PID false
 
 #define IS_DUAL_STAGE false
 // How many seconds to wait after launch to get to secon stag firing.
@@ -20,13 +20,13 @@
 // Altitude where below this, the angle limit abort gets fired.
 #define ANGLE_ABORT_MAX_ALT 15.0
 
-#define ENABLE_PARACHUTE false
-#define ENABLE_ANGLE_CHECK false
+#define ENABLE_PARACHUTE true
+#define ENABLE_ANGLE_CHECK true
 #define ABORT_ANGLE_THRESHOLD 45.0f // degrees
 
-#define SELF_FIRE false
+#define SELF_FIRE true
 
-#define ENGAGE_PYRO false
+#define ENGAGE_PYRO true
 #define DO_EUI false
 #define DO_GPS false
 

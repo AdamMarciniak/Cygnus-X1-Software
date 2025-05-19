@@ -207,7 +207,7 @@ void loop() {
   case TEST:
     handleTestServos();
     PIDStatus = true;
-    handleServoCentering();
+    // handleServoCentering();
 
     break;
 
@@ -234,7 +234,8 @@ void loop() {
       }
     }
 
-    handleServoCentering();
+    // This ia  bit buggy
+    // handleServoCentering();
 
     break;
 
