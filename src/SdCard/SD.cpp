@@ -1,10 +1,11 @@
 
-#include <Arduino.h>
+#include "Buzzer.h"
+#include "Data.h"
+#include "LED.h"
 #include "SPI.h"
 #include "SdFat.h"
-#include "Data.h"
-#include "Buzzer.h"
-#include "LED.h"
+#include <Arduino.h>
+
 
 // Base name must be 6 or less chars
 #define FILE_BASE_NAME "throw"
@@ -21,8 +22,7 @@ SdFat sd;
 SdFile file;
 
 // Write data header.
-void writeHeader()
-{
+void writeHeader() {
   file.print(F("Time_Ms"));
   file.print(F(",Raw-Acceleration-X"));
   file.print(F(",Raw-Acceleration-Y"));
@@ -101,8 +101,7 @@ void writeHeader()
 
 //------------------------------------------------------------------------------
 // Log a data record.
-void logData()
-{
+void logData() {
   // Write data to file.  Start with log time in micros.
   file.print(data.ms, numDecimals);
   file.write(',');
@@ -252,32 +251,23 @@ void logData()
   file.println();
 }
 
-int initSD()
-{
+int initSD() {
 
-  if (!sd.begin(SS_SD, SD_SCK_MHZ(50)))
-  {
+  if (!sd.begin(SS_SD, SD_SCK_MHZ(50))) {
     return 0;
   }
 
-  while (sd.exists(fileName))
-  {
-    if (fileName[BASE_NAME_SIZE + 1] != '9')
-    {
+  while (sd.exists(fileName)) {
+    if (fileName[BASE_NAME_SIZE + 1] != '9') {
       fileName[BASE_NAME_SIZE + 1]++;
-    }
-    else if (fileName[BASE_NAME_SIZE] != '9')
-    {
+    } else if (fileName[BASE_NAME_SIZE] != '9') {
       fileName[BASE_NAME_SIZE + 1] = '0';
       fileName[BASE_NAME_SIZE]++;
-    }
-    else
-    {
+    } else {
       return 0;
     }
   }
-  if (!file.open(fileName, O_WRONLY | O_CREAT | O_EXCL))
-  {
+  if (!file.open(fileName, O_WRONLY | O_CREAT | O_EXCL)) {
     return 0;
   }
   Serial.println("Wrote CSV header");
@@ -285,33 +275,27 @@ int initSD()
   return 1;
 }
 
-int transferToSD()
-{
+int transferToSD() {
 
-  while (!initSD())
-  {
+  while (!initSD()) {
     buzzerError();
     delay(1000);
   }
-  while (readFromFlash())
-  {
+  while (readFromFlash()) {
     logData();
   }
   file.close();
   return 1;
 };
 
-int transferToSDDump()
-{
+int transferToSDDump() {
 
-  while (!initSD())
-  {
+  while (!initSD()) {
     buzzerError();
     handleLEDBlink(0, 0, 255);
     delay(1000);
   }
-  while (readFromFlashDump())
-  {
+  while (readFromFlashDump()) {
     logData();
   }
   file.close();

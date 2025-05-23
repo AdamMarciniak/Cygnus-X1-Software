@@ -186,10 +186,10 @@ void loop() {
   handleRunNav();
   checkBTLE();
   handleWritingToFlash();
-  handleEUI();
-  handleGPS();
+  // handleEUI();
+  // handleGPS();
 
-  handleBatteryCheck();
+  // handleBatteryCheck();
 
   if (data.state == LAUNCH_COMMANDED ||
       (data.state == POWERED_ASCENT && data.kal_X_pos < ANGLE_ABORT_MAX_ALT)) {
@@ -281,9 +281,6 @@ void loop() {
 
     data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
 
-    if (data.ax < ACCEL_UNPOWERED_THRESHOLD) {
-      goToState(UNPOWERED_ASCENT);
-    }
     if (data.kal_X_vel <= -2.0f) {
       goToState(FREE_DESCENT);
     }
@@ -291,7 +288,6 @@ void loop() {
     break;
 
   case UNPOWERED_ASCENT:
-    // Center and turn off TVC
     data.accelMag = sqrt(sq(data.ax) + sq(data.ay) + sq(data.az));
 
     if (data.kal_X_vel <= -0.5f) {

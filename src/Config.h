@@ -16,9 +16,8 @@
 
 #define IS_DUAL_STAGE false
 // How many seconds to wait after launch to get to secon stag firing.
-#define TIME_TO_SECOND_STAGE 1200
 // Altitude where below this, the angle limit abort gets fired.
-#define ANGLE_ABORT_MAX_ALT 15.0
+#define ANGLE_ABORT_MAX_ALT 20.0
 
 #define ENABLE_PARACHUTE true
 #define ENABLE_ANGLE_CHECK true
@@ -57,17 +56,17 @@
 #define Y_SETPOINT 0.0f // deg
 #define Z_SETPOINT 0.0f // deg
 
-#define KPF15 0.87f
-#define KIF15 0.0f
+#define KPF15 0.9f
+#define KIF15 0.2f
 #define KDF15 0.28f
 
 #define KPE12 0.9f
-#define KIE12 0.0f
+#define KIE12 0.2f
 #define KDE12 0.28f
 
-#define Y_KP KDE12
-#define Y_KI KIE12
-#define Y_KD KDE12
+#define Y_KP KPF15
+#define Y_KI KIF15
+#define Y_KD KDF15
 
 #define Z_KP Y_KP
 #define Z_KI Y_KI
@@ -77,7 +76,7 @@
 #define WORLD_ACCEL_BIAS_COUNT 500
 #define GYRO_BIAS_COUNT 1000
 
-#define BATTERY_VOLTAGE_MIN 11.2f // volts
+#define BATTERY_VOLTAGE_MIN 11.0f // volts
 #define NAV_RATE 5                // ms
 
 #define PARACHUTE_SERVO_DEPLOY 50
